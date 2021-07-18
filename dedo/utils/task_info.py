@@ -5,8 +5,8 @@
 import numpy as np
 
 
-TASK_TYPES = ['Button', 'HangBag', 'HangCloth', ]
-#             'Dress', 'Hoop', 'Lasso', 'Mask']
+TASK_TYPES = ['HangBag', 'HangCloth', ]
+#             'Button', 'Dress', 'Hoop', 'Lasso', 'Mask']
 
 
 SCENE_INFO = {
@@ -53,12 +53,13 @@ SCENE_INFO = {
 
 DEFORM_INFO = {
     'cloth/ts_apron_twoloops.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL
-        'deform_init_pos': [0, 0, 0.42],
-        'deform_init_ori': [0, 0, 0],
+        'anchor_init_pos' : [-0.04, 0.35, 0.75],
+        'other_anchor_init_pos' : [0.04, 0.35, 0.75],
+        'deform_init_pos': [0, 0.40, 0.57],
+        'deform_init_ori': [0, 0, np.pi/2],
         'deform_scale': 0.8,
-        'deform_noise': 0.005,
-        'deform_elastic_stiffness': 30.0,
-        'deform_bending_stiffness': 30.0,
+        'deform_elastic_stiffness': 1.0,
+        'deform_bending_stiffness': 1.0,
         'deform_anchored_vertex_ids': [
             [1158, 684, 1326, 1325, 1321, 1255, 1250, 683, 1015, 469, 470, 1235,
              1014, 1013, 479, 130, 1159, 1145, 1085, 478, 1087, 143, 131, 1160,
@@ -87,9 +88,8 @@ DEFORM_INFO = {
     'bags/ts_small_bag_resampled.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL
         'deform_init_pos': [0.0, 0.40, 0.57],
         'deform_init_ori': [0, 0, np.pi/2],
-        'deform_noise': 0.005,
-        'deform_elastic_stiffness': 30.0,
-        'deform_bending_stiffness': 30.0,
+        'deform_elastic_stiffness': 1.0,
+        'deform_bending_stiffness': 1.0,
         'deform_anchored_vertex_ids': [
             [622, 815, 797, 633, 623, 741, 632, 857, 98, 631, 589, 814, 743,
              588, 8, 742, 587],

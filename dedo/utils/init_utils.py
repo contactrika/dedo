@@ -42,21 +42,8 @@ def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori):
 def load_soft_object(sim, obj_file_name, texture_file_name,
                      scale, init_pos, init_ori,
                      bending_stiffness, damping_stiffness, elastic_stiffness,
-                     friction_coeff, fuzz_stiffness, debug):
+                     friction_coeff, debug):
     """Load object from obj file with pybullet's loadSoftBody()."""
-    if fuzz_stiffness:
-        elastic_stiffness += (np.random.rand()-0.5)*2*20
-        bending_stiffness += (np.random.rand()-0.5)*2*20
-        friction_coeff += (np.random.rand()-0.5)*2*0.3
-        scale += (np.random.rand()-0.5)*2*0.2
-        if elastic_stiffness < 10.0:
-            elastic_stiffness = 10.0
-        if bending_stiffness < 10.0:
-            bending_stiffness = 10.0
-        scale = np.clip(scale, 0.6, 1.5)
-        print('fuzzed', f'elastic_stiffness {elastic_stiffness:0.4f}',
-              f'bending_stiffness {bending_stiffness:0.4f}',
-              f'friction_coeff {friction_coeff:0.4f} scale {scale:0.4f}')
     # Note: do not set very small mass (e.g. 0.01 causes instabilities).
     deform_id = sim.loadSoftBody(
         mass=1.0,  # 1kg is default; bad sim with lower mass
@@ -66,7 +53,7 @@ def load_soft_object(sim, obj_file_name, texture_file_name,
         springDampingStiffness=damping_stiffness,
         springBendingStiffness=bending_stiffness,
         frictionCoeff=friction_coeff,
-        collisionMargin=0.002, useSelfCollision=1,
+        collisionMargin=0.05, useSelfCollision=1,
         useNeoHookean=0, useMassSpring=1, useBendingSprings=1)
     texture_id = sim.loadTexture(texture_file_name)
     kwargs = {}

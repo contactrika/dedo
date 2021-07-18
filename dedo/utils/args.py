@@ -49,18 +49,14 @@ def get_args(parent=None):
                         help='Initial orientation for deform (in Euler angles)')
     parser.add_argument('--deform_scale', type=float, default=1.0,
                         help='Scaling for the deform object')
-    parser.add_argument('--deform_noise', type=float, default=0.0,
-                        help='Add noise to deform point cloud (0.01 ok)')
-    parser.add_argument('--deform_bending_stiffness', type=float, default=30.0,
-                        help='deform spring elastic stiffness (k)')  # 1.0-300.0
-    parser.add_argument('--deform_damping_stiffness', type=float, default=1.0,
-                        help='deform spring damping stiffness (c)')
-    parser.add_argument('--deform_elastic_stiffness', type=float, default=30.0,
-                        help='deform spring elastic stiffness (k)')  # 1.0-300.0
+    parser.add_argument('--deform_bending_stiffness', type=float, default=1.0,
+                        help='deform spring elastic stiffness')  # 1.0-300.0
+    parser.add_argument('--deform_damping_stiffness', type=float, default=0.1,
+                        help='deform spring damping stiffness')
+    parser.add_argument('--deform_elastic_stiffness', type=float, default=1.0,
+                        help='deform spring elastic stiffness')  # 1.0-300.0
     parser.add_argument('--deform_friction_coeff', type=float, default=0.0,
                         help='deform friction coefficient')
-    parser.add_argument('--deform_fuzz_stiffness', type=int, default=1,
-                        help='Whether to randomize bending and elastic stiffness')
     # Camera args.
     parser.add_argument('--cam_resolution', type=int, default=None,
                         help='RGB camera resolution in pixels (both with and '

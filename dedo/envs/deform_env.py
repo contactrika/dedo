@@ -97,19 +97,6 @@ class DeformEnv(gym.Env):
                 args.deform_obj = 'cloth/ts_apron_twoloops.obj'
             for arg_nm, arg_val in DEFORM_INFO[args.deform_obj].items():
                 setattr(args, arg_nm, arg_val)
-        if args.task == 'Button':  # generate cloth with button hole
-            # TODO: move to a subclass
-            args.elastic_stiffness = 175.0
-            args.bending_stiffness = 150.0
-            args.damping_stiffness = 0.5
-            args.deform_friction_coeff = 0.5
-            hole = {'height': 0.2, 'width': 0.2, 'x': 0.2, 'y': 0.2}
-            node_density = 40
-            deform_obj_path, deform_anchor_vertex_ids = create_cloth_obj(
-                min_point=[0.40, -0.09, 0.08], max_point=[0.45, 0.01, 0.23],
-                node_density=node_density,
-                holes=[hole], data_path=data_path)
-            args.deform_obj = deform_obj_path
         #
         # Load deformable object.
         #
@@ -120,18 +107,7 @@ class DeformEnv(gym.Env):
             args.deform_init_pos, args.deform_init_ori,
             args.deform_bending_stiffness, args.deform_damping_stiffness,
             args.deform_elastic_stiffness, args.deform_friction_coeff,
-            args.deform_fuzz_stiffness, args.debug)
-        # Pinch cloth with hole to torso for buttoning.
-        # TODO: move to a subclass
-        if args.task == 'Button':
-            for index in range(node_density+2):
-                sim.createSoftBodyAnchor(deform_id, index, torso_id, -1)
-            _, mesh_vetex_positions = get_mesh_data(self.sim, deform_id)
-            for i, v in enumerate(deform_anchor_vertex_ids):
-                if i == 0:
-                    args.anchor_init_pos = mesh_vetex_positions[v]
-                else:
-                    args.other_anchor_init_pos = mesh_vetex_positions[v]
+            args.debug)
         #
         # Mark the goal.
         #
@@ -166,11 +142,11 @@ class DeformEnv(gym.Env):
         return obs
 
     def step(self, action):
-        # action is 3 x num_anchors for 3D velocity for anchors/grippers.
+        # action is num_anchors x 3 for 3D velocity for anchors/grippers.
+        action = action.reshape(DeformEnv.NUM_ANCHORS, 3)
+        print('action', action)
         for i in range(DeformEnv.NUM_ANCHORS):
-            act = action[3*i:3*i+3]
-            assert(len(act) == 3)
-            command_anchor_velocity(self.sim, self.anchor_ids[i], act)
+            command_anchor_velocity(self.sim, self.anchor_ids[i], action[i])
         self.sim.stepSimulation()
         next_obs, done = self.get_obs()
         reward = self.get_reward(action)
@@ -213,9 +189,10 @@ class DeformEnv(gym.Env):
         return obs, done
 
     def get_reward(self, action):
+        action = action.reshape(DeformEnv.NUM_ANCHORS, 3)
         energy_cost = 0
         for i in range(DeformEnv.NUM_ANCHORS):
-            energy_cost += np.abs(action[3*i:3*i+3]).mean()
+            energy_cost += np.abs(action[i]).mean()
         energy_cost /= float(DeformEnv.NUM_ANCHORS)
         max_dist = DeformEnv.WORKSPACE_BOX_SIZE
         sigma_sq = 0.3**2  # exponential dropoff for reward

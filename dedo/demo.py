@@ -13,6 +13,18 @@ import gym
 from dedo.utils.args import get_args
 
 
+def policy_simple(obs):
+    assert(2*3)
+    obs = obs.reshape(-1, 3)
+    act = np.random.rand(2, 3)  # in [0,1]
+    if obs[0, 2] > 0.35:
+        act[:, 1] = -0.1  # decrease y
+        act[:, 2] = -0.1  # decrease z
+    else:
+        act[:] = 0.0  # rest
+    return act.reshape(-1)
+
+
 def play(env, num_episodes):
     for epsd in range(num_episodes):
         print('------------ Play episode ', epsd, '------------------')
@@ -22,7 +34,8 @@ def play(env, num_episodes):
         input('Reset done; press enter to start episode')
         while True:
             assert(not isinstance(env.action_space, gym.spaces.Discrete))
-            act = np.random.rand(*env.action_space.shape)  # in [0,1]
+            # act = np.random.rand(*env.action_space.shape)  # in [0,1]
+            act = policy_simple(obs)
             rng = env.action_space.high - env.action_space.low
             act = act*rng + env.action_space.low
             next_obs, rwd, done, info = env.step(act)

@@ -13,6 +13,9 @@ ANCHOR_MASS = 0.100     # 100g
 ANCHOR_RADIUS = 0.007   # 7mm
 ANCHOR_RGBA_ACTIVE = (1, 0, 1, 1)  # magenta
 ANCHOR_RGBA_INACTIVE = (0.5, 0.5, 0.5, 1)  # gray
+# Gains and limits for a simple controller for the anchors.
+CTRL_MAX_FORCE = 10
+CTRL_PD_KD = 50.0
 
 
 def get_closest(point, vertices, max_dist=None):
@@ -50,7 +53,13 @@ def create_anchor(sim, pos, mass=ANCHOR_MASS, radius=ANCHOR_RADIUS,
     return anchorId
 
 
-def command_anchor_velocity(sim, anchor_bullet_id, vel):
+def command_anchor_velocity(sim, anchor_bullet_id, tgt_vel):
+    anc_linvel, anc_angvel = sim.getBaseVelocity(anchor_bullet_id)
+    vel_diff = tgt_vel - np.array(anc_linvel)
+    force = CTRL_PD_KD * vel_diff
+    force = np.clip(force, -1.0 * CTRL_MAX_FORCE, CTRL_MAX_FORCE)
+    sim.applyExternalForce(
+        anchor_bullet_id, -1, force.tolist(), [0, 0, 0], pybullet.LINK_FRAME)
     # If we were using a robot (e.g. Yumi or other robot with precise
     # non-compliant velocity control interface) - then we could simply command
     # that velocity to the robot. For a free-floating anchor - one option would
@@ -61,8 +70,8 @@ def command_anchor_velocity(sim, anchor_bullet_id, vel):
     # For cases where the anchors are very much constrained by the cloth
     # (e.g. deformable is attached to a fixed object on multiple sides) -
     # other control methods would be more appropriate.
-    sim.resetBaseVelocity(anchor_bullet_id, linearVelocity=vel.tolist(),
-                          angularVelocity=[0, 0, 0])
+    # sim.resetBaseVelocity(anchor_bullet_id, linearVelocity=vel.tolist(),
+    #                       angularVelocity=[0, 0, 0])
 
 
 def attach_anchor(sim, anchor_id, deform_id):
