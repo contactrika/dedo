@@ -84,6 +84,8 @@ def init_bullet(args, sim=None, cam_on=False, cam_args={}):
     if args.viz:
         if sim is None:
             sim = bclient.BulletClient(connection_mode=pybullet.GUI)
+        # don't render during init
+        pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 0)
         # toggle aux menus in the gui
         pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_GUI, cam_on)
         pybullet.configureDebugVisualizer(
@@ -92,8 +94,6 @@ def init_bullet(args, sim=None, cam_on=False, cam_args={}):
             pybullet.COV_ENABLE_DEPTH_BUFFER_PREVIEW, cam_on)
         pybullet.configureDebugVisualizer(
             pybullet.COV_ENABLE_SEGMENTATION_MARK_PREVIEW, cam_on)
-        # don't render during init
-        pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 0)
         sim.resetDebugVisualizerCamera(**cam_args)
     else:
         if sim is None:

@@ -132,7 +132,7 @@ class DeformEnv(gym.Env):
             attach_anchor(self.sim, anchor_id, self.deform_id)  # grasp
             self.anchor_ids.append(anchor_id)
         if self.args.viz:  # loading done, so enable debug rendering if needed
-            time.sleep(0.01)  # wait for debug visualizer to catch up
+            time.sleep(0.1)  # wait for debug visualizer to catch up
             self.sim.stepSimulation()  # step once to get initial state
             self.sim.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 1)
         obs, _ = self.get_obs()
@@ -149,7 +149,7 @@ class DeformEnv(gym.Env):
         self.episode_reward += reward
         done = (done or self.stepnum >= self.max_episode_len)
         info = {}
-        if self.args.debug or self.args.viz:
+        if (self.args.debug or self.args.viz) and self.stepnum%10==0:
             print(f'step {self.stepnum:d} reward {reward:0.4f}')
             if done: print(f'episode reward {self.episode_reward:0.4f}')
         self.stepnum += 1

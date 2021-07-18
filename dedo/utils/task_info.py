@@ -26,7 +26,12 @@ SCENE_INFO = {
         'goal_pos': [0.00, 0.05, 0.26],
     },
 }
+"""
+Scene and mesh presets.
 
+@contactrika, @pyshi
+
+"""
 
 DEFORM_INFO = {
     'cloth/ts_apron_twoloops.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL

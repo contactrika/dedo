@@ -41,3 +41,13 @@ python -m dedo.demo --task=HangCloth --viz --debug
 
 ![misc/imgs/apron_begin.png](misc/imgs/apron_begin.png)
 ![misc/imgs/apron_end.png](misc/imgs/apron_end.png)
+
+
+The above will only have anchor positions as the state (this is just for quick
+testing). To get images as state use `--cam_resolution` flag as follows:
+
+```
+python -m dedo.demo --task=HangCloth --cam_resolution 200 --viz --debug
+```
+
+![misc/imgs/apron_rgb.png](misc/imgs/apron_rgb.png)

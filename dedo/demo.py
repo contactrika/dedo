@@ -7,6 +7,9 @@ python -m dedo.demo --task=HangCloth --viz --debug
 @contactrika
 
 """
+import matplotlib.pyplot as plt
+from matplotlib import interactive
+interactive(True)
 import numpy as np
 
 import gym
@@ -26,7 +29,7 @@ def policy_simple(obs):
     return act.reshape(-1)
 
 
-def play(env, num_episodes):
+def play(env, num_episodes, args):
     for epsd in range(num_episodes):
         print('------------ Play episode ', epsd, '------------------')
         obs = env.reset()
@@ -35,11 +38,17 @@ def play(env, num_episodes):
         input('Reset done; press enter to start episode')
         while True:
             assert(not isinstance(env.action_space, gym.spaces.Discrete))
-            # act = np.random.rand(*env.action_space.shape)  # in [0,1]
-            act = policy_simple(obs)
+            if args.cam_resolution is None:
+                act = policy_simple(obs)
+            else:
+                act = np.random.rand(*env.action_space.shape)  # in [0,1]
             rng = env.action_space.high - env.action_space.low
             act = act*rng + env.action_space.low
             next_obs, rwd, done, info = env.step(act)
+            if args.viz and (args.cam_resolution is not None) and step%100==0:
+                img = next_obs
+                print('img', img.shape)
+                plt.imshow(img)
             if done:
                 break
             obs = next_obs
@@ -56,7 +65,7 @@ def main(args):
     env.seed(env.args.seed)
     print('Created', args.task, 'with observation_space',
           env.observation_space.shape, 'action_space', env.action_space.shape)
-    play(env, env.args.num_runs)
+    play(env, env.args.num_runs, args)
     env.close()
 
 
