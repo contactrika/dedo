@@ -1,0 +1,863 @@
+<sdf version="1.6">
+  <model name='chain_seam'>
+
+
+
+  <dynamics damping="0.0" />
+  <contact>
+    <restitution value="0.01"/>
+    <lateral_friction value="0.5"/>
+    <rolling_friction value="0.5"/>
+    <contact_cfm value="0.0"/>
+    <contact_erp value="1.0"/>
+  </contact>
+
+  <link name='body_link_0'>
+    <self_collide>1</self_collide>
+    <pose>0 0 0 0 -0 0</pose>
+    <inertial>
+      <pose>0 0 0 0 -0 0</pose>
+      <mass>0.002</mass>
+      <inertia>
+        <ixx>1.1666666666666667e-07</ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy>1.1666666666666667e-07</iyy>
+        <iyz>0</iyz>
+        <izz>1.0000000000000001e-07</izz>
+      </inertia>
+    </inertial>
+    <collision name='base_link_collision_0'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.02 0.02 0.02</length>
+          <radius>0.01 0.01 0.01</radius>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name='base_link_visual_0'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.02 0.02 0.02</length>
+          <radius>0.01 0.01 0.01</radius>
+        </cylinder>
+      </geometry>
+      <material name="red">
+        <ambient>1 0 0 1</ambient>
+        <diffuse>1 0 0 1</diffuse>
+        <specular>1 0 0 1</specular>
+        <emissive>0 0 0 0</emissive>
+      </material>
+    </visual>
+  </link>
+
+  
+
+  <link name='aux_body_link_1'>
+    <self_collide>1</self_collide>
+    <pose>0 0 0.015 0 -0 0</pose>
+    <inertial>
+      <pose>0 0 0 0 -0 0</pose>
+      <mass>0.002</mass>
+      <inertia>
+        <ixx>2.9166666666666666e-08</ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy>2.9166666666666666e-08</iyy>
+        <iyz>0</iyz>
+        <izz>2.5000000000000002e-08</izz>
+      </inertia>
+    </inertial>
+    <collision name='aux_body_link_1_collision'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.01 0.01 0.01</length>
+          <radius>0.005 0.005 0.005</radius>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name='aux_body_link_1_visual'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.01 0.01 0.01</length>
+          <radius>0.005 0.005 0.005</radius>
+        </cylinder>
+      </geometry>
+      <material name="yellow">
+        <ambient>1 1 0 1</ambient>
+        <diffuse>1 1 0 1</diffuse>
+        <specular>1 1 0 1</specular>
+        <emissive>0 0 0 0</emissive>
+      </material>
+    </visual>
+  </link>
+    
+    
+  <joint name='aux_body_link_1_joint' type='revolute'>
+    <pose>0 0 -0.005 0 0 0</pose>
+    <child>aux_body_link_1</child>
+    <parent>body_link_0</parent>
+    <axis>
+      <xyz>1 0 0</xyz>
+      <limit>
+        <lower>-3.14159</lower>
+        <upper>3.14159</upper>
+        <effort>20</effort>
+        <velocity>2</velocity>
+      </limit>
+    </axis>
+  </joint>
+
+  <link name='body_link_1'>
+    <self_collide>1</self_collide>
+    <pose>0 0 0.03 0 -0 0</pose>
+    <inertial>
+      <pose>0 0 0 0 -0 0</pose>
+      <mass>0.002</mass>
+      <inertia>
+        <ixx>1.1666666666666667e-07</ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy>1.1666666666666667e-07</iyy>
+        <iyz>0</iyz>
+        <izz>1.0000000000000001e-07</izz>
+      </inertia>
+    </inertial>
+    <collision name='body_link_1_collision'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.02 0.02 0.02</length>
+          <radius>0.01 0.01 0.01</radius>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name='body_link_1_visual'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.02 0.02 0.02</length>
+          <radius>0.01 0.01 0.01</radius>
+        </cylinder>
+      </geometry>
+      <material name="green">
+        <ambient>0 1 0 1</ambient>
+        <diffuse>0 1 0 1</diffuse>
+        <specular>0 1 0 1</specular>
+        <emissive>0 0 0 0</emissive>
+      </material>
+    </visual>
+  </link>
+
+  <joint name='body_link_1_joint' type='revolute'>
+    <pose>0 0 -0.01 0 0 0</pose>
+    <child>body_link_1</child>
+    <parent>aux_body_link_1</parent>
+    <axis>
+      <xyz>0 1 0</xyz>
+      <limit>
+        <lower>-3.14159</lower>
+        <upper>3.14159</upper>
+        <effort>20</effort>
+        <velocity>2</velocity>
+      </limit>
+    </axis>
+  </joint>
+
+  
+
+  <link name='aux_body_link_2'>
+    <self_collide>1</self_collide>
+    <pose>0 0 0.045 0 -0 0</pose>
+    <inertial>
+      <pose>0 0 0 0 -0 0</pose>
+      <mass>0.002</mass>
+      <inertia>
+        <ixx>2.9166666666666666e-08</ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy>2.9166666666666666e-08</iyy>
+        <iyz>0</iyz>
+        <izz>2.5000000000000002e-08</izz>
+      </inertia>
+    </inertial>
+    <collision name='aux_body_link_2_collision'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.01 0.01 0.01</length>
+          <radius>0.005 0.005 0.005</radius>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name='aux_body_link_2_visual'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.01 0.01 0.01</length>
+          <radius>0.005 0.005 0.005</radius>
+        </cylinder>
+      </geometry>
+      <material name="yellow">
+        <ambient>1 1 0 1</ambient>
+        <diffuse>1 1 0 1</diffuse>
+        <specular>1 1 0 1</specular>
+        <emissive>0 0 0 0</emissive>
+      </material>
+    </visual>
+  </link>
+    
+    
+  <joint name='aux_body_link_2_joint' type='revolute'>
+    <pose>0 0 -0.005 0 0 0</pose>
+    <child>aux_body_link_2</child>
+    <parent>body_link_1</parent>
+    <axis>
+      <xyz>1 0 0</xyz>
+      <limit>
+        <lower>-3.14159</lower>
+        <upper>3.14159</upper>
+        <effort>20</effort>
+        <velocity>2</velocity>
+      </limit>
+    </axis>
+  </joint>
+
+  <link name='body_link_2'>
+    <self_collide>1</self_collide>
+    <pose>0 0 0.06 0 -0 0</pose>
+    <inertial>
+      <pose>0 0 0 0 -0 0</pose>
+      <mass>0.002</mass>
+      <inertia>
+        <ixx>1.1666666666666667e-07</ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy>1.1666666666666667e-07</iyy>
+        <iyz>0</iyz>
+        <izz>1.0000000000000001e-07</izz>
+      </inertia>
+    </inertial>
+    <collision name='body_link_2_collision'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.02 0.02 0.02</length>
+          <radius>0.01 0.01 0.01</radius>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name='body_link_2_visual'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.02 0.02 0.02</length>
+          <radius>0.01 0.01 0.01</radius>
+        </cylinder>
+      </geometry>
+      <material name="green">
+        <ambient>0 1 0 1</ambient>
+        <diffuse>0 1 0 1</diffuse>
+        <specular>0 1 0 1</specular>
+        <emissive>0 0 0 0</emissive>
+      </material>
+    </visual>
+  </link>
+
+  <joint name='body_link_2_joint' type='revolute'>
+    <pose>0 0 -0.01 0 0 0</pose>
+    <child>body_link_2</child>
+    <parent>aux_body_link_2</parent>
+    <axis>
+      <xyz>0 1 0</xyz>
+      <limit>
+        <lower>-3.14159</lower>
+        <upper>3.14159</upper>
+        <effort>20</effort>
+        <velocity>2</velocity>
+      </limit>
+    </axis>
+  </joint>
+
+  
+
+  <link name='aux_body_link_3'>
+    <self_collide>1</self_collide>
+    <pose>0 0 0.075 0 -0 0</pose>
+    <inertial>
+      <pose>0 0 0 0 -0 0</pose>
+      <mass>0.002</mass>
+      <inertia>
+        <ixx>2.9166666666666666e-08</ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy>2.9166666666666666e-08</iyy>
+        <iyz>0</iyz>
+        <izz>2.5000000000000002e-08</izz>
+      </inertia>
+    </inertial>
+    <collision name='aux_body_link_3_collision'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.01 0.01 0.01</length>
+          <radius>0.005 0.005 0.005</radius>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name='aux_body_link_3_visual'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.01 0.01 0.01</length>
+          <radius>0.005 0.005 0.005</radius>
+        </cylinder>
+      </geometry>
+      <material name="yellow">
+        <ambient>1 1 0 1</ambient>
+        <diffuse>1 1 0 1</diffuse>
+        <specular>1 1 0 1</specular>
+        <emissive>0 0 0 0</emissive>
+      </material>
+    </visual>
+  </link>
+    
+    
+  <joint name='aux_body_link_3_joint' type='revolute'>
+    <pose>0 0 -0.005 0 0 0</pose>
+    <child>aux_body_link_3</child>
+    <parent>body_link_2</parent>
+    <axis>
+      <xyz>1 0 0</xyz>
+      <limit>
+        <lower>-3.14159</lower>
+        <upper>3.14159</upper>
+        <effort>20</effort>
+        <velocity>2</velocity>
+      </limit>
+    </axis>
+  </joint>
+
+  <link name='body_link_3'>
+    <self_collide>1</self_collide>
+    <pose>0 0 0.09 0 -0 0</pose>
+    <inertial>
+      <pose>0 0 0 0 -0 0</pose>
+      <mass>0.002</mass>
+      <inertia>
+        <ixx>1.1666666666666667e-07</ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy>1.1666666666666667e-07</iyy>
+        <iyz>0</iyz>
+        <izz>1.0000000000000001e-07</izz>
+      </inertia>
+    </inertial>
+    <collision name='body_link_3_collision'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.02 0.02 0.02</length>
+          <radius>0.01 0.01 0.01</radius>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name='body_link_3_visual'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.02 0.02 0.02</length>
+          <radius>0.01 0.01 0.01</radius>
+        </cylinder>
+      </geometry>
+      <material name="green">
+        <ambient>0 1 0 1</ambient>
+        <diffuse>0 1 0 1</diffuse>
+        <specular>0 1 0 1</specular>
+        <emissive>0 0 0 0</emissive>
+      </material>
+    </visual>
+  </link>
+
+  <joint name='body_link_3_joint' type='revolute'>
+    <pose>0 0 -0.01 0 0 0</pose>
+    <child>body_link_3</child>
+    <parent>aux_body_link_3</parent>
+    <axis>
+      <xyz>0 1 0</xyz>
+      <limit>
+        <lower>-3.14159</lower>
+        <upper>3.14159</upper>
+        <effort>20</effort>
+        <velocity>2</velocity>
+      </limit>
+    </axis>
+  </joint>
+
+  
+
+  <link name='aux_body_link_4'>
+    <self_collide>1</self_collide>
+    <pose>0 0 0.105 0 -0 0</pose>
+    <inertial>
+      <pose>0 0 0 0 -0 0</pose>
+      <mass>0.002</mass>
+      <inertia>
+        <ixx>2.9166666666666666e-08</ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy>2.9166666666666666e-08</iyy>
+        <iyz>0</iyz>
+        <izz>2.5000000000000002e-08</izz>
+      </inertia>
+    </inertial>
+    <collision name='aux_body_link_4_collision'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.01 0.01 0.01</length>
+          <radius>0.005 0.005 0.005</radius>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name='aux_body_link_4_visual'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.01 0.01 0.01</length>
+          <radius>0.005 0.005 0.005</radius>
+        </cylinder>
+      </geometry>
+      <material name="yellow">
+        <ambient>1 1 0 1</ambient>
+        <diffuse>1 1 0 1</diffuse>
+        <specular>1 1 0 1</specular>
+        <emissive>0 0 0 0</emissive>
+      </material>
+    </visual>
+  </link>
+    
+    
+  <joint name='aux_body_link_4_joint' type='revolute'>
+    <pose>0 0 -0.005 0 0 0</pose>
+    <child>aux_body_link_4</child>
+    <parent>body_link_3</parent>
+    <axis>
+      <xyz>1 0 0</xyz>
+      <limit>
+        <lower>-3.14159</lower>
+        <upper>3.14159</upper>
+        <effort>20</effort>
+        <velocity>2</velocity>
+      </limit>
+    </axis>
+  </joint>
+
+  <link name='body_link_4'>
+    <self_collide>1</self_collide>
+    <pose>0 0 0.12 0 -0 0</pose>
+    <inertial>
+      <pose>0 0 0 0 -0 0</pose>
+      <mass>0.002</mass>
+      <inertia>
+        <ixx>1.1666666666666667e-07</ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy>1.1666666666666667e-07</iyy>
+        <iyz>0</iyz>
+        <izz>1.0000000000000001e-07</izz>
+      </inertia>
+    </inertial>
+    <collision name='body_link_4_collision'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.02 0.02 0.02</length>
+          <radius>0.01 0.01 0.01</radius>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name='body_link_4_visual'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.02 0.02 0.02</length>
+          <radius>0.01 0.01 0.01</radius>
+        </cylinder>
+      </geometry>
+      <material name="green">
+        <ambient>0 1 0 1</ambient>
+        <diffuse>0 1 0 1</diffuse>
+        <specular>0 1 0 1</specular>
+        <emissive>0 0 0 0</emissive>
+      </material>
+    </visual>
+  </link>
+
+  <joint name='body_link_4_joint' type='revolute'>
+    <pose>0 0 -0.01 0 0 0</pose>
+    <child>body_link_4</child>
+    <parent>aux_body_link_4</parent>
+    <axis>
+      <xyz>0 1 0</xyz>
+      <limit>
+        <lower>-3.14159</lower>
+        <upper>3.14159</upper>
+        <effort>20</effort>
+        <velocity>2</velocity>
+      </limit>
+    </axis>
+  </joint>
+
+  
+
+  <link name='aux_body_link_5'>
+    <self_collide>1</self_collide>
+    <pose>0 0 0.135 0 -0 0</pose>
+    <inertial>
+      <pose>0 0 0 0 -0 0</pose>
+      <mass>0.002</mass>
+      <inertia>
+        <ixx>2.9166666666666666e-08</ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy>2.9166666666666666e-08</iyy>
+        <iyz>0</iyz>
+        <izz>2.5000000000000002e-08</izz>
+      </inertia>
+    </inertial>
+    <collision name='aux_body_link_5_collision'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.01 0.01 0.01</length>
+          <radius>0.005 0.005 0.005</radius>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name='aux_body_link_5_visual'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.01 0.01 0.01</length>
+          <radius>0.005 0.005 0.005</radius>
+        </cylinder>
+      </geometry>
+      <material name="yellow">
+        <ambient>1 1 0 1</ambient>
+        <diffuse>1 1 0 1</diffuse>
+        <specular>1 1 0 1</specular>
+        <emissive>0 0 0 0</emissive>
+      </material>
+    </visual>
+  </link>
+    
+    
+  <joint name='aux_body_link_5_joint' type='revolute'>
+    <pose>0 0 -0.005 0 0 0</pose>
+    <child>aux_body_link_5</child>
+    <parent>body_link_4</parent>
+    <axis>
+      <xyz>1 0 0</xyz>
+      <limit>
+        <lower>-3.14159</lower>
+        <upper>3.14159</upper>
+        <effort>20</effort>
+        <velocity>2</velocity>
+      </limit>
+    </axis>
+  </joint>
+
+  <link name='body_link_5'>
+    <self_collide>1</self_collide>
+    <pose>0 0 0.15 0 -0 0</pose>
+    <inertial>
+      <pose>0 0 0 0 -0 0</pose>
+      <mass>0.002</mass>
+      <inertia>
+        <ixx>1.1666666666666667e-07</ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy>1.1666666666666667e-07</iyy>
+        <iyz>0</iyz>
+        <izz>1.0000000000000001e-07</izz>
+      </inertia>
+    </inertial>
+    <collision name='body_link_5_collision'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.02 0.02 0.02</length>
+          <radius>0.01 0.01 0.01</radius>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name='body_link_5_visual'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.02 0.02 0.02</length>
+          <radius>0.01 0.01 0.01</radius>
+        </cylinder>
+      </geometry>
+      <material name="green">
+        <ambient>0 1 0 1</ambient>
+        <diffuse>0 1 0 1</diffuse>
+        <specular>0 1 0 1</specular>
+        <emissive>0 0 0 0</emissive>
+      </material>
+    </visual>
+  </link>
+
+  <joint name='body_link_5_joint' type='revolute'>
+    <pose>0 0 -0.01 0 0 0</pose>
+    <child>body_link_5</child>
+    <parent>aux_body_link_5</parent>
+    <axis>
+      <xyz>0 1 0</xyz>
+      <limit>
+        <lower>-3.14159</lower>
+        <upper>3.14159</upper>
+        <effort>20</effort>
+        <velocity>2</velocity>
+      </limit>
+    </axis>
+  </joint>
+
+  
+
+  <link name='aux_body_link_6'>
+    <self_collide>1</self_collide>
+    <pose>0 0 0.16499999999999998 0 -0 0</pose>
+    <inertial>
+      <pose>0 0 0 0 -0 0</pose>
+      <mass>0.002</mass>
+      <inertia>
+        <ixx>2.9166666666666666e-08</ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy>2.9166666666666666e-08</iyy>
+        <iyz>0</iyz>
+        <izz>2.5000000000000002e-08</izz>
+      </inertia>
+    </inertial>
+    <collision name='aux_body_link_6_collision'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.01 0.01 0.01</length>
+          <radius>0.005 0.005 0.005</radius>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name='aux_body_link_6_visual'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.01 0.01 0.01</length>
+          <radius>0.005 0.005 0.005</radius>
+        </cylinder>
+      </geometry>
+      <material name="yellow">
+        <ambient>1 1 0 1</ambient>
+        <diffuse>1 1 0 1</diffuse>
+        <specular>1 1 0 1</specular>
+        <emissive>0 0 0 0</emissive>
+      </material>
+    </visual>
+  </link>
+    
+    
+  <joint name='aux_body_link_6_joint' type='revolute'>
+    <pose>0 0 -0.005 0 0 0</pose>
+    <child>aux_body_link_6</child>
+    <parent>body_link_5</parent>
+    <axis>
+      <xyz>1 0 0</xyz>
+      <limit>
+        <lower>-3.14159</lower>
+        <upper>3.14159</upper>
+        <effort>20</effort>
+        <velocity>2</velocity>
+      </limit>
+    </axis>
+  </joint>
+
+  <link name='body_link_6'>
+    <self_collide>1</self_collide>
+    <pose>0 0 0.18 0 -0 0</pose>
+    <inertial>
+      <pose>0 0 0 0 -0 0</pose>
+      <mass>0.002</mass>
+      <inertia>
+        <ixx>1.1666666666666667e-07</ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy>1.1666666666666667e-07</iyy>
+        <iyz>0</iyz>
+        <izz>1.0000000000000001e-07</izz>
+      </inertia>
+    </inertial>
+    <collision name='body_link_6_collision'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.02 0.02 0.02</length>
+          <radius>0.01 0.01 0.01</radius>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name='body_link_6_visual'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.02 0.02 0.02</length>
+          <radius>0.01 0.01 0.01</radius>
+        </cylinder>
+      </geometry>
+      <material name="green">
+        <ambient>0 1 0 1</ambient>
+        <diffuse>0 1 0 1</diffuse>
+        <specular>0 1 0 1</specular>
+        <emissive>0 0 0 0</emissive>
+      </material>
+    </visual>
+  </link>
+
+  <joint name='body_link_6_joint' type='revolute'>
+    <pose>0 0 -0.01 0 0 0</pose>
+    <child>body_link_6</child>
+    <parent>aux_body_link_6</parent>
+    <axis>
+      <xyz>0 1 0</xyz>
+      <limit>
+        <lower>-3.14159</lower>
+        <upper>3.14159</upper>
+        <effort>20</effort>
+        <velocity>2</velocity>
+      </limit>
+    </axis>
+  </joint>
+
+  
+
+  <link name='aux_body_link_7'>
+    <self_collide>1</self_collide>
+    <pose>0 0 0.195 0 -0 0</pose>
+    <inertial>
+      <pose>0 0 0 0 -0 0</pose>
+      <mass>0.002</mass>
+      <inertia>
+        <ixx>2.9166666666666666e-08</ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy>2.9166666666666666e-08</iyy>
+        <iyz>0</iyz>
+        <izz>2.5000000000000002e-08</izz>
+      </inertia>
+    </inertial>
+    <collision name='aux_body_link_7_collision'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.01 0.01 0.01</length>
+          <radius>0.005 0.005 0.005</radius>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name='aux_body_link_7_visual'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.01 0.01 0.01</length>
+          <radius>0.005 0.005 0.005</radius>
+        </cylinder>
+      </geometry>
+      <material name="yellow">
+        <ambient>1 1 0 1</ambient>
+        <diffuse>1 1 0 1</diffuse>
+        <specular>1 1 0 1</specular>
+        <emissive>0 0 0 0</emissive>
+      </material>
+    </visual>
+  </link>
+    
+    
+  <joint name='aux_body_link_7_joint' type='revolute'>
+    <pose>0 0 -0.005 0 0 0</pose>
+    <child>aux_body_link_7</child>
+    <parent>body_link_6</parent>
+    <axis>
+      <xyz>1 0 0</xyz>
+      <limit>
+        <lower>-3.14159</lower>
+        <upper>3.14159</upper>
+        <effort>20</effort>
+        <velocity>2</velocity>
+      </limit>
+    </axis>
+  </joint>
+
+  <link name='body_link_7'>
+    <self_collide>1</self_collide>
+    <pose>0 0 0.21 0 -0 0</pose>
+    <inertial>
+      <pose>0 0 0 0 -0 0</pose>
+      <mass>0.002</mass>
+      <inertia>
+        <ixx>1.1666666666666667e-07</ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy>1.1666666666666667e-07</iyy>
+        <iyz>0</iyz>
+        <izz>1.0000000000000001e-07</izz>
+      </inertia>
+    </inertial>
+    <collision name='body_link_7_collision'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.02 0.02 0.02</length>
+          <radius>0.01 0.01 0.01</radius>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name='body_link_7_visual'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length>0.02 0.02 0.02</length>
+          <radius>0.01 0.01 0.01</radius>
+        </cylinder>
+      </geometry>
+      <material name="green">
+        <ambient>0 1 0 1</ambient>
+        <diffuse>0 1 0 1</diffuse>
+        <specular>0 1 0 1</specular>
+        <emissive>0 0 0 0</emissive>
+      </material>
+    </visual>
+  </link>
+
+  <joint name='body_link_7_joint' type='revolute'>
+    <pose>0 0 -0.01 0 0 0</pose>
+    <child>body_link_7</child>
+    <parent>aux_body_link_7</parent>
+    <axis>
+      <xyz>0 1 0</xyz>
+      <limit>
+        <lower>-3.14159</lower>
+        <upper>3.14159</upper>
+        <effort>20</effort>
+        <velocity>2</velocity>
+      </limit>
+    </axis>
+  </joint>
+
+  
+  </model>
+</sdf>

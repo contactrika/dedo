@@ -1,0 +1,166 @@
+<?xml version="1.0" ?>
+<robot name="mannequin">
+  <dynamics damping="1.0" />
+  <contact>
+    <restitution value="0.01"/>
+    <lateral_friction value="0.5"/>
+    <rolling_friction value="0.5"/>
+    <contact_cfm value="0.0"/>
+    <contact_erp value="1.0"/>
+  </contact>
+  <material name="peach">
+    <color rgba="0.9 0.75 0.65 1"/>
+  </material>
+  <link name="world"/>
+  <joint name="robot_to_world" type="fixed">
+    <parent link="world"/>
+    <child link="torso"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+  <link name="torso">
+    <inertial>
+      <mass value="0.150"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+    </inertial>
+    <visual>
+      <origin  xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.6" radius="0.07"/>
+      </geometry>
+      <material name="peach"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.6" radius="0.07"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="head_joint" type="revolute">
+    <parent link="torso"/>
+    <child link="head"/>
+    <origin xyz="0 0 0.38" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <safety_controller k_position="100.0" k_velocity="40.0" soft_lower_limit="-2.8973" soft_upper_limit="2.8973"/>
+    <limit effort="87" lower="-2.8973" upper="2.8973" velocity="2.1750"/>
+    <dynamics damping="1.0"/>
+  </joint>
+  <link name="head">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="0.150"/>
+      <inertia ixx="1" ixy="0.0" ixz="0.0" iyy="1" iyz="0.0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <sphere radius="0.08"/>
+      </geometry>
+      <material name="peach"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <sphere radius="0.08"/>
+      </geometry>
+    </collision>
+  </link>
+  <!-- /////////////// Right shoulder and arm /////////////////// -->
+  <joint name="right_shoulder_joint" type="fixed">
+    <parent link="torso"/>
+    <child link="right_shoulder"/>
+    <origin xyz="0 -0.1 0.27" rpy="1.57 0 0"/>
+  </joint>
+  <link name="right_shoulder">
+    <inertial>
+      <mass value="0.150"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+    </inertial>
+    <visual>
+      <origin  xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.025"/>
+      </geometry>
+      <material name="peach"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.025"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="right_arm_joint" type="fixed">
+    <parent link="right_shoulder"/>
+    <child link="right_arm"/>
+    <origin xyz="0.05 0 0.05" rpy="1.57 0 1.57"/>
+  </joint>
+  <link name="right_arm">
+    <inertial>
+      <mass value="0.150"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+    </inertial>
+    <visual>
+      <origin  xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.15" radius="0.02"/>
+      </geometry>
+      <material name="peach"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.15" radius="0.02"/>
+      </geometry>
+    </collision>
+  </link>
+  <!-- /////////////// Left shoulder and arm /////////////////// -->
+  <joint name="left_shoulder_joint" type="fixed">
+    <parent link="torso"/>
+    <child link="left_shoulder"/>
+    <origin xyz="0 0.1 0.27" rpy="1.57 0 0"/>
+  </joint>
+  <link name="left_shoulder">
+    <inertial>
+      <mass value="0.150"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+    </inertial>
+    <visual>
+      <origin  xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.025"/>
+      </geometry>
+      <material name="peach"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.025"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="left_arm_joint" type="fixed">
+    <parent link="left_shoulder"/>
+    <child link="left_arm"/>
+    <origin xyz="0.05 0 -0.05" rpy="1.57 0 1.57"/>
+  </joint>
+  <link name="left_arm">
+    <inertial>
+      <mass value="0.150"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+    </inertial>
+    <visual>
+      <origin  xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.15" radius="0.02"/>
+      </geometry>
+      <material name="peach"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.15" radius="0.02"/>
+      </geometry>
+    </collision>
+  </link>
+</robot>

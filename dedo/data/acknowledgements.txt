@@ -1,0 +1,26 @@
+Meshes in simple/ is from pybullet demos
+
+mask.obj is from https://www.cgtrader.com/items/2365245/download-page
+
+Free meshes from turbosquid.com edited in Meshlab/Blender:
+ropes/*.obj
+bags/*.obj
+parts/*.obj
+cloth/apron_oneloop.obj
+cloth/apron_oneloop_very_sparse.obj
+cloth/apron_twoloops.obj
+cloth/apron_twoloops_resampled_dense.obj
+cloth/apron_twoloops_very_sprase.obj
+cloth/beanie_cap_sparse.obj
+cloth/cardigan_sparse.obj
+cloth/cardigan_sparser.obj
+cloth/crewneck_sparse.obj
+cloth/crewneck_sparser.obj
+cloth/line_scarf.obj
+cloth/scarf_sparser.obj
+cloth/scarf_sparser_with_ends.obj
+cloth/tie.obj
+cloth/tie_thin_sparser.obj
+cloth/tshirt_long_sparse.obj
+cloth/tshirt_long_sparser.obj
+cloth/winter_hat_sparse.obj

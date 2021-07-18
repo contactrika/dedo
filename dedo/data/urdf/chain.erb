@@ -1,0 +1,208 @@
+<sdf version="1.6">
+  <model name='chain'>
+
+<%
+  # http://answers.gazebosim.org/question/16715/how-can-i-represent-a-anake-robot-with-many-identical-segmens-in-sdf/
+  # Units for the dimensions of the chain: SI units (length in meters)
+  # Note: PyBullet has a strange SDF import for cylinder: incorrectly expects
+  # 3 floats for length and radius, but the code still works because atof just
+  # eats the first double and discards everything after (and including)
+  # whitespace http://www.cplusplus.com/reference/cstdlib/atof/
+  # Hence to silence the warnings we have 3 identical doubles for radius and
+  # length of cylinders; TODO: make PyBullet pull request
+  # https://github.com/bulletphysics/bullet3/examples/Importers/ImportURDFDemo/UrdfParser.cpp#L412
+  # Note: PyBullet does not process SDF bglobal material properties, so specify
+  # these locally; only diffuse matters for color.
+
+  # Geometry
+  #number_of_bodies = 1
+  number_of_bodies = 20 # 20: neck, 12: sleeve , 7: seam
+  body_length   = 0.02
+  aux_body_length   = 0.01
+  body_radius   = 0.01
+  body_mass   = 0.002
+  aux_body_radius   = 0.005
+  aux_body_mass   = 0.002
+
+  body_ixx    = body_mass * (body_radius**2 / 4.0 + body_length**2 / 12.0)
+  body_iyy    = body_mass * (body_radius**2 / 4.0 + body_length**2 / 12.0)
+  body_izz    = body_mass/2.0 * body_radius**2
+  
+  aux_body_ixx    = aux_body_mass * (aux_body_radius**2 / 4.0 + aux_body_length**2 / 12.0)
+  aux_body_iyy    = aux_body_mass * (aux_body_radius**2 / 4.0 + aux_body_length**2 / 12.0)
+  aux_body_izz    = aux_body_mass/2.0 * aux_body_radius**2
+  
+  # Activate SelfColide
+  self_colide_activate = 1
+
+  # <lower>0.785398</lower>
+%>
+
+  <dynamics damping="0.0" />
+  <contact>
+    <restitution value="0.01"/>
+    <lateral_friction value="0.5"/>
+    <rolling_friction value="0.5"/>
+    <contact_cfm value="0.0"/>
+    <contact_erp value="1.0"/>
+  </contact>
+
+  <link name='body_link_0'>
+    <self_collide><%= self_colide_activate %></self_collide>
+    <pose>0 0 0 0 -0 0</pose>
+    <inertial>
+      <pose>0 0 0 0 -0 0</pose>
+      <mass><%= body_mass %></mass>
+      <inertia>
+        <ixx><%= body_ixx %></ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy><%= body_iyy %></iyy>
+        <iyz>0</iyz>
+        <izz><%= body_izz %></izz>
+      </inertia>
+    </inertial>
+    <collision name='base_link_collision_0'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length><%= body_length %> <%= body_length %> <%= body_length %></length>
+          <radius><%= body_radius %> <%= body_radius %> <%= body_radius %></radius>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name='base_link_visual_0'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length><%= body_length %> <%= body_length %> <%= body_length %></length>
+          <radius><%= body_radius %> <%= body_radius %> <%= body_radius %></radius>
+        </cylinder>
+      </geometry>
+      <material name="red">
+        <ambient>1 0 0 1</ambient>
+        <diffuse>1 0 0 1</diffuse>
+        <specular>1 0 0 1</specular>
+        <emissive>0 0 0 0</emissive>
+      </material>
+    </visual>
+  </link>
+
+  <% for i in 1..number_of_bodies %>
+
+  <link name='aux_body_link_<%=i%>'>
+    <self_collide><%= self_colide_activate %></self_collide>
+    <pose>0 0 <%=(2*i-1)*((body_length/2.0)+(aux_body_length/2.0))%> 0 -0 0</pose>
+    <inertial>
+      <pose>0 0 0 0 -0 0</pose>
+      <mass><%= aux_body_mass %></mass>
+      <inertia>
+        <ixx><%= aux_body_ixx %></ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy><%= aux_body_iyy %></iyy>
+        <iyz>0</iyz>
+        <izz><%= aux_body_izz %></izz>
+      </inertia>
+    </inertial>
+    <collision name='aux_body_link_<%=i%>_collision'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length><%= aux_body_length %> <%= aux_body_length %> <%= aux_body_length %></length>
+          <radius><%= aux_body_radius %> <%= aux_body_radius %> <%= aux_body_radius %></radius>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name='aux_body_link_<%=i%>_visual'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length><%= aux_body_length %> <%= aux_body_length %> <%= aux_body_length %></length>
+          <radius><%= aux_body_radius %> <%= aux_body_radius %> <%= aux_body_radius %></radius>
+        </cylinder>
+      </geometry>
+      <material name="yellow">
+        <ambient>1 1 0 1</ambient>
+        <diffuse>1 1 0 1</diffuse>
+        <specular>1 1 0 1</specular>
+        <emissive>0 0 0 0</emissive>
+      </material>
+    </visual>
+  </link>
+    
+    
+  <joint name='aux_body_link_<%=i%>_joint' type='revolute'>
+    <pose>0 0 -<%= aux_body_length/2.0 %> 0 0 0</pose>
+    <child>aux_body_link_<%=i%></child>
+    <parent>body_link_<%=i-1%></parent>
+    <axis>
+      <xyz>1 0 0</xyz>
+      <limit>
+        <lower>-3.14159</lower>
+        <upper>3.14159</upper>
+        <effort>20</effort>
+        <velocity>2</velocity>
+      </limit>
+    </axis>
+  </joint>
+
+  <link name='body_link_<%=i%>'>
+    <self_collide><%= self_colide_activate %></self_collide>
+    <pose>0 0 <%=(2*i)*((body_length/2.0)+(aux_body_length/2.0))%> 0 -0 0</pose>
+    <inertial>
+      <pose>0 0 0 0 -0 0</pose>
+      <mass><%= body_mass %></mass>
+      <inertia>
+        <ixx><%= body_ixx %></ixx>
+        <ixy>0</ixy>
+        <ixz>0</ixz>
+        <iyy><%= body_iyy %></iyy>
+        <iyz>0</iyz>
+        <izz><%= body_izz %></izz>
+      </inertia>
+    </inertial>
+    <collision name='body_link_<%=i%>_collision'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length><%= body_length %> <%= body_length %> <%= body_length %></length>
+          <radius><%= body_radius %> <%= body_radius %> <%= body_radius %></radius>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name='body_link_<%=i%>_visual'>
+      <pose>0 0 0 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <length><%= body_length %> <%= body_length %> <%= body_length %></length>
+          <radius><%= body_radius %> <%= body_radius %> <%= body_radius %></radius>
+        </cylinder>
+      </geometry>
+      <material name="blue">
+        <ambient>0 0 1 1</ambient>
+        <diffuse>0 0 1 1</diffuse>
+        <specular>0 0 1 1</specular>
+        <emissive>0 0 0 0</emissive>
+      </material>
+    </visual>
+  </link>
+
+  <joint name='body_link_<%=i%>_joint' type='revolute'>
+    <pose>0 0 -<%= body_length/2.0 %> 0 0 0</pose>
+    <child>body_link_<%=i%></child>
+    <parent>aux_body_link_<%=i%></parent>
+    <axis>
+      <xyz>0 1 0</xyz>
+      <limit>
+        <lower>-3.14159</lower>
+        <upper>3.14159</upper>
+        <effort>20</effort>
+        <velocity>2</velocity>
+      </limit>
+    </axis>
+  </joint>
+
+  <% end %>
+  </model>
+</sdf>
