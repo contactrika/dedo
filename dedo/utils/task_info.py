@@ -86,4 +86,15 @@ DEFORM_INFO = {
              390, 396, 397]
         ]
     },
+    # An example of info for a custom item.
+    'bags/bags_zehang/obj/normal/bag1-1.obj': {
+        'deform_init_pos': [0, 0.47, 0.47],
+        'deform_init_ori': [np.pi/2, 0, 0],
+        'deform_scale': 0.1,
+        'deform_elastic_stiffness': 1.0,
+        'deform_bending_stiffness': 1.0,
+        'deform_true_loop_vertices': [
+            [0, 1, 2, 3]  # placeholder, since we don't know the true loops
+        ]
+    },
 }

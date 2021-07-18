@@ -86,13 +86,15 @@ class DeformEnv(gym.Env):
             if name == 'torso.urdf':
                 torso_id = id
             rigid_ids.append(id)
-        if args.task.startswith('Hang'):
-            if args.task == 'HangBag':
-                args.deform_obj = 'bags/ts_purse_bag_resampled.obj'
-            else:
-                args.deform_obj = 'cloth/ts_apron_twoloops.obj'
-            for arg_nm, arg_val in DEFORM_INFO[args.deform_obj].items():
-                setattr(args, arg_nm, arg_val)
+        if args.override_deform_obj is not None:
+            args.deform_obj = args.override_deform_obj
+        elif args.task == 'HangBag':
+            args.deform_obj = 'bags/ts_purse_bag_resampled.obj'
+        else:
+            assert(args.task == 'HangCloth')
+            args.deform_obj = 'cloth/ts_apron_twoloops.obj'
+        for arg_nm, arg_val in DEFORM_INFO[args.deform_obj].items():
+            setattr(args, arg_nm, arg_val)
         #
         # Load deformable object.
         #

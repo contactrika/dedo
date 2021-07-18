@@ -39,8 +39,9 @@ def get_args(parent=None):
                         default=[0.04, 0.40, 0.70],
                         help='Initial position for another anchors')
     # SoftBody args.
-    parser.add_argument('--deform_obj', type=str, default=None,
-                        help='Obj file for deform item')
+    parser.add_argument('--override_deform_obj', type=str, default=None,
+                        help='Load custom deformable (note that you have to'
+                             'fill in DEFORM_INFO entry for new items)')
     parser.add_argument('--deform_init_pos', type=float, nargs=3,
                         default=[0,0,0.42],
                         help='Initial pos for the center of the deform object')
