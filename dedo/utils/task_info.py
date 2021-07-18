@@ -14,17 +14,17 @@ SCENE_INFO = {
         'entities': {
             'cuboid.urdf': {
                 'basePosition': [0.0, -0.15, 0.2],
-                'baseOrientation': [0, 0, 0, 1],
+                'baseOrientation': [0, 0, 0],
                 'globalScaling': 1.0,
             },
             'hook.urdf': {
-                'basePosition': [0.00, (0.3 + 0.1) / 2 - 0.15, 0.30],
-                'baseOrientation': [0, 0, np.pi / 2],
-                'globalScaling': 1.0,
+                'basePosition': [0.00, (0.3+0.1)/2 - 0.15, 0.30],
+                'baseOrientation': [0, 0, np.pi/2],
+                 'globalScaling': 1.0,
             },
         },
-        'hard_target_pos': [0.00, 0.03, 0.31],
-        'easy_target_pos': [0.00, 0.13, 0.33],
+        'goal_pos_hard': [0.00, 0.03, 0.31],
+        'goal_pos_easy': [0.00, 0.13, 0.33],
     },
     'button': {
         'entities': {
@@ -45,16 +45,16 @@ SCENE_INFO = {
             },
 
         },
-        'hard_target_pos': [-0.02, 0.13, 0.250],
-        'easy_target_pos': [-0.02, 0.15, 0.250],
+        'goal_pos_hard': [-0.02, 0.13, 0.250],
+        'goal_pos_easy': [-0.02, 0.15, 0.250],
     },
 }
 
 
 DEFORM_INFO = {
     'cloth/ts_apron_twoloops.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL
-        'deform_init_pos': [0, 0.4, 0.45],
-        'deform_init_ori': [0, 0, np.pi / 2],
+        'deform_init_pos': [0, 0, 0.42],
+        'deform_init_ori': [0, 0, np.pi/2],
         'deform_noise': 0.005,
         'deform_elastic_stiffness': 30.0,
         'deform_bending_stiffness': 30.0,
@@ -84,8 +84,9 @@ DEFORM_INFO = {
         ],
     },
     'bags/ts_purse_bag_resampled.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL
-        'deform_init_pos': [0, 0.42, 0.62],
-        'deform_init_ori': [0, -0.52, 1.57],
+        'deform_init_pos': [0, 0, 0.52],
+        'deform_init_ori': [0, 0, 0],
+        'deform_scale': 1.2,
         'deform_noise': 0.005,
         'deform_elastic_stiffness': 50.0,
         'deform_bending_stiffness': 50.0,

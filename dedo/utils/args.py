@@ -31,28 +31,18 @@ def get_args(parent=None):
     parser.add_argument('--sim_frequency', type=int, default=500,
                         help='Number of simulation steps per second')  # 250-1K
     parser.add_argument('--sim_gravity', type=float, default=-9.8, help='Gravity')
-    # Rigid object args.
-    parser.add_argument('--rigid_custom_obj', type=str, default=None,
-                        help='Obj file for a custom rigid object in the scene')
-    parser.add_argument('--rigid_scale', type=float, nargs=3, default=[1,1,1],
-                        help='Scaling for the custom rigid object')
-    parser.add_argument('--rigid_init_pos', type=float, nargs=3, default=[0,0,0.51],
-                        help='Initial pos for the center of custom rigid object')
-    parser.add_argument('--rigid_init_ori', type=float, nargs=3, default=[0,0,0],
-                        help='Initial orientation for custom rigid object '
-                             '(in Euler angles)')
     # Anchor/grasping args.
     parser.add_argument('--anchor_init_pos', type=float, nargs=3,
-                        default=[0.0, -0.04, 0.80],
+                        default=[0.0, -0.04, 0.60],
                         help='Initial position for an anchor')
     parser.add_argument('--other_anchor_init_pos', type=float, nargs=3,
-                        default=[0.0, 0.04, 0.80],
+                        default=[0.0, 0.04, 0.60],
                         help='Initial position for another anchors')
     # SoftBody args.
     parser.add_argument('--deform_obj', type=str, default=None,
                         help='Obj file for deform item')
     parser.add_argument('--deform_init_pos', type=float, nargs=3,
-                        default=[0,0,0.65],
+                        default=[0,0,0.42],
                         help='Initial pos for the center of the deform object')
     parser.add_argument('--deform_init_ori', type=float, nargs=3,
                         default=[0,0,0],

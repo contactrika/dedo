@@ -4,8 +4,9 @@
 # @contactrika, @pyshi
 #
 import os
-import numpy as np
+import time
 
+import numpy as np
 import gym
 import pybullet
 import pybullet_data
@@ -21,7 +22,7 @@ from ..utils.task_info import DEFORM_INFO, SCENE_INFO, TASK_TYPES
 
 class DeformEnv(gym.Env):
     ANCHOR_OBS_SIZE = 3  # 3D velocity for anchors
-    MAX_VEL = 10.0  # max vel (in m/s) for the anchors
+    MAX_VEL = 100.0  # max vel (in m/s) for the anchors
     NUM_ANCHORS = 2
     WORKSPACE_BOX_SIZE = 2.0  # workspace box limits (needs to be >=1)
 
@@ -29,7 +30,15 @@ class DeformEnv(gym.Env):
         self.args = args
         self.version = version
         self.max_episode_len = args.max_episode_len
-        self.sim = init_bullet(self.args)
+        self.cam_on = args.cam_resolution is not None
+        self.cam_args = {
+            'cameraDistance': 1.0,
+            'cameraYaw': -150,
+            'cameraPitch': -40,
+            'cameraTargetPosition': np.array([0.0, 0, 0])
+        }
+        self.sim = init_bullet(
+            self.args, cam_on=self.cam_on, cam_args=self.cam_args)
         self.rigid_ids, self.deform_id, self.goal_pos = self.load_objects(
             self.sim, version, self.args)
         # Define sizes of observation and action spaces.
@@ -108,8 +117,10 @@ class DeformEnv(gym.Env):
         #
         # Load deformable object.
         #
+        args.texture_path = os.path.join(
+            data_path, 'textures', 'dark_pattern.png')
         deform_id = load_soft_object(
-            sim, args.deform_obj, args.deform_scale,
+            sim, args.deform_obj,  args.texture_path, args.deform_scale,
             args.deform_init_pos, args.deform_init_ori,
             args.deform_bending_stiffness, args.deform_damping_stiffness,
             args.deform_elastic_stiffness, args.deform_friction_coeff,
@@ -129,7 +140,7 @@ class DeformEnv(gym.Env):
         #
         # Mark the goal.
         #
-        goal_pos = SCENE_INFO[scene_name]['hard_target_pos']
+        goal_pos = SCENE_INFO[scene_name]['goal_pos_hard']
         if args.viz:
             viz_tgt_id = create_anchor(
                 sim, [0,0,0], mass=0.0, radius=0.01, rgba=(0,1,0,1))
@@ -144,17 +155,18 @@ class DeformEnv(gym.Env):
         self.episode_reward = 0.0
         self.anchor_ids = []
         self.topo_generators = []
-        init_bullet(self.args, self.sim)  # no other way to reload deformables
+        init_bullet(self.args, self.sim, self.cam_on, self.cam_args)
         self.rigid_ids, self.deform_id, self.goal_pos = self.load_objects(
             self.sim, self.version, self.args)
         for i in range(DeformEnv.NUM_ANCHORS):  # make anchors
             anchor_init_pos = self.args.anchor_init_pos if (i%2)==0 else \
                 self.args.other_anchor_init_pos
             anchor_id = create_anchor(self.sim, anchor_init_pos)
-            attach_anchor(self.sim, self.deform_id, anchor_id)  # grasp
+            attach_anchor(self.sim, anchor_id, self.deform_id)  # grasp
             self.anchor_ids.append(anchor_id)
         if self.args.viz:  # loading done, so enable debug rendering if needed
             self.sim.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 1)
+
         obs, _ = self.get_obs()
         return obs
 
@@ -204,7 +216,6 @@ class DeformEnv(gym.Env):
                 width=self.args.cam_resolution,
                 height=self.args.cam_resolution,
                 renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
-            print('rgba_px', rgba_px.shape)
             obs = rgba_px[:,:,0:3]
         return obs, done
 

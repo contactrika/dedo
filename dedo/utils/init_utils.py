@@ -4,6 +4,7 @@
 # @contactrika
 #
 import os
+import time
 
 import numpy as np
 import pybullet
@@ -31,17 +32,18 @@ def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori):
     elif obj_file_name.endswith('.urdf'):  # URDF file
         rigid_id = sim.loadURDF(
                 os.path.join('urdf', 'torso.urdf'),
-                [0.3, 0.0, 0.15], useFixedBase=1, globalScaling=1.28)
+                [0.3, 0.0, 0.15], useFixedBase=1, globalScaling=scale)
     else:
         print('Unknown file extension', obj_file_name)
         assert(False), 'load_rigid_object supports only obj and URDF files'
     return rigid_id
 
 
-def load_soft_object(sim, obj_file_name, scale, init_pos, init_ori,
+def load_soft_object(sim, obj_file_name, texture_file_name,
+                     scale, init_pos, init_ori,
                      bending_stiffness, damping_stiffness, elastic_stiffness,
                      friction_coeff, mass=1.0, collision_margin=0.002,
-                     fuzz_stiffness=False, debug=False):
+                     fuzz_stiffness=False, debug=True):
     """Load object from obj file with pybullet's loadSoftBody()."""
     if fuzz_stiffness:
         elastic_stiffness += (np.random.rand()-0.5)*2*20
@@ -68,10 +70,14 @@ def load_soft_object(sim, obj_file_name, scale, init_pos, init_ori,
         frictionCoeff=friction_coeff, useSelfCollision=1,
         useNeoHookean=0, useMassSpring=1, useBendingSprings=1
     )
+    texture_id = sim.loadTexture(texture_file_name)
+    sim.changeVisualShape(
+        deform_id, -1, flags=pybullet.VISUAL_SHAPE_DOUBLE_SIDED,
+        textureUniqueId=texture_id)
     num_mesh_vertices = get_mesh_data(sim, deform_id)[0]
     if debug:
         print('Loaded deform_id', deform_id, 'with',
-              num_mesh_vertices, 'mesh vertices')
+              num_mesh_vertices, 'mesh vertices', 'init_pos', init_pos)
     # Pybullet will struggle with very large meshes, so we should keep mesh
     # sizes to a limited number of vertices and faces.
     # Large meshes will load on Linux/Ubuntu, but sim will run too slowly.
@@ -82,7 +88,7 @@ def load_soft_object(sim, obj_file_name, scale, init_pos, init_ori,
     return deform_id
 
 
-def init_bullet(args, sim=None, cam_on=False, cam_configs={}):
+def init_bullet(args, sim=None, cam_on=False, cam_args={}):
     """Initialize pybullet simulation."""
     curr_dir = os.path.dirname(os.path.realpath(__file__))
     parent_dir = os.path.dirname(curr_dir)
@@ -100,17 +106,6 @@ def init_bullet(args, sim=None, cam_on=False, cam_configs={}):
             pybullet.COV_ENABLE_SEGMENTATION_MARK_PREVIEW, cam_on)
         # don't render during init
         pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 0)
-        # Keep camera distance and target same as defaults for MultiCamera,
-        # so that debug views look similar to those recorded by the camera pans.
-        # Camera pitch and yaw can be set as desired, since they don't
-        # affect MultiCamera panning strategy.
-        cam_args = {
-            'cameraDistance': 0.85,
-            'cameraYaw': -30,
-            'cameraPitch': -70,
-            'cameraTargetPosition': np.array([0.35, 0, 0])
-        }
-        cam_args.update(cam_configs)
         sim.resetDebugVisualizerCamera(**cam_args)
     else:
         if sim is None:
