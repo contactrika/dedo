@@ -54,6 +54,7 @@ def load_soft_object(sim, obj_file_name, texture_file_name,
         springBendingStiffness=bending_stiffness,
         frictionCoeff=friction_coeff,
         collisionMargin=0.05, useSelfCollision=1,
+        springDampingAllDirections=1, useFaceContact=1,
         useNeoHookean=0, useMassSpring=1, useBendingSprings=1)
     texture_id = sim.loadTexture(texture_file_name)
     kwargs = {}

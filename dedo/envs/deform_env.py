@@ -76,9 +76,6 @@ class DeformEnv(gym.Env):
         data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
         sim.setAdditionalSearchPath(data_path)
         rigid_ids = []
-        torso_id = None
-        node_density = None
-        deform_anchor_vertex_ids = None
         #
         # Load rigid objects.
         #
@@ -92,7 +89,7 @@ class DeformEnv(gym.Env):
             rigid_ids.append(id)
         if args.task.startswith('Hang'):
             if args.task == 'HangBag':
-                args.deform_obj = 'bags/ts_small_bag_resampled.obj'
+                args.deform_obj = 'bags/ts_purse_bag_resampled.obj'
             else:
                 args.deform_obj = 'cloth/ts_apron_twoloops.obj'
             for arg_nm, arg_val in DEFORM_INFO[args.deform_obj].items():
@@ -111,12 +108,12 @@ class DeformEnv(gym.Env):
         #
         # Mark the goal.
         #
-        goal_pos = SCENE_INFO[scene_name]['goal_pos_hard']
+        goal_pos = SCENE_INFO[scene_name]['goal_pos']
         if args.viz:
             viz_tgt_id = create_anchor(
                 sim, [0,0,0], mass=0.0, radius=0.01, rgba=(0,1,0,1))
             sim.resetBasePositionAndOrientation(viz_tgt_id, goal_pos, [0,0,0,1])
-        return rigid_ids, deform_id, goal_pos
+        return rigid_ids, deform_id, np.array(goal_pos)
 
     def seed(self, seed):
         np.random.seed(seed)
@@ -144,7 +141,6 @@ class DeformEnv(gym.Env):
     def step(self, action):
         # action is num_anchors x 3 for 3D velocity for anchors/grippers.
         action = action.reshape(DeformEnv.NUM_ANCHORS, 3)
-        print('action', action)
         for i in range(DeformEnv.NUM_ANCHORS):
             command_anchor_velocity(self.sim, self.anchor_ids[i], action[i])
         self.sim.stepSimulation()
@@ -154,10 +150,8 @@ class DeformEnv(gym.Env):
         done = (done or self.stepnum >= self.max_episode_len)
         info = {}
         if self.args.debug or self.args.viz:
-            print(f'step {self.stepnum:d} reward {reward:0.4f} action', action)
+            print(f'step {self.stepnum:d} reward {reward:0.4f}')
             if done: print(f'episode reward {self.episode_reward:0.4f}')
-        with open('debug.log', 'w+') as f:
-            f.write(f'step {self.stepnum:d} reward {reward:0.4f} action' )
         self.stepnum += 1
 
         return next_obs, reward, done, info
@@ -174,7 +168,6 @@ class DeformEnv(gym.Env):
             vel, vel_done = DeformEnv.clip_pts(
                 np.array(vel), DeformEnv.MAX_VEL,
                 'anchor vel outside bounds' if self.args.debug else None)
-            if self.args.debug: print('anchor pos', pos, 'vel', vel)
             ancr_obs.extend(pos.tolist())
             ancr_obs.extend((vel/DeformEnv.MAX_VEL).tolist())
             done = pos_done or vel_done
@@ -189,16 +182,12 @@ class DeformEnv(gym.Env):
         return obs, done
 
     def get_reward(self, action):
-        action = action.reshape(DeformEnv.NUM_ANCHORS, 3)
-        energy_cost = 0
-        for i in range(DeformEnv.NUM_ANCHORS):
-            energy_cost += np.abs(action[i]).mean()
-        energy_cost /= float(DeformEnv.NUM_ANCHORS)
-        max_dist = DeformEnv.WORKSPACE_BOX_SIZE
-        sigma_sq = 0.3**2  # exponential dropoff for reward
-        rwd = np.exp(-1.0*max_dist/sigma_sq) - energy_cost
-        if self.args.viz:
-            self.sim.removeAllUserDebugItems()
-            self.sim.addUserDebugLine([0,0,0.001], [0.5,0,0.001], [1,0,0])  # x axis
-            self.sim.addUserDebugLine([0,0,0.001], [0,0.5,0.001], [0,1,0])  # y axis
+        _, vertex_positions = get_mesh_data(self.sim, self.deform_id)
+        accum = np.zeros(3)
+        true_loop_vertices = self.args.deform_true_loop_vertices[0]
+        for v in true_loop_vertices:
+            accum += np.array(vertex_positions[v])
+        loop_centroid = accum/len(true_loop_vertices)
+        dist = np.linalg.norm(loop_centroid-self.goal_pos)
+        rwd = -1.0*dist
         return rwd

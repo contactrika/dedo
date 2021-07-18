@@ -17,8 +17,8 @@ def policy_simple(obs):
     assert(2*3)
     obs = obs.reshape(-1, 3)
     act = np.random.rand(2, 3)  # in [0,1]
-    if obs[0, 2] > 0.35:
-        act[:, 1] = -0.1  # decrease y
+    if obs[0, 2] > 0.30:
+        act[:, 1] = -0.13  # decrease y
         act[:, 2] = -0.1  # decrease z
     else:
         act[:] = 0.0  # rest
