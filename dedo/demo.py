@@ -2,6 +2,7 @@
 A simple demo for envs (with random actions).
 
 python -m dedo.demo --task=HangBag --viz --debug
+python -m dedo.demo --task=HangCloth --viz --debug
 
 @contactrika
 
@@ -43,8 +44,6 @@ def play(env, num_episodes):
                 break
             obs = next_obs
             step += 1
-            if step==1:
-                input('Step 1 done; press enter to continue')
         input('Episode ended; press enter to go on')
 
 

@@ -15,7 +15,6 @@ from ..utils.anchor_utils import (
     attach_anchor, create_anchor, command_anchor_velocity)
 from ..utils.init_utils import (
     init_bullet, load_rigid_object, load_soft_object)
-from ..utils.gen_cloth import create_cloth_obj
 from ..utils.mesh_utils import get_mesh_data
 from ..utils.task_info import DEFORM_INFO, SCENE_INFO, TASK_TYPES
 
@@ -133,8 +132,9 @@ class DeformEnv(gym.Env):
             attach_anchor(self.sim, anchor_id, self.deform_id)  # grasp
             self.anchor_ids.append(anchor_id)
         if self.args.viz:  # loading done, so enable debug rendering if needed
+            time.sleep(0.01)  # wait for debug visualizer to catch up
+            self.sim.stepSimulation()  # step once to get initial state
             self.sim.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 1)
-
         obs, _ = self.get_obs()
         return obs
 
