@@ -8,7 +8,7 @@ import pybullet
 
 from .mesh_utils import get_mesh_data
 
-ANCHOR_MIN_DIST = 0.03  # 3cm
+ANCHOR_MIN_DIST = 0.01  # 1cm
 ANCHOR_MASS = 0.100     # 100g
 ANCHOR_RADIUS = 0.007   # 7mm
 ANCHOR_RGBA_ACTIVE = (1, 0, 1, 1)  # magenta
@@ -29,19 +29,15 @@ def get_closest(point, vertices, max_dist=None):
 
 
 def create_anchor(sim, pos, mass=ANCHOR_MASS, radius=ANCHOR_RADIUS,
-                  rgba=ANCHOR_RGBA_INACTIVE,
-                  use_collision=True, visual_shape_id=None):
+                  rgba=ANCHOR_RGBA_INACTIVE, use_collision=True):
     """Create a small visual object at the provided pos in world coordinates.
     If mass==0: this object does not collide with any other objects
     and only serves to show grip location.
     input: sim (pybullet sim), pos (list of 3 coords for anchor in world frame)
     output: anchorId (long) --> unique bullet ID to refer to the anchor object
     """
-    if visual_shape_id is None:
-        anchorVisualShape = sim.createVisualShape(
-            pybullet.GEOM_SPHERE, radius=radius*1.5, rgbaColor=rgba)
-    else:
-        anchorVisualShape = visual_shape_id
+    anchorVisualShape = sim.createVisualShape(
+        pybullet.GEOM_SPHERE, radius=radius, rgbaColor=rgba)
     if mass > 0 and use_collision:
         anchorCollisionShape = sim.createCollisionShape(
         pybullet.GEOM_SPHERE, radius=radius)
@@ -65,8 +61,8 @@ def command_anchor_velocity(sim, anchor_bullet_id, vel):
     # For cases where the anchors are very much constrained by the cloth
     # (e.g. deformable is attached to a fixed object on multiple sides) -
     # other control methods would be more appropriate.
-    sim.resetBaseVelocity(
-        anchor_bullet_id, linearVelocity=vel, angularVelocity=[0, 0, 0])
+    sim.resetBaseVelocity(anchor_bullet_id, linearVelocity=vel.tolist(),
+                          angularVelocity=[0, 0, 0])
 
 
 def attach_anchor(sim, anchor_id, deform_id):
@@ -76,7 +72,7 @@ def attach_anchor(sim, anchor_id, deform_id):
     deform_anchored_vertex_ids = get_closest(
         [pos], get_mesh_data(sim, deform_id)[1], max_dist=ANCHOR_MIN_DIST)
     for v in deform_anchored_vertex_ids:
-        sim.createSoftBodyAnchor(deform_id, v, bodyUniqueId=anchor_id)
+        sim.createSoftBodyAnchor(deform_id, v, anchor_id, -1)
 
 
 def release_anchor(sim, anchor_id):

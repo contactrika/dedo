@@ -31,8 +31,8 @@ def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori):
             baseOrientation=pybullet.getQuaternionFromEuler(init_ori))
     elif obj_file_name.endswith('.urdf'):  # URDF file
         rigid_id = sim.loadURDF(
-                os.path.join('urdf', 'torso.urdf'),
-                [0.3, 0.0, 0.15], useFixedBase=1, globalScaling=scale)
+            obj_file_name, init_pos, pybullet.getQuaternionFromEuler(init_ori),
+            useFixedBase=1, globalScaling=scale)
     else:
         print('Unknown file extension', obj_file_name)
         assert(False), 'load_rigid_object supports only obj and URDF files'
@@ -42,8 +42,7 @@ def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori):
 def load_soft_object(sim, obj_file_name, texture_file_name,
                      scale, init_pos, init_ori,
                      bending_stiffness, damping_stiffness, elastic_stiffness,
-                     friction_coeff, mass=1.0, collision_margin=0.002,
-                     fuzz_stiffness=False, debug=True):
+                     friction_coeff, fuzz_stiffness, debug):
     """Load object from obj file with pybullet's loadSoftBody()."""
     if fuzz_stiffness:
         elastic_stiffness += (np.random.rand()-0.5)*2*20
@@ -60,20 +59,21 @@ def load_soft_object(sim, obj_file_name, texture_file_name,
               f'friction_coeff {friction_coeff:0.4f} scale {scale:0.4f}')
     # Note: do not set very small mass (e.g. 0.01 causes instabilities).
     deform_id = sim.loadSoftBody(
-        scale=scale, mass=mass,
-        fileName=obj_file_name, basePosition=init_pos,
+        mass=1.0,  # 1kg is default; bad sim with lower mass
+        fileName=obj_file_name, scale=scale, basePosition=init_pos,
         baseOrientation=pybullet.getQuaternionFromEuler(init_ori),
-        collisionMargin=collision_margin,
         springElasticStiffness=elastic_stiffness,
         springDampingStiffness=damping_stiffness,
         springBendingStiffness=bending_stiffness,
-        frictionCoeff=friction_coeff, useSelfCollision=1,
-        useNeoHookean=0, useMassSpring=1, useBendingSprings=1
-    )
+        frictionCoeff=friction_coeff,
+        collisionMargin=0.002, useSelfCollision=1,
+        useNeoHookean=0, useMassSpring=1, useBendingSprings=1)
     texture_id = sim.loadTexture(texture_file_name)
+    kwargs = {}
+    if hasattr(pybullet, 'VISUAL_SHAPE_DOUBLE_SIDED'):
+        kwargs['flags'] = pybullet.VISUAL_SHAPE_DOUBLE_SIDED
     sim.changeVisualShape(
-        deform_id, -1, flags=pybullet.VISUAL_SHAPE_DOUBLE_SIDED,
-        textureUniqueId=texture_id)
+        deform_id, -1, textureUniqueId=texture_id, **kwargs)
     num_mesh_vertices = get_mesh_data(sim, deform_id)[0]
     if debug:
         print('Loaded deform_id', deform_id, 'with',
@@ -115,4 +115,8 @@ def init_bullet(args, sim=None, cam_on=False, cam_args={}):
     sim.resetSimulation()
     sim.setGravity(0, 0, args.sim_gravity)
     sim.setTimeStep(1.0/args.sim_frequency)
+    # Load floor plane and rigid objects
+    sim.setAdditionalSearchPath(pybullet_data.getDataPath())
+    floor_id = sim.loadURDF('plane.urdf')
+    assert(floor_id == 0)  # camera assumes floor/ground is loaded first
     return sim

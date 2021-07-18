@@ -33,10 +33,10 @@ def get_args(parent=None):
     parser.add_argument('--sim_gravity', type=float, default=-9.8, help='Gravity')
     # Anchor/grasping args.
     parser.add_argument('--anchor_init_pos', type=float, nargs=3,
-                        default=[0.0, -0.04, 0.60],
+                        default=[-0.04, 0.40, 0.70],
                         help='Initial position for an anchor')
     parser.add_argument('--other_anchor_init_pos', type=float, nargs=3,
-                        default=[0.0, 0.04, 0.60],
+                        default=[0.04, 0.40, 0.70],
                         help='Initial position for another anchors')
     # SoftBody args.
     parser.add_argument('--deform_obj', type=str, default=None,

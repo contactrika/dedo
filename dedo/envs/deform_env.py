@@ -32,8 +32,8 @@ class DeformEnv(gym.Env):
         self.max_episode_len = args.max_episode_len
         self.cam_on = args.cam_resolution is not None
         self.cam_args = {
-            'cameraDistance': 1.0,
-            'cameraYaw': -150,
+            'cameraDistance': 1.2,
+            'cameraYaw': 140,
             'cameraPitch': -40,
             'cameraTargetPosition': np.array([0.0, 0, 0])
         }
@@ -73,10 +73,6 @@ class DeformEnv(gym.Env):
         scene_name = args.task.lower()
         if scene_name.startswith('hang'):
             scene_name = 'hang'  # same scene for 'HangBag', 'HangCloth'
-        # Load floor plane and rigid objects
-        sim.setAdditionalSearchPath(pybullet_data.getDataPath())
-        floor_id = sim.loadURDF('plane.urdf')
-        assert(floor_id == 0)  # camera assumes floor/ground is loaded first
         data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
         sim.setAdditionalSearchPath(data_path)
         rigid_ids = []
@@ -96,7 +92,7 @@ class DeformEnv(gym.Env):
             rigid_ids.append(id)
         if args.task.startswith('Hang'):
             if args.task == 'HangBag':
-                args.deform_obj = 'bags/ts_purse_bag_resampled.obj'
+                args.deform_obj = 'bags/ts_small_bag_resampled.obj'
             else:
                 args.deform_obj = 'cloth/ts_apron_twoloops.obj'
             for arg_nm, arg_val in DEFORM_INFO[args.deform_obj].items():
@@ -118,7 +114,7 @@ class DeformEnv(gym.Env):
         # Load deformable object.
         #
         args.texture_path = os.path.join(
-            data_path, 'textures', 'dark_pattern.png')
+            data_path, 'textures', 'blue_bright.png')
         deform_id = load_soft_object(
             sim, args.deform_obj,  args.texture_path, args.deform_scale,
             args.deform_init_pos, args.deform_init_ori,
@@ -129,8 +125,7 @@ class DeformEnv(gym.Env):
         # TODO: move to a subclass
         if args.task == 'Button':
             for index in range(node_density+2):
-                sim.createSoftBodyAnchor(deform_id, index,
-                                         bodyUniqueId=torso_id)
+                sim.createSoftBodyAnchor(deform_id, index, torso_id, -1)
             _, mesh_vetex_positions = get_mesh_data(self.sim, deform_id)
             for i, v in enumerate(deform_anchor_vertex_ids):
                 if i == 0:
@@ -174,8 +169,6 @@ class DeformEnv(gym.Env):
         # action is 3 x num_anchors for 3D velocity for anchors/grippers.
         for i in range(DeformEnv.NUM_ANCHORS):
             act = action[3*i:3*i+3]
-            print('action', action)
-            print('act', act)
             assert(len(act) == 3)
             command_anchor_velocity(self.sim, self.anchor_ids[i], act)
         self.sim.stepSimulation()

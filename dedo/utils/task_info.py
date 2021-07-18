@@ -12,15 +12,15 @@ TASK_TYPES = ['Button', 'HangBag', 'HangCloth', ]
 SCENE_INFO = {
     'hang': {
         'entities': {
-            'cuboid.urdf': {
-                'basePosition': [0.0, -0.15, 0.2],
+            'urdf/cuboid.urdf': {
+                'basePosition': [0.0, -0.15, 0.20],
                 'baseOrientation': [0, 0, 0],
                 'globalScaling': 1.0,
             },
-            'hook.urdf': {
-                'basePosition': [0.00, (0.3+0.1)/2 - 0.15, 0.30],
+            'urdf/hook.urdf': {
+                'basePosition': [0.0, (0.3+0.1)/2-0.15, 0.30],
                 'baseOrientation': [0, 0, np.pi/2],
-                 'globalScaling': 1.0,
+                'globalScaling': 1.0,
             },
         },
         'goal_pos_hard': [0.00, 0.03, 0.31],
@@ -28,17 +28,17 @@ SCENE_INFO = {
     },
     'button': {
         'entities': {
-            'torso.urdf': {
+            'urdf/torso.urdf': {
                 'basePosition': [0.0, 0.0, 0.15],
                 'baseOrientation': [0, 0, 0, 1],
                 'globalScaling': 1.28,
             },
-            'button_fixed.urdf': {
+            'urdf/button_fixed.urdf': {
                 'basePosition': [-0.02, 0.13, 0.240],
                 'baseOrientation': [0, 0, 0, 1],
                 'globalScaling': 1.28,
             },
-            'button_fixed2.urdf': {
+            'urdf/button_fixed2.urdf': {
                 'basePosition': [0.00, 0.13, 0.13],
                 'baseOrientation': [0, 0, 0, 1],
                 'globalScaling': 1.28,
@@ -54,7 +54,8 @@ SCENE_INFO = {
 DEFORM_INFO = {
     'cloth/ts_apron_twoloops.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL
         'deform_init_pos': [0, 0, 0.42],
-        'deform_init_ori': [0, 0, np.pi/2],
+        'deform_init_ori': [0, 0, 0],
+        'deform_scale': 0.8,
         'deform_noise': 0.005,
         'deform_elastic_stiffness': 30.0,
         'deform_bending_stiffness': 30.0,
@@ -83,24 +84,26 @@ DEFORM_INFO = {
              1319]
         ],
     },
-    'bags/ts_purse_bag_resampled.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL
-        'deform_init_pos': [0, 0, 0.52],
-        'deform_init_ori': [0, 0, 0],
-        'deform_scale': 1.2,
+    'bags/ts_small_bag_resampled.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL
+        'deform_init_pos': [0.0, 0.40, 0.57],
+        'deform_init_ori': [0, 0, np.pi/2],
         'deform_noise': 0.005,
-        'deform_elastic_stiffness': 50.0,
-        'deform_bending_stiffness': 50.0,
+        'deform_elastic_stiffness': 30.0,
+        'deform_bending_stiffness': 30.0,
         'deform_anchored_vertex_ids': [
-            [357, 355, 40, 356, 372, 379, 296, 403],
-            [373, 342, 322, 384, 341, 383, 14, 317]],
+            [622, 815, 797, 633, 623, 741, 632, 857, 98, 631, 589, 814, 743,
+             588, 8, 742, 587],
+            [645, 720, 724, 829, 690, 830, 795, 95, 691, 783, 726, 643, 727,
+             841, 644, 699, 722]],
         'deform_true_loop_vertices': [
-            [0, 1, 6, 8, 9, 10, 13, 14, 15, 16, 17, 18, 19, 22, 24, 27, 33, 34,
-             36, 37, 38, 39, 40, 41, 42, 49, 50, 68, 104, 105, 106, 134, 136,
-             137, 147, 172, 173, 174, 195, 198, 257, 264, 265, 266, 291, 303,
-             304, 305, 306, 309, 310, 331, 333, 336, 337, 341, 343, 344, 345,
-             346, 347, 350, 352, 353, 354, 355, 357, 358, 359, 361, 362, 363,
-             364, 366, 367, 368, 372, 373, 378, 380, 382, 383, 386, 387, 389,
-             390, 396, 397]
+            [2, 12, 14, 25, 26, 27, 28, 30, 32, 33, 34, 37, 66,
+             88, 90, 94, 96, 97, 98, 100, 102, 104, 125, 126, 128, 204,
+             250, 297, 301, 337, 339, 378, 382, 510, 525, 528, 529, 530, 532,
+             533, 534, 571, 580, 610, 615, 617, 623, 624, 625, 627, 690, 700,
+             701, 706, 710, 715, 719, 720, 722, 723, 725, 726, 729, 730, 731,
+             732, 734, 736, 739, 740, 741, 743, 744, 749, 751, 753, 755, 756,
+             758, 759, 762, 763, 768, 776, 777, 784, 792, 793, 795, 796, 807,
+             812, 814, 816, 817, 818, 827, 830, 844, 859]
         ]
     },
 }
