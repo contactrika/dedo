@@ -7,6 +7,7 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
+
 '''
     Creates a .obj file containing a button loop mesh with the
     given parameters if it doesn't already exist. If the .obj file already
@@ -38,19 +39,12 @@ def create_cloth_obj(min_point, max_point, node_density,
                      holes, data_path,
                      use_hanging_anchors=False,
                      __ptr__hole_boundary_nodes_idx=None,
-                     corners_ptr = [],
+                     corners_ptr=[],
                      __ptr__hole_corners_idx=[],
                      ):
     assert(len(holes) > 0), 'Specify one or more holes'
 
     def validate_and_integerize(hole):
-
-        # TODO Hole overlap check
-        # TODO Complete boundary check
-        # TODO Overlaop boundary check
-        # Parameter checks and conversions
-
-        # Convert ratio to aboslute
         for key, val in hole.items():
             if isinstance(val, float):
                 hole[key] = int(round(val * node_density))

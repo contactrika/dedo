@@ -15,6 +15,7 @@ from ..utils.anchor_utils import (
 from ..utils.init_utils import (
     init_bullet, load_rigid_object, load_soft_object)
 from ..utils.gen_cloth import create_cloth_obj
+from ..utils.mesh_utils import get_mesh_data
 from ..utils.task_info import DEFORM_INFO, SCENE_INFO, TASK_TYPES
 
 
@@ -22,7 +23,6 @@ class DeformEnv(gym.Env):
     ANCHOR_OBS_SIZE = 3  # 3D velocity for anchors
     MAX_VEL = 10.0  # max vel (in m/s) for the anchors
     NUM_ANCHORS = 2
-    OBJ_DIR_NAMES = ['bags', 'cloth']
     WORKSPACE_BOX_SIZE = 2.0  # workspace box limits (needs to be >=1)
 
     def __init__(self, version, args):
@@ -58,23 +58,22 @@ class DeformEnv(gym.Env):
             done = True  # terminate episode if outside workspace boundaries
         return pts, done
 
-    @staticmethod
-    def load_objects(sim, version, args):
+    def load_objects(self, sim, version, args):
         assert(args.task in TASK_TYPES)
         assert(version == 0), 'Only v0 available for now'
-        scene_name = args.lower()
+        scene_name = args.task.lower()
         if scene_name.startswith('hang'):
             scene_name = 'hang'  # same scene for 'HangBag', 'HangCloth'
         # Load floor plane and rigid objects
         sim.setAdditionalSearchPath(pybullet_data.getDataPath())
         floor_id = sim.loadURDF('plane.urdf')
-        if floor_id != 0:
-            print(f'Camera assumes ground id 0 got {floor_id:d}')
-            assert(floor_id == 0)
+        assert(floor_id == 0)  # camera assumes floor/ground is loaded first
         data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
         sim.setAdditionalSearchPath(data_path)
         rigid_ids = []
         torso_id = None
+        node_density = None
+        deform_anchor_vertex_ids = None
         #
         # Load rigid objects.
         #
@@ -86,27 +85,26 @@ class DeformEnv(gym.Env):
             if name == 'torso.urdf':
                 torso_id = id
             rigid_ids.append(id)
+        if args.task.startswith('Hang'):
+            if args.task == 'HangBag':
+                args.deform_obj = 'bags/ts_purse_bag_resampled.obj'
+            else:
+                args.deform_obj = 'cloth/ts_apron_twoloops.obj'
+            for arg_nm, arg_val in DEFORM_INFO[args.deform_obj].items():
+                setattr(args, arg_nm, arg_val)
         if args.task == 'Button':  # generate cloth with button hole
             # TODO: move to a subclass
             args.elastic_stiffness = 175.0
             args.bending_stiffness = 150.0
             args.damping_stiffness = 0.5
             args.deform_friction_coeff = 0.5
-            hole = {
-                'height': 0.2,
-                'width': 0.2,
-                'x': 0.2,
-                'y': 0.2,
-            }
+            hole = {'height': 0.2, 'width': 0.2, 'x': 0.2, 'y': 0.2}
             node_density = 40
-            deform_obj_path, deform_anchor_indices = create_cloth_obj(
+            deform_obj_path, deform_anchor_vertex_ids = create_cloth_obj(
                 min_point=[0.40, -0.09, 0.08], max_point=[0.45, 0.01, 0.23],
                 node_density=node_density,
                 holes=[hole], data_path=data_path)
             args.deform_obj = deform_obj_path
-        else:
-            print('Unsupported task type', args.task)
-            assert(False), f'Unknown task type {args.task:s}'
         #
         # Load deformable object.
         #
@@ -122,8 +120,8 @@ class DeformEnv(gym.Env):
             for index in range(node_density+2):
                 sim.createSoftBodyAnchor(deform_id, index,
                                          bodyUniqueId=torso_id)
-            num_mesh_vertices, mesh_vetex_positions = sim.getMeshData(deform_id)
-            for i, v in enumerate(deform_anchor_indices):
+            _, mesh_vetex_positions = get_mesh_data(self.sim, deform_id)
+            for i, v in enumerate(deform_anchor_vertex_ids):
                 if i == 0:
                     args.anchor_init_pos = mesh_vetex_positions[v]
                 else:

@@ -1,26 +1,19 @@
 """
 A simple demo for envs (with random actions).
 
-python -m dedo.deform_env_demo --env_name=ClothScene-v0 --viz --debug
+python -m dedo.demo --task=HangBag --viz --debug
 
 @contactrika
+
 """
-
-import logging
-import sys
-import time
-
 import numpy as np
-np.set_printoptions(precision=4, linewidth=150, threshold=np.inf, suppress=True)
 
 import gym
-import pybullet
 
-import dedo  # to register envs
 from dedo.utils.args import get_args
 
 
-def play(env, num_episodes, debug, viz):
+def play(env, num_episodes):
     for epsd in range(num_episodes):
         print('------------ Play episode ', epsd, '------------------')
         obs = env.reset()
@@ -33,9 +26,6 @@ def play(env, num_episodes, debug, viz):
             rng = env.action_space.high - env.action_space.low
             act = act*rng + env.action_space.low
             next_obs, rwd, done, info = env.step(act)
-            print("next_obs.shape", next_obs.shape)
-            print("act.shape", act.shape)
-
             if done:
                 break
             obs = next_obs
@@ -44,13 +34,15 @@ def play(env, num_episodes, debug, viz):
 
 
 def main(args):
-    print('env_name', args.env_name)
-    assert('-v' in args.env_name)  # specify env version
-    env = gym.make(args.env_name)
+    np.set_printoptions(precision=4, linewidth=150,
+                        threshold=np.inf, suppress=True)
+    version = 0  # TODO: make versions
+    kwargs = {'version':version, 'args':args}
+    env = gym.make(args.task+'-v'+str(version), **kwargs)
     env.seed(env.args.seed)
-    print('Created env', args.env_name, 'with observation_space',
+    print('Created', args.task, 'with observation_space',
           env.observation_space.shape, 'action_space', env.action_space.shape)
-    play(env, env.args.num_runs, env.args.debug, env.args.viz)
+    play(env, env.args.num_runs)
     env.close()
 
 
