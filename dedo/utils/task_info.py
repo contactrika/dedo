@@ -97,4 +97,14 @@ DEFORM_INFO = {
             [0, 1, 2, 3]  # placeholder, since we don't know the true loops
         ]
     },
+    'cloth/apron_zehang.obj': {
+        'deform_init_pos': [0, 0.47, 0.54],
+        'deform_init_ori': [np.pi/2, 0, np.pi],
+        'deform_scale': 0.3,
+        'deform_elastic_stiffness': 1.0,
+        'deform_bending_stiffness': 1.0,
+        'deform_true_loop_vertices': [
+            [0, 1, 2, 3]  # placeholder, since we don't know the true loops
+        ]
+    },
 }
