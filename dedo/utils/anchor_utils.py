@@ -80,6 +80,7 @@ def attach_anchor(sim, anchor_id, deform_id):
     pos, ori = sim.getBasePositionAndOrientation(anchor_id)
     deform_anchored_vertex_ids = get_closest(
         [pos], get_mesh_data(sim, deform_id)[1], max_dist=ANCHOR_MIN_DIST)
+    print('OLD METHOD anchor', anchor_id, pos, deform_anchored_vertex_ids, )
     for v in deform_anchored_vertex_ids:
         sim.createSoftBodyAnchor(deform_id, v, anchor_id, -1)
 
