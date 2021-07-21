@@ -44,8 +44,8 @@ class DeformEnv(gym.Env):
         if args.cam_resolution is None:
             state_sz = DeformEnv.NUM_ANCHORS*DeformEnv.ANCHOR_OBS_SIZE
             self.observation_space = gym.spaces.Box(
-                -1.0*DeformEnv.WORKSPACE_BOX_SIZE*np.ones(state_sz),
-                DeformEnv.WORKSPACE_BOX_SIZE*np.ones(state_sz))
+                -1.0*DeformEnv.WORKSPACE_BOX_SIZE*np.ones(state_sz*2),
+                DeformEnv.WORKSPACE_BOX_SIZE*np.ones(state_sz*2))   #obs include both pos and vel. are ones valid range for vel?
         else:  # RGB
             self.observation_space = gym.spaces.Box(
                 np.zeros((args.cam_resolution, args.cam_resolution, 3)),
