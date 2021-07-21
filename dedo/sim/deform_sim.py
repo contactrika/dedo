@@ -63,6 +63,7 @@ class DeformSim():
         curr_dir = os.path.dirname(os.path.realpath(__file__))
         parent_dir = os.path.dirname(curr_dir)
         self.args.data_path = os.path.join(parent_dir, 'data')
+
         sim = self.sim
         if self.viz:
             if self.sim is None:
@@ -86,7 +87,7 @@ class DeformSim():
             if self.sim is None:
                 sim = bclient.BulletClient(connection_mode=pybullet.DIRECT)
 
-        sim.resetSimulation(pybullet.RESET_USE_DEFORMABLE_WORLD)
+        sim.resetSimulation()
         sim.setGravity(0, 0, self.args.sim_gravity)
         sim.setTimeStep(1.0 / self.args.sim_frequency)
 
@@ -107,20 +108,19 @@ class DeformSim():
         mesh_vetex_positions = np.array(mesh_info[1])
         return mesh_vetex_positions
 
-
     #   ==================================
     #   ========   Anchor stuff  =========
     #   ==================================
 
-    def create_dynamic_anchor(self,  anchor_pos, dynamic_anchor_idx, mass=0.0, radius=0.005, rgba=(1, 0, 1, 1.0), use_preset=True, use_closest=True):
+    def create_dynamic_anchor(self,  anchor_pos, dynamic_anchor_idx, mass=0.1, radius=0.005, rgba=(1, 0, 1, 1.0), use_preset=True, use_closest=True):
         # Create a small visual object at the provided pos in world coordinates.
         # If mass==0: this object does not collide with any other objects
         # and only serves to show grip location.
         anchor_vertices = None
-        if use_preset and self.preset_dynamic_anchor_vertices is not None:
-            anchor_vertices = self.preset_dynamic_anchor_vertices[dynamic_anchor_idx]
+        preset_dynamic_anchor_vertices = self.get_deform_preset('deform_anchored_vertex_ids')
+        if use_preset and preset_dynamic_anchor_vertices is not None:
+            anchor_vertices = preset_dynamic_anchor_vertices[dynamic_anchor_idx]
             anchor_pos = self.deform_mesh[anchor_vertices].mean(axis=0)
-
         elif use_closest:
             anchor_pos, anchor_vertices = self.find_closest_anchor_pos(anchor_pos)
 
@@ -130,14 +130,15 @@ class DeformSim():
         self.dynamic_anchors[anchorGeomId] = {'anchor_pos': anchor_pos, 'anchor_vertices': anchor_vertices}
         return anchorGeomId
 
-    def create_fixed_anchor(self, anchor_pos, fixed_anchor_idx, mass=0.0, radius=0.005, rgba=(1, 0, 1, 1.0), use_preset=True,
+    def create_fixed_anchor(self, anchor_pos, fixed_anchor_idx, mass=0.0, radius=0.005, rgba=(1, 1, 1, 0.2), use_preset=True,
                              use_closest=True):
         # Create a small visual object at the provided pos in world coordinates.
         # If mass==0: this object does not collide with any other objects
         # and only serves to show grip location.
         anchor_vertices = None
-        if use_preset and self.preset_fixed_anchor_vertices is not None:
-            anchor_vertices = self.preset_fixed_anchor_vertices[fixed_anchor_idx]
+        preset_fixed_anchor_vertices = self.get_deform_preset('deform_fixed_anchor_vertex_ids')
+        if use_preset and preset_fixed_anchor_vertices is not None:
+            anchor_vertices = preset_fixed_anchor_vertices[fixed_anchor_idx]
             anchor_pos = self.deform_mesh[anchor_vertices].mean(axis=0)
 
         elif use_closest:
@@ -155,7 +156,7 @@ class DeformSim():
         # input: sim (pybullet sim), pos (list of 3 coords for anchor in world frame)
         # output: anchorId (long) --> unique bullet ID to refer to the anchor object
         anchorVisualShape = self.sim.createVisualShape(
-            pybullet.GEOM_SPHERE, radius=radius * 1.5, rgbaColor=rgba)
+            pybullet.GEOM_SPHERE, radius=radius, rgbaColor=rgba)
         if mass > 0:
             anchorCollisionShape = self.sim.createCollisionShape(
                 pybullet.GEOM_SPHERE, radius=radius)
@@ -163,24 +164,17 @@ class DeformSim():
             anchorCollisionShape = -1
         anchorId = self.sim.createMultiBody(baseMass=mass, basePosition=pos,
                                        baseCollisionShapeIndex=anchorCollisionShape,
-                                       baseVisualShapeIndex=anchorVisualShape)
+                                       baseVisualShapeIndex=anchorVisualShape,
+                                            useMaximalCoordinates=True,
+                                            )
         return anchorId
 
-    @property
-    def preset_dynamic_anchor_vertices(self):
-        ''' Gets the corresponding vertices'''
+    def get_deform_preset(self, key):
+        ''' Gets the corresponding preset config'''
         if self.object_preset_dict is None or self.deform_obj_name not in self.object_preset_dict.keys():
             return None
-        if 'cloth_anchored_vertex_ids' in self.object_preset_dict[self.deform_obj_name].keys(): #
-            return self.object_preset_dict[self.deform_obj_name]['cloth_anchored_vertex_ids']
-        return None
-
-    @property
-    def preset_fixed_anchor_vertices(self):
-        if self.object_preset_dict is None or self.deform_obj_name not in self.object_preset_dict.keys():
-            return None
-        if 'cloth_fixed_anchor_vertex_ids' in self.object_preset_dict[self.deform_obj_name].keys(): #
-            return self.object_preset_dict[self.deform_obj_name]['cloth_fixed_anchor_vertex_ids']
+        if key in self.object_preset_dict[self.deform_obj_name].keys():
+            return self.object_preset_dict[self.deform_obj_name][key]
         return None
 
     def find_closest_anchor_pos(self, init_pos):
@@ -191,61 +185,14 @@ class DeformSim():
         return new_anc_pos, anchor_vert_indices
 
     def anchor_grasp(self, anchor_id):
-        self.sim.changeVisualShape(
-            anchor_id, -1, rgbaColor=(1, 0, 1, 1))
-        v = self.anchors[anchor_id]['anchor_vertices'][0]
-        self.sim.createSoftBodyAnchor(self.deform_obj_id, v, anchor_id, -1)
 
-
-    #
-    #
-    # def dynamic_anchor_grasp(self, anchor_id, anchor_entity_id):
-    #     ''' Grasp onto deform obj after both have been initialized'''
-    #     cloth_id = self.deform_obj_ids[-1]
-    #     for v in self.preset_dynamic_anchor_vertices[anchor_id]:
-    #         self.sim.createSoftBodyAnchor(cloth_id, v, bodyUniqueId=anchor_entity_id)
-    #
-    # #   ==== Fixed anchor stuff
-    # def fixed_anchor_grasp(self, anchors=None):
-    #     ''' Set and grasp anchors '''
-    #     if anchors is not None:
-    #         raise NotImplementedError('Not done yet')
-    #     soft_obj_id = self.deform_obj_ids
-    #     mesh_vetex_positions = self.deform_mesh
-    #
-    #     if self.preset_fixed_anchor_vertices is not None:
-    #         for anc, anchor_vertex_ids in enumerate(self.preset_fixed_anchor_vertices):
-    #             anc_pos = mesh_vetex_positions[anchor_vertex_ids].mean(axis=0)
-    #             anc_id = self.create_anchor_geom(anc_pos)
-    #             for v in anchor_vertex_ids:
-    #                 self.sim.createSoftBodyAnchor(soft_obj_id, v, bodyUniqueId=anc_id)
-
-    # def set_cloth_anchored_vertex_ids(self, anchored_vertex_ids):
-    #     if self.cloth_obj_name not in CLOTH_OBJECTS_DICT:
-    #         CLOTH_OBJECTS_DICT[self.cloth_obj_name] = {}
-    #     CLOTH_OBJECTS_DICT[self.cloth_obj_name]['cloth_anchored_vertex_ids'] = anchored_vertex_ids
-
-    # def create_trajectory(self, waypoints, steps_per_waypoint, frequency):
-    #     # Create a smoothed trajectory through the given waypoints.
-    #     assert (len(waypoints) == len(steps_per_waypoint))
-    #     num_wpts = len(waypoints)
-    #     tot_steps = sum(steps_per_waypoint[:-1])
-    #     dt = 1.0 / frequency
-    #     traj = np.zeros([tot_steps, 3 + 3])  # 3D pos , 3D vel
-    #     prev_pos = waypoints[0]  # start at the 0th waypoint
-    #     t = 0
-    #     for wpt in range(1, num_wpts):
-    #         tgt_pos = waypoints[wpt]
-    #         dur = steps_per_waypoint[wpt - 1]
-    #         Y, Yd, Ydd = plan_min_jerk_trajectory(prev_pos, tgt_pos, dur * dt, dt)
-    #         traj[t:t + dur, 0:3] = Y[:]
-    #         traj[t:t + dur, 3:6] = Yd[:]  # vel
-    #         # traj[t:t+dur,6:9] = Ydd[:]  # acc
-    #         t += dur
-    #         prev_pos = tgt_pos
-    #     if t < tot_steps: traj[t:, :] = traj[t - 1, :]  # set rest to last entry
-    #     # print('create_trajectory(): traj', traj)
-    #     return traj
+        # activation color for dynamic anchors
+        if anchor_id in self.dynamic_anchors:
+            self.sim.changeVisualShape(
+                anchor_id, -1, rgbaColor=(1, 0, 1, 1))
+        print('anchor', anchor_id, self.anchors[anchor_id], )
+        for v in self.anchors[anchor_id]['anchor_vertices']:
+            self.sim.createSoftBodyAnchor(self.deform_obj_id, v, anchor_id, -1)
 
     def load_rigid_object(self, obj_file_name,  basePosition, baseOrientation, globalScaling=1.0, rgbaColor=None):
         assert(obj_file_name.endswith('.obj'))  # assume mesh info
@@ -275,11 +222,7 @@ class DeformSim():
     def load_deform_object(self, obj_file_name, texture_file_name, scale, init_pos, init_ori,
                          bending_stiffness, damping_stiffness, elastic_stiffness,
                          friction_coeff, fuzz_stiffness, debug=False, scale_gaussian_noise=0.0):
-        # Load cloth from obj file
-        # TODO: why does setting mass produce strange behavior?
-        # https://github.com/bulletphysics/bullet3/blob/
-        # 9ac1dd6194978525ac261f574b8289285318c6c7/examples/SharedMemory/
-        # b3RobotSimulatorClientAPI_NoDirect.cpp#L1192
+        # Load deformable object from obj file
 
         # Note: do not set very small mass (e.g. 0.01 causes instabilities).
         deform_id = self.sim.loadSoftBody(
@@ -309,7 +252,10 @@ class DeformSim():
         self.sim.changeVisualShape(
             deform_id, -1, textureUniqueId=texture_id, **kwargs)
 
-        num_mesh_vertices, _ = self.sim.getMeshData(deform_id)
+        kwargs = {}
+        if hasattr(pybullet, 'MESH_DATA_SIMULATION_MESH'):
+            kwargs['flags'] = pybullet.MESH_DATA_SIMULATION_MESH
+        num_mesh_vertices, _ = self.sim.getMeshData(deform_id, **kwargs)
         if self.debug:
             print('Loading obj_file_name', obj_file_name)
             print('Loaded cloth_id', deform_id, 'with',
@@ -443,3 +389,25 @@ class DeformSim():
     #     self.anchor_ids = anchor_ids
     #     self.trajs = trajs
     #     return anchor_ids, trajs
+
+    # def create_trajectory(self, waypoints, steps_per_waypoint, frequency):
+    #     # Create a smoothed trajectory through the given waypoints.
+    #     assert (len(waypoints) == len(steps_per_waypoint))
+    #     num_wpts = len(waypoints)
+    #     tot_steps = sum(steps_per_waypoint[:-1])
+    #     dt = 1.0 / frequency
+    #     traj = np.zeros([tot_steps, 3 + 3])  # 3D pos , 3D vel
+    #     prev_pos = waypoints[0]  # start at the 0th waypoint
+    #     t = 0
+    #     for wpt in range(1, num_wpts):
+    #         tgt_pos = waypoints[wpt]
+    #         dur = steps_per_waypoint[wpt - 1]
+    #         Y, Yd, Ydd = plan_min_jerk_trajectory(prev_pos, tgt_pos, dur * dt, dt)
+    #         traj[t:t + dur, 0:3] = Y[:]
+    #         traj[t:t + dur, 3:6] = Yd[:]  # vel
+    #         # traj[t:t+dur,6:9] = Ydd[:]  # acc
+    #         t += dur
+    #         prev_pos = tgt_pos
+    #     if t < tot_steps: traj[t:, :] = traj[t - 1, :]  # set rest to last entry
+    #     # print('create_trajectory(): traj', traj)
+    #     return traj

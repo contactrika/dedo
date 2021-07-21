@@ -11,8 +11,7 @@ import gym
 import pybullet
 import pybullet_data
 
-from ..utils.anchor_utils import (
-    attach_anchor, create_anchor, command_anchor_velocity)
+from ..utils.anchor_utils import command_anchor_velocity
 from ..utils.mesh_utils import get_mesh_data
 from ..utils.task_info import DEFORM_INFO, SCENE_INFO, TASK_TYPES
 from ..sim.deform_sim import DeformSim
@@ -75,9 +74,6 @@ class DeformEnv(gym.Env):
         scene_name = self.args.task.lower()
         if scene_name.startswith('hang'):
             scene_name = 'hang'  # same scene for 'HangBag', 'HangCloth'
-        data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
-        sim.setAdditionalSearchPath(data_path)
-        rigid_ids = []
 
         #
         # Load rigid objects.
@@ -85,21 +81,24 @@ class DeformEnv(gym.Env):
         rigid_ids = self.ds.load_scene(scene_version_name=scene_name)
 
         # TODO load custom objects
-
-        if args.override_deform_obj is not None:
+        if args.task == 'Button':
+            args.deform_obj = 'cloth/button_cloth.obj'
+        elif args.override_deform_obj is not None:
             args.deform_obj = args.override_deform_obj
         elif args.task == 'HangBag':
             args.deform_obj = 'bags/ts_purse_bag_resampled.obj'
         else:
             assert(args.task == 'HangCloth')
             args.deform_obj = 'cloth/ts_apron_twoloops.obj'
-        for arg_nm, arg_val in DEFORM_INFO[args.deform_obj].items():
-            setattr(args, arg_nm, arg_val)
+        self.args = self.ds.use_preset_args()
+        # for arg_nm, arg_val in DEFORM_INFO[args.deform_obj].items():
+        #     setattr(args, arg_nm, arg_val)
+
         #
         # Load deformable object.
         #
-        texture_path = os.path.join(
-            data_path, 'textures', 'blue_bright.png')
+
+        texture_path = os.path.join(args.data_path, 'textures', 'blue_bright.png')
         deform_obj_path = os.path.join(args.data_path, args.deform_obj)
 
         deform_id = self.ds.load_deform_object(
@@ -111,7 +110,6 @@ class DeformEnv(gym.Env):
             args.deform_elastic_stiffness, args.deform_friction_coeff,
             args.debug
         )
-
 
         # Mark the goal.
         goal_pos = SCENE_INFO[scene_name]['goal_pos']
@@ -133,15 +131,33 @@ class DeformEnv(gym.Env):
         self.rigid_ids, self.deform_id, self.goal_pos = self.load_objects(
             self.sim, self.version, self.args)
         self.ds.stepSimulation()  # step once to set orientation etc
+
+        # Setup dynamic anchors
         for i in range(DeformEnv.NUM_ANCHORS):  # make anchors
             anchor_init_pos = self.args.anchor_init_pos if (i%2)==0 else \
                 self.args.other_anchor_init_pos
             # anchor_id = create_anchor(self.sim, anchor_init_pos)
             # TODO Delete me
             self.ds.create_anchor_geometry(anchor_init_pos, radius=0.001, rgba=(0,0,0,1)) # debugging only
+
+            # anchor_id = create_anchor(self.sim, anchor_init_pos)
+
+
             anchor_id = self.ds.create_dynamic_anchor(anchor_init_pos, dynamic_anchor_idx=i)
+            # attach_anchor(self.sim, anchor_id, self.deform_id)
             self.ds.anchor_grasp(anchor_id)
             self.anchor_ids.append(anchor_id)
+
+        # Setup fixed anchors
+        if self.args.task == 'Button':
+            # Hard code 4 anchor, and always assume the fixed anchors are given
+            for i in range(4):
+                anchor_id = self.ds.create_fixed_anchor([0,0,0,0], fixed_anchor_idx=i)
+
+        # Grasping all anchors (dynamic and fixed)
+        for anchor_id in self.ds.anchors:
+            self.ds.anchor_grasp(anchor_id)
+
         if self.args.viz:  # loading done, so enable debug rendering if needed
             time.sleep(0.1)  # wait for debug visualizer to catch up
             self.sim.stepSimulation()  # step once to get initial state
