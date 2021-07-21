@@ -47,15 +47,21 @@ def load_soft_object(sim, obj_file_name, texture_file_name,
     # Note: do not set very small mass (e.g. 0.01 causes instabilities).
     deform_id = sim.loadSoftBody(
         mass=1.0,  # 1kg is default; bad sim with lower mass
-        fileName=obj_file_name, scale=scale, basePosition=init_pos,
+        fileName=obj_file_name,
+        scale=scale,
+        basePosition=init_pos,
         baseOrientation=pybullet.getQuaternionFromEuler(init_ori),
         springElasticStiffness=elastic_stiffness,
         springDampingStiffness=damping_stiffness,
         springBendingStiffness=bending_stiffness,
         frictionCoeff=friction_coeff,
-        collisionMargin=0.05, useSelfCollision=1,
-        springDampingAllDirections=1, useFaceContact=1,
-        useNeoHookean=0, useMassSpring=1, useBendingSprings=1)
+        collisionMargin=0.05,
+        useSelfCollision=1,
+        springDampingAllDirections=1,
+        useFaceContact=1,
+        useNeoHookean=0,
+        useMassSpring=1,
+        useBendingSprings=1)
     texture_id = sim.loadTexture(texture_file_name)
     kwargs = {}
     if hasattr(pybullet, 'VISUAL_SHAPE_DOUBLE_SIDED'):

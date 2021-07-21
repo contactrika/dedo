@@ -4,107 +4,151 @@ import numpy as np
 import pybullet
 import pybullet_data
 import pybullet_utils.bullet_client as bclient
-from gym_bullet_deform.utils.process_camera import ProcessCamera
-from gym_bullet_deform.utils.cloth_objects_dict import (
-    CLOTH_OBJECTS_DICT, SCENE_OBJECTS_PRESETS, )
 
 class DeformSim():
-    def __init__(self, args, viz=False):
+    def __init__(self, args,  object_preset_dict=None, scene_preset_dict=None, viz=False, ):
         self.args = args
         self.viz = viz
-        self.is_sim_init = False
+        self.sim = None
+
 
         # House keeping
-        self.main_obj_ids = []
-        self.anchor_ids = []
+        self.deform_obj_id = None
+
+        # self.anchor_ids = []
         self.debug = self.args.debug
         self.setup_required_kwargs = []
         self.waypoint_viz = []
 
-    def setup(self, **kwargs):
-        self.setup_required_kwargs.extend(['sim_gravity', 'sim_frequency'])
-        for kwarg in self.setup_required_kwargs:
-            assert kwarg in kwargs, f'{kwarg} is a required setup kwarg'
-        self._sim_init(**kwargs)
-        if self.viz: self.sim.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 1)
+        # Presets for scene and deform objects
+        self.object_preset_dict = {} if object_preset_dict is None else object_preset_dict
+        self.scene_preset_dict = {} if scene_preset_dict is None else scene_preset_dict
+
+
+        self.anchors = {} # list of all anchors (both dynamic and fixed)
+        self.dynamic_anchors = {} # keeping track of dynamic anchors
+        self.fixed_anchors = {} # keeping track of fixed anchors
+
+
+    def viz_render(self):
+        '''Renders a visual GUI'''
+        self.sim.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 1)
+
+    def stepSimulation(self):
+        self.sim.stepSimulation()
 
     def render_soft(self, soft_body_id, debug=False ):
         return ProcessCamera.render_soft(
             self.sim, soft_body_id, debug=debug)
 
-    def _sim_init(self, **kwargs):
-        ''' Setting up the floor and scene of the simulator'''
-        sim = self._init_bullet(**kwargs)
-        self.is_sim_init = True
-        self.sim = sim
-        self.build_floor()
-        return sim
-
-    def build_floor(self):
-        # Load floor plane and rigid objects
-        self.sim.setAdditionalSearchPath(pybullet_data.getDataPath())
-        floor_id = self.sim.loadURDF('plane.urdf')
-        # assert (floor_id == 0)  # camera rendering assumes ground has bullet id 0
-
-    def get_closest(self, pts, vertices, max_dist=None):
+    def find_closest_vertices(self, pts, vertices=None, max_dist=None, cam_args={}):
         ''' Get the lcosest vertices ids to the points (e.g. anchors)'''
         closest_vertex_ids = []
         pts = np.array(pts)
         vertices = np.array(vertices)
         num_pins_per_anchor = max(1, vertices.shape[0]//50)
         num_to_pin = min(vertices.shape[0], num_pins_per_anchor)
-        for i in range(pts.shape[0]):
-            dists = np.linalg.norm(vertices - pts[[i],:], axis=1)
-            to_pin_ids = np.argpartition(dists, num_to_pin)[0:num_to_pin]
-            if max_dist is not None:
-                to_pin_ids = to_pin_ids[dists[to_pin_ids] <= max_dist]
-            closest_vertex_ids.append(to_pin_ids.tolist())
+        dists = np.linalg.norm(vertices - pts, axis=1)
+        to_pin_ids = np.argpartition(dists, num_to_pin)[0:num_to_pin]
+        if max_dist is not None:
+            to_pin_ids = to_pin_ids[dists[to_pin_ids] <= max_dist]
+
             #closest_vertex_ids.append(np.argmin(dists))
         #print('num_pins_per_anchor', num_pins_per_anchor)
         #print('closest_vertex_ids', closest_vertex_ids)
-        return closest_vertex_ids
+        return to_pin_ids.tolist()
 
-    def _init_bullet(self, sim=None, **kwargs,):
-        # TODO Finish this method
+    def init_bullet(self, cam_on=False, cam_args={}, ):
+
+        curr_dir = os.path.dirname(os.path.realpath(__file__))
+        parent_dir = os.path.dirname(curr_dir)
+        self.args.data_path = os.path.join(parent_dir, 'data')
+        sim = self.sim
         if self.viz:
-            if sim is None:
+            if self.sim is None:
                 sim = bclient.BulletClient(connection_mode=pybullet.GUI)
             # disable aux menus in the gui
-            pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_GUI, 0)
+            pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_GUI, cam_on)
             pybullet.configureDebugVisualizer(
-                pybullet.COV_ENABLE_RGB_BUFFER_PREVIEW, 0)
+                pybullet.COV_ENABLE_RGB_BUFFER_PREVIEW, cam_on)
             pybullet.configureDebugVisualizer(
-                pybullet.COV_ENABLE_DEPTH_BUFFER_PREVIEW, 0)
+                pybullet.COV_ENABLE_DEPTH_BUFFER_PREVIEW, cam_on)
             pybullet.configureDebugVisualizer(
-                pybullet.COV_ENABLE_SEGMENTATION_MARK_PREVIEW, 0)
+                pybullet.COV_ENABLE_SEGMENTATION_MARK_PREVIEW, cam_on)
             # don't render during init
-            pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 0)
+            pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, cam_on)
             # Keep camera distance and target same as defaults for ProcessCamera,
             # so that debug views look similar to those recorded by the camera pans.
             # Camera pitch and yaw can be set as desired, since they don't
             # affect ProcessCamera panning strategy.
-            sim.resetDebugVisualizerCamera(
-                cameraDistance=ProcessCamera.CAM_DIST, cameraYaw=70.0,
-                cameraPitch=-30, cameraTargetPosition=ProcessCamera.CAM_TGT)
+            sim.resetDebugVisualizerCamera(**cam_args)
         else:
-            if sim is None:
+            if self.sim is None:
                 sim = bclient.BulletClient(connection_mode=pybullet.DIRECT)
+
         sim.resetSimulation(pybullet.RESET_USE_DEFORMABLE_WORLD)
-        sim.setGravity(0, 0, kwargs['sim_gravity'])
-        sim.setTimeStep(1.0 / kwargs['sim_frequency'])
+        sim.setGravity(0, 0, self.args.sim_gravity)
+        sim.setTimeStep(1.0 / self.args.sim_frequency)
+
+        sim.setAdditionalSearchPath(pybullet_data.getDataPath())
+        floor_id = sim.loadURDF('plane.urdf')
+
+        self.sim = sim
         return sim
 
-    def create_dynamic_anchor(self, pos, mass=0.0, radius=0.005, rgba=(1, 0, 1, 1.0)):
+    @property
+    def deform_mesh(self):
+        assert self.deform_obj_id is not None, "deform object hasn't been loaded yet!"
+        soft_obj_id = self.deform_obj_id # hardcode single soft object only
+        kwargs = {}
+        if hasattr(pybullet, 'MESH_DATA_SIMULATION_MESH'):
+            kwargs['flags'] = pybullet.MESH_DATA_SIMULATION_MESH
+        mesh_info = self.sim.getMeshData(soft_obj_id, **kwargs)
+        mesh_vetex_positions = np.array(mesh_info[1])
+        return mesh_vetex_positions
+
+
+    #   ==================================
+    #   ========   Anchor stuff  =========
+    #   ==================================
+
+    def create_dynamic_anchor(self,  anchor_pos, dynamic_anchor_idx, mass=0.0, radius=0.005, rgba=(1, 0, 1, 1.0), use_preset=True, use_closest=True):
         # Create a small visual object at the provided pos in world coordinates.
         # If mass==0: this object does not collide with any other objects
         # and only serves to show grip location.
-        # input: sim (pybullet sim), pos (list of 3 coords for anchor in world frame)
-        # output: anchorId (long) --> unique bullet ID to refer to the anchor object
-        anchorGeomId = self.create_anchor_geom(pos, mass, radius, rgba)
-        self.anchor_ids.append(anchorGeomId)
+        anchor_vertices = None
+        if use_preset and self.preset_dynamic_anchor_vertices is not None:
+            anchor_vertices = self.preset_dynamic_anchor_vertices[dynamic_anchor_idx]
+            anchor_pos = self.deform_mesh[anchor_vertices].mean(axis=0)
+
+        elif use_closest:
+            anchor_pos, anchor_vertices = self.find_closest_anchor_pos(anchor_pos)
+
+
+        anchorGeomId = self.create_anchor_geometry(anchor_pos, mass, radius, rgba)
+        self.anchors[anchorGeomId] = {'anchor_pos': anchor_pos, 'anchor_vertices': anchor_vertices}
+        self.dynamic_anchors[anchorGeomId] = {'anchor_pos': anchor_pos, 'anchor_vertices': anchor_vertices}
         return anchorGeomId
 
-    def create_anchor_geom(self, pos, mass=0.0, radius=0.005, rgba=(1, 1, 1, 1.0)):
+    def create_fixed_anchor(self, anchor_pos, fixed_anchor_idx, mass=0.0, radius=0.005, rgba=(1, 0, 1, 1.0), use_preset=True,
+                             use_closest=True):
+        # Create a small visual object at the provided pos in world coordinates.
+        # If mass==0: this object does not collide with any other objects
+        # and only serves to show grip location.
+        anchor_vertices = None
+        if use_preset and self.preset_fixed_anchor_vertices is not None:
+            anchor_vertices = self.preset_fixed_anchor_vertices[fixed_anchor_idx]
+            anchor_pos = self.deform_mesh[anchor_vertices].mean(axis=0)
+
+        elif use_closest:
+            anchor_pos, anchor_vertices = self.find_closest_anchor_pos(anchor_pos)
+
+        anchorGeomId = self.create_anchor_geometry(anchor_pos, mass, radius, rgba)
+        self.anchors[anchorGeomId] = {'anchor_pos': anchor_pos, 'anchor_vertices': anchor_vertices}
+        self.fixed_anchors[anchorGeomId] = {'anchor_pos': anchor_pos, 'anchor_vertices': anchor_vertices}
+        return anchorGeomId
+
+    def create_anchor_geometry(self, pos, mass=0.0, radius=0.005, rgba=(1, 1, 1, 1.0)):
         # Create a small visual object at the provided pos in world coordinates.
         # If mass==0: this object does not collide with any other objects
         # and only serves to show grip location.
@@ -121,6 +165,65 @@ class DeformSim():
                                        baseCollisionShapeIndex=anchorCollisionShape,
                                        baseVisualShapeIndex=anchorVisualShape)
         return anchorId
+
+    @property
+    def preset_dynamic_anchor_vertices(self):
+        ''' Gets the corresponding vertices'''
+        if self.object_preset_dict is None or self.deform_obj_name not in self.object_preset_dict.keys():
+            return None
+        if 'cloth_anchored_vertex_ids' in self.object_preset_dict[self.deform_obj_name].keys(): #
+            return self.object_preset_dict[self.deform_obj_name]['cloth_anchored_vertex_ids']
+        return None
+
+    @property
+    def preset_fixed_anchor_vertices(self):
+        if self.object_preset_dict is None or self.deform_obj_name not in self.object_preset_dict.keys():
+            return None
+        if 'cloth_fixed_anchor_vertex_ids' in self.object_preset_dict[self.deform_obj_name].keys(): #
+            return self.object_preset_dict[self.deform_obj_name]['cloth_fixed_anchor_vertex_ids']
+        return None
+
+    def find_closest_anchor_pos(self, init_pos):
+        ''' Find closest vertices for an anchor'''
+        mesh_vetex_positions = self.deform_mesh
+        anchor_vert_indices = self.find_closest_vertices(init_pos, mesh_vetex_positions)
+        new_anc_pos = mesh_vetex_positions[anchor_vert_indices].mean(axis=0)
+        return new_anc_pos, anchor_vert_indices
+
+    def anchor_grasp(self, anchor_id):
+        self.sim.changeVisualShape(
+            anchor_id, -1, rgbaColor=(1, 0, 1, 1))
+        v = self.anchors[anchor_id]['anchor_vertices'][0]
+        self.sim.createSoftBodyAnchor(self.deform_obj_id, v, anchor_id, -1)
+
+
+    #
+    #
+    # def dynamic_anchor_grasp(self, anchor_id, anchor_entity_id):
+    #     ''' Grasp onto deform obj after both have been initialized'''
+    #     cloth_id = self.deform_obj_ids[-1]
+    #     for v in self.preset_dynamic_anchor_vertices[anchor_id]:
+    #         self.sim.createSoftBodyAnchor(cloth_id, v, bodyUniqueId=anchor_entity_id)
+    #
+    # #   ==== Fixed anchor stuff
+    # def fixed_anchor_grasp(self, anchors=None):
+    #     ''' Set and grasp anchors '''
+    #     if anchors is not None:
+    #         raise NotImplementedError('Not done yet')
+    #     soft_obj_id = self.deform_obj_ids
+    #     mesh_vetex_positions = self.deform_mesh
+    #
+    #     if self.preset_fixed_anchor_vertices is not None:
+    #         for anc, anchor_vertex_ids in enumerate(self.preset_fixed_anchor_vertices):
+    #             anc_pos = mesh_vetex_positions[anchor_vertex_ids].mean(axis=0)
+    #             anc_id = self.create_anchor_geom(anc_pos)
+    #             for v in anchor_vertex_ids:
+    #                 self.sim.createSoftBodyAnchor(soft_obj_id, v, bodyUniqueId=anc_id)
+
+    # def set_cloth_anchored_vertex_ids(self, anchored_vertex_ids):
+    #     if self.cloth_obj_name not in CLOTH_OBJECTS_DICT:
+    #         CLOTH_OBJECTS_DICT[self.cloth_obj_name] = {}
+    #     CLOTH_OBJECTS_DICT[self.cloth_obj_name]['cloth_anchored_vertex_ids'] = anchored_vertex_ids
 
     # def create_trajectory(self, waypoints, steps_per_waypoint, frequency):
     #     # Create a smoothed trajectory through the given waypoints.
@@ -161,15 +264,6 @@ class DeformSim():
             baseOrientation=pybullet.getQuaternionFromEuler(baseOrientation))
         return rigid_custom_id
 
-    def load_custom_rigid_obj(self):
-        # TODO rewire args
-        args = self.args
-        rigid_obj_path = os.Storingpath.join(args.data_path, args.rigid_custom_obj)
-        rigid_id = self.load_rigid_object(
-            rigid_obj_path,
-            args.rigid_init_pos, args.rigid_init_ori,  args.rigid_scale,)
-        rigid_ids.append(rigid_id)
-
     def load_rigid_urdf(self, urdf_filepath, **kwargs):
         assert (urdf_filepath.endswith('.urdf'))
 
@@ -178,7 +272,7 @@ class DeformSim():
         return self.sim.loadURDF(urdf_filepath, useFixedBase=1, **kwargs)
 
 
-    def load_soft_object(self, obj_file_name, scale, init_pos, init_ori,
+    def load_deform_object(self, obj_file_name, texture_file_name, scale, init_pos, init_ori,
                          bending_stiffness, damping_stiffness, elastic_stiffness,
                          friction_coeff, fuzz_stiffness, debug=False, scale_gaussian_noise=0.0):
         # Load cloth from obj file
@@ -186,37 +280,39 @@ class DeformSim():
         # https://github.com/bulletphysics/bullet3/blob/
         # 9ac1dd6194978525ac261f574b8289285318c6c7/examples/SharedMemory/
         # b3RobotSimulatorClientAPI_NoDirect.cpp#L1192
-        # TODO: it is possible to set cloth textures/colors?
-        if fuzz_stiffness:
-            elastic_stiffness += (np.random.rand()-0.5)*2*20
-            bending_stiffness += (np.random.rand()-0.5)*2*20
-            friction_coeff += (np.random.rand()-0.5)*2*0.3
-            if elastic_stiffness < 10.0:
-                elastic_stiffness = 10.0
-            if bending_stiffness < 10.0:
-                bending_stiffness = 10.0
 
-            scale += (np.random.rand() - 0.5) * 2 * scale_gaussian_noise
-            scale = np.clip(scale, 0.1, 1.5)
-            #toDo: Ioanna, here is where you change stifness
-            el_stiff_fact = 1.5
-            bend_stiff_fact = 1.1
-            print('fuzzed', f'elastic_stiffness {el_stiff_fact*elastic_stiffness:0.4f}',
-                  f'bending_stiffness {bend_stiff_fact*bending_stiffness:0.4f}',
-                  f'friction_coeff {friction_coeff:0.4f} scale {scale:0.4f}')
-        cloth_id = self.sim.loadSoftBody(
-            scale=scale,  # mass=0.05,
-            fileName=obj_file_name, basePosition=init_pos,
+        # Note: do not set very small mass (e.g. 0.01 causes instabilities).
+        deform_id = self.sim.loadSoftBody(
+            mass=2.0,
+            fileName=obj_file_name,
+            scale=scale,
+            basePosition=init_pos,
             baseOrientation=pybullet.getQuaternionFromEuler(init_ori),
-            collisionMargin=0.002, useMassSpring=1, useBendingSprings=1,
-            springElasticStiffness=el_stiff_fact*elastic_stiffness,
+            springElasticStiffness=elastic_stiffness,
             springDampingStiffness=damping_stiffness,
-            springBendingStiffness=bend_stiff_fact*bending_stiffness,
-            frictionCoeff=friction_coeff, useSelfCollision=1)
-        num_mesh_vertices, _ = self.sim.getMeshData(cloth_id)
+            springBendingStiffness=bending_stiffness,
+            frictionCoeff=friction_coeff,
+            collisionMargin=0.05,
+            useSelfCollision=1,
+            springDampingAllDirections=1,
+            useFaceContact=1,
+            useNeoHookean=0,
+            useMassSpring=1,
+            useBendingSprings=1,
+        )
+
+        # Loading texture
+        texture_id = self.sim.loadTexture(texture_file_name)
+        kwargs = {}
+        if hasattr(pybullet, 'VISUAL_SHAPE_DOUBLE_SIDED'):
+            kwargs['flags'] = pybullet.VISUAL_SHAPE_DOUBLE_SIDED
+        self.sim.changeVisualShape(
+            deform_id, -1, textureUniqueId=texture_id, **kwargs)
+
+        num_mesh_vertices, _ = self.sim.getMeshData(deform_id)
         if self.debug:
             print('Loading obj_file_name', obj_file_name)
-            print('Loaded cloth_id', cloth_id, 'with',
+            print('Loaded cloth_id', deform_id, 'with',
                   num_mesh_vertices, 'mesh vertices')
         # Pybullet will struggle with very large meshes, so we should keep mesh
         # sizes to a limited number of vertices and faces.
@@ -225,15 +321,14 @@ class DeformSim():
         # memory limits, as noted here:
         # https://github.com/bulletphysics/bullet3/issues/1965
         assert(num_mesh_vertices < 2**13), f'The mesh (n={num_mesh_vertices}) is too big' # make sure mesh has less than ~8K verts
-        return cloth_id
 
-    def add_main_object(self, obj_id):
-        ''' Add an object as a main object (to be manipulated) '''
-        self.main_obj_ids.append(obj_id)
+        self.deform_obj_id = deform_id
+
+        return deform_id
 
 
-    def setup_scene_rigid_obj(self, scene_version_name=None):
-        assert self.is_sim_init, 'simulator not initialize! Call sim_init() first!'
+    def load_scene(self, scene_version_name=None):
+        # assert self.is_sim_init, 'simulator not initialize! Call sim_init() first!'
         args = self.args
         self.sim.setAdditionalSearchPath(os.path.join(args.data_path, 'urdf'))
         rigid_ids = []
@@ -241,14 +336,16 @@ class DeformSim():
         # TODO Scene rigid object setup  ===
 
         if scene_version_name is not None:
+            # Gym env
             scene_name = scene_version_name.lower()
         else:
-            scene_name = list(SCENE_OBJECTS_PRESETS.keys())[args.scene_version]
+            # Collection script
+            scene_name = list(self.scene_preset_dict.keys())[args.scene_version]
 
         self.scene_name = scene_name
 
         # Load scene entities
-        for name, kwargs in SCENE_OBJECTS_PRESETS[scene_name]['entities'].items():
+        for name, kwargs in self.scene_preset_dict[scene_name]['entities'].items():
             if name.endswith('.obj'):
                 pth = os.path.join(args.data_path,name)
                 id = self.load_rigid_object(pth,  **kwargs)
@@ -272,101 +369,31 @@ class DeformSim():
     def use_preset_args(self):
         # if not self.args.cloth_obj in CLOTH_OBJECTS_DICT: return
         # Convert from absolute path
-        cloth_obj = self.cloth_obj_name
-        if cloth_obj in CLOTH_OBJECTS_DICT:
-            for k, v in CLOTH_OBJECTS_DICT[cloth_obj].items():
+        cloth_obj = self.deform_obj_name
+        if cloth_obj in self.object_preset_dict:
+            for k, v in self.object_preset_dict[cloth_obj].items():
                 setattr(self.args, k, v)
 
         return self.args
 
     @property
-    def cloth_obj_name(self):
-        cloth_obj_full_path = self.args.cloth_obj
+    def deform_obj_name(self):
+        cloth_obj_full_path = self.args.deform_obj
         parent_dir = os.path.basename(os.path.dirname(cloth_obj_full_path))
         filename = os.path.basename(cloth_obj_full_path)
-        cloth_obj = os.path.join(parent_dir, filename)
-        return cloth_obj
+        deform_obj = os.path.join(parent_dir, filename)
+        return deform_obj
 
-    @property
-    def cloth_anchored_vertex_ids(self):
-        if self.cloth_obj_name not in CLOTH_OBJECTS_DICT.keys():
-            return None
-        if 'cloth_anchored_vertex_ids' in CLOTH_OBJECTS_DICT[self.cloth_obj_name].keys(): #
-            return CLOTH_OBJECTS_DICT[self.cloth_obj_name]['cloth_anchored_vertex_ids']
-        return None
-
-    @property
-    def cloth_fixed_anchor_vertex_ids(self):
-        if self.cloth_obj_name not in CLOTH_OBJECTS_DICT.keys():
-            return None
-        if 'cloth_fixed_anchor_vertex_ids' in CLOTH_OBJECTS_DICT[self.cloth_obj_name].keys(): #
-            return CLOTH_OBJECTS_DICT[self.cloth_obj_name]['cloth_fixed_anchor_vertex_ids']
-        return None
-
-    def set_cloth_anchored_vertex_ids(self, anchored_vertex_ids):
-        if self.cloth_obj_name not in CLOTH_OBJECTS_DICT:
-            CLOTH_OBJECTS_DICT[self.cloth_obj_name] = {}
-        CLOTH_OBJECTS_DICT[self.cloth_obj_name]['cloth_anchored_vertex_ids'] = anchored_vertex_ids
-
-    def anchors_grasp(self):
-        cloth_id = self.main_obj_ids[-1]
-        for i, anchor_id in enumerate(self.anchor_ids):
-            for v in self.cloth_anchored_vertex_ids[i]:
-                self.sim.createSoftBodyAnchor(cloth_id, v, bodyUniqueId=anchor_id)
-
-    def get_closest_anchor(self, anchors):
-        soft_obj_id = self.main_obj_ids[-1] # hardcode single soft object only
-        mesh_info = self.sim.getMeshData(soft_obj_id)
-        mesh_vetex_positions = np.array(mesh_info[1])
-        cloth_obj = self.cloth_obj_name
-        ret_anchors = []
-        if self.cloth_anchored_vertex_ids is not None:
-            for anc, anchor_vertex_ids in enumerate(self.cloth_anchored_vertex_ids):
-                anc_pos = mesh_vetex_positions[anchor_vertex_ids].mean(axis=0)
-                ret_anchors.append(anc_pos)
-        else:
-            anchor_vert_indices = self.get_closest(
-                anchors, mesh_vetex_positions)
-            self.set_cloth_anchored_vertex_ids(anchor_vert_indices)
-            for anc_pts in anchor_vert_indices:
-                anc_pos = mesh_vetex_positions[anc_pts].mean(axis=0)
-                ret_anchors.append(anc_pos)
-        return ret_anchors
-
-    def set_fixed_anchors(self, anchors=None):
-        if anchors is not None:
-            raise NotImplementedError('Not done yet')
-        soft_obj_id = self.main_obj_ids[-1]
-        mesh_info = self.sim.getMeshData(soft_obj_id)
-        mesh_vetex_positions = np.array(mesh_info[1])
-        if self.cloth_fixed_anchor_vertex_ids is not None:
-            for anc, anchor_vertex_ids in enumerate(self.cloth_fixed_anchor_vertex_ids):
-                anc_pos = mesh_vetex_positions[anchor_vertex_ids].mean(axis=0)
-                anc_id = self.create_anchor_geom(anc_pos)
-                for v in anchor_vertex_ids:
-                    self.sim.createSoftBodyAnchor(soft_obj_id, v, bodyUniqueId=anc_id)
-
-    def find_closest_anchor_points(self, anchors):
-        soft_obj_id = self.main_obj_ids[-1] # hardcode single soft object only
-        mesh_info = self.sim.getMeshData(soft_obj_id)
-        mesh_vetex_positions = np.array(mesh_info[1])
-        ret_anchors = []
-        anchor_vert_indices = self.get_closest(
-            anchors, mesh_vetex_positions)
-        for anc_pts in anchor_vert_indices:
-            anc_pos = mesh_vetex_positions[anc_pts].mean(axis=0)
-            ret_anchors.append(anc_pos)
-        return ret_anchors, anchor_vert_indices
 
     def get_reward_target_pos(self, scene_version_name, target_type, ):
         scene_name = scene_version_name.lower()
-        assert scene_name in SCENE_OBJECTS_PRESETS, f'Unknown scene version name {scene_version_name}'
+        assert scene_name in self.scene_preset_dict, f'Unknown scene version name {scene_version_name}'
         if scene_name == 'basic':
             return None
         elif target_type == 'hard':
-            return SCENE_OBJECTS_PRESETS[scene_name]['hard_target_pos']
+            return self.scene_preset_dict[scene_name]['hard_target_pos']
         elif target_type == 'easy':
-            return SCENE_OBJECTS_PRESETS[scene_name]['easy_target_pos']
+            return self.scene_preset_dict[scene_name]['easy_target_pos']
 
     def setup_camera(self):
         # Set up camera if needed.

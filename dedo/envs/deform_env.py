@@ -13,10 +13,9 @@ import pybullet_data
 
 from ..utils.anchor_utils import (
     attach_anchor, create_anchor, command_anchor_velocity)
-from ..utils.init_utils import (
-    init_bullet, load_rigid_object, load_soft_object)
 from ..utils.mesh_utils import get_mesh_data
 from ..utils.task_info import DEFORM_INFO, SCENE_INFO, TASK_TYPES
+from ..sim.deform_sim import DeformSim
 
 
 class DeformEnv(gym.Env):
@@ -36,10 +35,14 @@ class DeformEnv(gym.Env):
             'cameraPitch': -40,
             'cameraTargetPosition': np.array([0.0, 0, 0])
         }
-        self.sim = init_bullet(
-            self.args, cam_on=self.cam_on, cam_args=self.cam_args)
+
+        self.ds = DeformSim(args, object_preset_dict=DEFORM_INFO, scene_preset_dict=SCENE_INFO, viz=self.args.viz)
+        self.ds.init_bullet(self.cam_on, self.cam_args)
+
+        self.sim = self.ds.sim
         self.rigid_ids, self.deform_id, self.goal_pos = self.load_objects(
             self.sim, version, self.args)
+
         # Define sizes of observation and action spaces.
         if args.cam_resolution is None:
             state_sz = DeformEnv.NUM_ANCHORS*DeformEnv.ANCHOR_OBS_SIZE
@@ -55,7 +58,7 @@ class DeformEnv(gym.Env):
             np.ones(DeformEnv.NUM_ANCHORS*3))
         # Loading done, turn on visualizer if needed
         if self.args.viz:
-            self.sim.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 1)
+            self.ds.viz_render()
 
     @staticmethod
     def clip_pts(pts, bound, debug_msg=None):
@@ -69,23 +72,20 @@ class DeformEnv(gym.Env):
     def load_objects(self, sim, version, args):
         assert(args.task in TASK_TYPES)
         assert(version == 0), 'Only v0 available for now'
-        scene_name = args.task.lower()
+        scene_name = self.args.task.lower()
         if scene_name.startswith('hang'):
             scene_name = 'hang'  # same scene for 'HangBag', 'HangCloth'
         data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
         sim.setAdditionalSearchPath(data_path)
         rigid_ids = []
+
         #
         # Load rigid objects.
         #
-        for name, kwargs in SCENE_INFO[scene_name]['entities'].items():
-            pth = os.path.join(args.data_path, name)
-            id = load_rigid_object(
-                sim, pth, kwargs['globalScaling'],
-                kwargs['basePosition'], kwargs['baseOrientation'])
-            if name == 'torso.urdf':
-                torso_id = id
-            rigid_ids.append(id)
+        rigid_ids = self.ds.load_scene(scene_version_name=scene_name)
+
+        # TODO load custom objects
+
         if args.override_deform_obj is not None:
             args.deform_obj = args.override_deform_obj
         elif args.task == 'HangBag':
@@ -98,22 +98,26 @@ class DeformEnv(gym.Env):
         #
         # Load deformable object.
         #
-        args.texture_path = os.path.join(
+        texture_path = os.path.join(
             data_path, 'textures', 'blue_bright.png')
-        deform_id = load_soft_object(
-            sim, args.deform_obj,  args.texture_path, args.deform_scale,
+        deform_obj_path = os.path.join(args.data_path, args.deform_obj)
+
+        deform_id = self.ds.load_deform_object(
+            deform_obj_path,
+            texture_path,
+            args.deform_scale,
             args.deform_init_pos, args.deform_init_ori,
             args.deform_bending_stiffness, args.deform_damping_stiffness,
             args.deform_elastic_stiffness, args.deform_friction_coeff,
-            args.debug)
-        #
+            args.debug
+        )
+
+
         # Mark the goal.
-        #
         goal_pos = SCENE_INFO[scene_name]['goal_pos']
         if args.viz:
-            viz_tgt_id = create_anchor(
-                sim, [0,0,0], mass=0.0, radius=0.01, rgba=(0,1,0,1))
-            sim.resetBasePositionAndOrientation(viz_tgt_id, goal_pos, [0,0,0,1])
+            self.ds.create_anchor_geometry(goal_pos, mass=0.0, radius=0.01, rgba=(0,1,0,1)) # Not actual anchor for visualization only
+
         return rigid_ids, deform_id, np.array(goal_pos)
 
     def seed(self, seed):
@@ -124,14 +128,19 @@ class DeformEnv(gym.Env):
         self.episode_reward = 0.0
         self.anchor_ids = []
         self.topo_generators = []
-        init_bullet(self.args, self.sim, self.cam_on, self.cam_args)
+        # init_bullet(self.args, self.sim, self.cam_on, self.cam_args)
+        self.ds.init_bullet(self.cam_on, self.cam_args)
         self.rigid_ids, self.deform_id, self.goal_pos = self.load_objects(
             self.sim, self.version, self.args)
+        self.ds.stepSimulation()  # step once to set orientation etc
         for i in range(DeformEnv.NUM_ANCHORS):  # make anchors
             anchor_init_pos = self.args.anchor_init_pos if (i%2)==0 else \
                 self.args.other_anchor_init_pos
-            anchor_id = create_anchor(self.sim, anchor_init_pos)
-            attach_anchor(self.sim, anchor_id, self.deform_id)  # grasp
+            # anchor_id = create_anchor(self.sim, anchor_init_pos)
+            # TODO Delete me
+            self.ds.create_anchor_geometry(anchor_init_pos, radius=0.001, rgba=(0,0,0,1)) # debugging only
+            anchor_id = self.ds.create_dynamic_anchor(anchor_init_pos, dynamic_anchor_idx=i)
+            self.ds.anchor_grasp(anchor_id)
             self.anchor_ids.append(anchor_id)
         if self.args.viz:  # loading done, so enable debug rendering if needed
             time.sleep(0.1)  # wait for debug visualizer to catch up
