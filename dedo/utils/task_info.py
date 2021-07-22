@@ -51,12 +51,12 @@ SCENE_INFO = {
 
     'hang': {
         'entities': {
-            'urdf/cuboid.urdf': {
+            'cuboid.urdf': {
                 'basePosition': [0.0, -0.15, 0.20],
                 'baseOrientation': [0, 0, 0],
                 'globalScaling': 1.0,
             },
-            'urdf/hook.urdf': {
+            'hook.urdf': {
                 'basePosition': [0.0, (0.3+0.1)/2-0.15, 0.30],
                 'baseOrientation': [0, 0, np.pi/2],
                 'globalScaling': 1.0,
@@ -226,6 +226,9 @@ DEFORM_INFO = {
         'deform_scale': 0.5,
         'deform_elastic_stiffness': 10.0,
         'deform_bending_stiffness': 10.0,
+        'deform_true_loop_vertices': [
+            [0, 1, 2, 3]  # placeholder, since we don't know the true loops
+        ],
         'deform_anchored_vertex_ids': [
             [1395, 1554, 1594, 1593, 1553, 1353, 1475, 1474, 1473, 1472, 1354, 1515, 1513, 1435, 1434, 1433, 1432, 1393,
              1394, 1514, 1555, 1315, 1355, 1392, 1592, 1552, 1595, 1313, 1512, 1352, 1314],
