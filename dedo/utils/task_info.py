@@ -8,8 +8,7 @@
 #
 import numpy as np
 
-# Take information dictionary, with task names as keys and mesh object file
-# names lists as values.
+# Task information dictionary/map from task names to mesh file names lists.
 TASK_INFO = {
     'HangBag': ['bags/ts_purse_bag_resampled.obj',
                 'bags/bags_zehang/obj/normal/bag1-1.obj'],
@@ -20,10 +19,10 @@ TASK_INFO = {
     'Dress': ['ts_backpack_resampled.obj'],
     'Hoop': ['ts_hoop.obj'],
     'Lasso': ['ts_lasso_sparser.obj'],
-     # 'Mask': ['ts_mask.obj']  # TODO: add Mask task when new mesh is ready
+    'Mask': ['ts_mask.obj']  # TODO: add Mask task when new mesh is ready
 }
 
-
+# Information about rigid objects to load into the scene.
 SCENE_INFO = {
     'dress': {
         'entities': {
@@ -106,7 +105,7 @@ SCENE_INFO = {
     },
 }
 
-
+# Information about deformable objects.
 DEFORM_INFO = {
     'bags/ts_purse_bag_resampled.obj': {  # TODO: REMOVE - PROPRIETARY MESH
         'deform_init_pos': [0, 0.40, 0.57],
@@ -200,25 +199,6 @@ DEFORM_INFO = {
              1361, 1518, 1562, 1561, 1320, 1319, 1558, 1482, 1517]],
         'deform_fixed_anchor_vertex_ids':
             [1, 120, 2, 3, 31, 78, 119, 118, 21, 104, 103, 102, 51, 90, 45, 3],
-        'traj_preset': {  # TODO: Yonk, please update this later
-            'button': {
-                'waypoints': [[[-0.13, 0.2028, 0.3056],
-                               [-0.13, 0.2028, 0.3056],
-                               [0.2, 0.115, 0.3056],
-                               [0.2, 0.100, 0.3056],
-                               [0.2, 0.16, 0.3056],
-                               ],
-
-                              [[-0.13, 0.2081, 0.1263],
-                               [-0.13, 0.2081, 0.1263],
-                               [0.2, 0.115, 0.1263],
-                               [0.2, 0.100, 0.1263],
-                               [0.2, 0.16, 0.1263],
-                               ], ],
-                'camera_pos': [0.5, 160, -30],
-                'camera_target': (0.0, 0.0, 0.1),
-            }
-        }
     },
     'ts_lasso_sparser.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL
         'anchor_init_pos': [-0.1206, 0.4875, 0.4857],
@@ -228,25 +208,6 @@ DEFORM_INFO = {
         'deform_true_loop_vertices': [
             [0, 1, 2, 3]  # placeholder, since we don't know the true loops
         ],
-        'traj_preset': {
-            'lasso': {
-                'waypoints': [[
-                    [-0.1206, 0.4875, 0.4857],
-                    [-0.16, 0.15, 0.55],
-                    # [-0.06, 0.05, 0.42],
-                ],
-                    [
-                        [-0.0867, 0.5413, 0.4843],
-                        [-0.16, 0.30, 0.55],
-                        # [-0.06, 0.05, 0.42],
-                    ],
-
-                ],
-                'camera_pos': [0.7, 300, -50],
-                'camera_target': (0.0, 0.0, 0.3),
-                'start_immediately': True,
-            }
-        }
     },
     'ts_hoop.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL
         'anchor_init_pos': [-0.12, 0.48, 0.48],
@@ -289,6 +250,14 @@ DEFORM_INFO = {
              1545, 1559, 1563, 1567, 1572, 1578, 1599, 1603, 1604, 1605, 1606,
              1607, 1610, 1616, 1618, 1636, 1640, 1641, 1642, 1643, 1646, 1647,
              1653]
+        ],
+    },
+    'ts_mask.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL
+        'deform_init_pos': [0, 0.43, 0.65],
+        'deform_init_ori': [0, 0, np.pi],
+        'deform_scale': 0.50,
+        'deform_true_loop_vertices': [
+            [0, 1, 2, 3]  # placeholder, since we don't know the true loops
         ],
     },
 }
