@@ -18,6 +18,59 @@ def get_preset_properties(object_preset_dict, deform_obj_name, key):
     if key in object_preset_dict[deform_obj_name].keys():
         return object_preset_dict[deform_obj_name][key]
 
+def load_objects(sim, scene_name, ):
+    if scene_name.startswith('hang'):
+        scene_name = 'hang'  # same scene for 'HangBag', 'HangCloth'
+    elif scene_name.startswith('mask'):
+        scene_name = 'dress'  # same human figure for dress and mask tasks
+    elif scene_name.startswith('button'):
+        scene_name = 'button'  # same human figure for dress and mask tasks
+    data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
+    sim.setAdditionalSearchPath(data_path)
+
+    #
+    # Load rigid objects.
+    #
+    rigid_ids = []
+    for name, kwargs in SCENE_INFO[scene_name]['entities'].items():
+        pth = os.path.join(data_path, name)
+        id = load_rigid_object(
+            sim, pth, kwargs['globalScaling'],
+            kwargs['basePosition'], kwargs['baseOrientation'])
+        rigid_ids.append(id)
+    #
+    # Load deformable object.
+    #
+    if args.override_deform_obj is not None:
+        deform_obj = args.override_deform_obj
+    else:
+        assert (args.task in TASK_INFO)  # already checked in args
+        assert (args.version < len(TASK_INFO[args.task]))  # checked in args
+        deform_obj = TASK_INFO[args.task][args.version]
+        for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
+            setattr(args, arg_nm, arg_val)
+
+    texture_path = os.path.join(
+        data_path, 'textures', 'blue_bright.png')
+    deform_id = load_deform_object(
+        sim, deform_obj, texture_path, args.deform_scale,
+        args.deform_init_pos, args.deform_init_ori,
+        args.deform_bending_stiffness, args.deform_damping_stiffness,
+        args.deform_elastic_stiffness, args.deform_friction_coeff,
+        args.debug)
+    if scene_name == 'button':  # pin cloth edge for buttoning task
+        assert ('deform_fixed_anchor_vertex_ids' in DEFORM_INFO[deform_obj])
+        pin_fixed(sim, deform_id,
+                  DEFORM_INFO[deform_obj]['deform_fixed_anchor_vertex_ids'])
+    #
+    # Mark the goal.
+    #
+    goal_pos = SCENE_INFO[scene_name]['goal_pos']
+    if args.viz:
+        create_anchor_geom(sim, goal_pos, mass=0.0, radius=0.01,
+                           rgba=(0, 1, 0, 1), use_collision=True)
+    pass
+
 def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori):
     """Load a rigid object from file, create visual and collision shapes."""
     if obj_file_name.endswith('.obj'):  # mesh info
@@ -59,7 +112,7 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
         springDampingStiffness=damping_stiffness,
         springBendingStiffness=bending_stiffness,
         frictionCoeff=friction_coeff,
-        collisionMargin=0.06,
+        collisionMargin=0.06, # how far apart do two objects begin interacting
         useSelfCollision=1,
         springDampingAllDirections=1,
         useFaceContact=1,

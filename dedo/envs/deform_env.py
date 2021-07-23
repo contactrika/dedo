@@ -94,7 +94,7 @@ class DeformEnv(gym.Env):
             deform_obj = TASK_INFO[args.task][args.version]
             for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
                 setattr(args, arg_nm, arg_val)
-        self.deform_obj = deform_obj
+
         texture_path = os.path.join(
             data_path, 'textures', 'blue_bright.png')
         deform_id = load_deform_object(
@@ -115,6 +115,7 @@ class DeformEnv(gym.Env):
             create_anchor_geom(sim, goal_pos, mass=0.0, radius=0.01,
                                rgba=(0,1,0,1), use_collision=True)
 
+        self.deform_obj = deform_obj
         return rigid_ids, deform_id, np.array(goal_pos)
 
     def seed(self, seed):
