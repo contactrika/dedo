@@ -29,14 +29,14 @@ pip install -e .
 ### Examples
 
 ```
-python -m dedo.demo --task=HangBag --viz --debug
+python -m dedo.demo --env=HangBag-v0 --viz --debug
 ```
 
 ![misc/imgs/bag_begin.png](misc/imgs/bag_begin.png)
 ![misc/imgs/bag_end.png](misc/imgs/bag_end.png)
 
 ```
-python -m dedo.demo --task=HangCloth --viz --debug
+python -m dedo.demo --env=HangCloth-v0 --viz --debug
 ```
 
 ![misc/imgs/apron_begin.png](misc/imgs/apron_begin.png)
@@ -49,7 +49,7 @@ testing).
 To get images as state use `--cam_resolution` flag as follows:
 
 ```
-python -m dedo.demo --task=HangCloth --cam_resolution 200 --viz --debug
+python -m dedo.demo --env=HangCloth-v0 --cam_resolution 200 --viz --debug
 ```
 
 ![misc/imgs/apron_rgb.png](misc/imgs/apron_rgb.png)
@@ -76,7 +76,7 @@ DEFORM_INFO = {
 Then you can use `--override_deform_obj` flag:
 
 ```
-python -m dedo.demo --task=HangBag --cam_resolution 200 --viz --debug \
+python -m dedo.demo --env=HangBag-v0 --cam_resolution 200 --viz --debug \
     --override_deform_obj bags/bags_zehang/obj/normal/bag1-1.obj
 ```
 

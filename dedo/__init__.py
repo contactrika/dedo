@@ -1,6 +1,7 @@
 from gym.envs.registration import register
 from .envs.deform_env import DeformEnv
-from .utils.task_info import TASK_TYPES
+from .utils.task_info import TASK_INFO
 
-for task in TASK_TYPES:
-    register(id=task+'-v0', entry_point='dedo.envs:DeformEnv')
+for task, versions in TASK_INFO.items():
+    for version, obj_name in enumerate(versions):
+        register(id=task+'-v'+str(version), entry_point='dedo.envs:DeformEnv')

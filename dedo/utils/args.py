@@ -7,7 +7,7 @@ import argparse
 import logging
 import sys
 
-from .task_info import TASK_TYPES
+from .task_info import TASK_INFO
 
 
 def get_args(parent=None):
@@ -16,9 +16,8 @@ def get_args(parent=None):
         handlers=[logging.StreamHandler(sys.stdout)])
     parser = argparse.ArgumentParser(description='args', add_help=False)
     # Main/demo args.
-    parser.add_argument('--task', type=str,
-                        default='Hang', help='Name of the task type',
-                        choices=TASK_TYPES)
+    parser.add_argument('--env', type=str,
+                        default='HangBag-v0', help='Env name')
     parser.add_argument('--max_episode_len', type=int,
                         default=400, help='Number of simulation steps per task')
     parser.add_argument('--seed', type=int, default=0, help='Random seed')
@@ -62,6 +61,13 @@ def get_args(parent=None):
     parser.add_argument('--cam_resolution', type=int, default=None,
                         help='RGB camera resolution in pixels (both with and '
                              'height). Use none to get only anchor poses.')
-    #
+    # Parse args and do sanity checks.
     args, unknown = parser.parse_known_args()
+    env_parts = args.env.split('-v')
+    assert(len(env_parts) == 2 and env_parts[1].isdigit()), \
+        '--env=[Task]-v[Version] (e.g. HangCloth-v0)'
+    args.task = env_parts[0]
+    args.version = int(env_parts[1])
+    assert(args.task in TASK_INFO.keys()), 'TASK_INFO lists supported tasks'
+    assert(args.version < len(TASK_INFO[args.task])), 'env version too high'
     return args, parser
