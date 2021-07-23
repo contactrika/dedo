@@ -8,11 +8,12 @@ import pybullet
 
 from .mesh_utils import get_mesh_data
 
-ANCHOR_MIN_DIST = 0.01  # 1cm
+ANCHOR_MIN_DIST = 0.02  # 2cm
 ANCHOR_MASS = 0.100     # 100g
 ANCHOR_RADIUS = 0.007   # 7mm
-ANCHOR_RGBA_ACTIVE = (1, 0, 1, 1)  # magenta
+ANCHOR_RGBA_ACTIVE = (1, 0, 1, 1)          # magenta
 ANCHOR_RGBA_INACTIVE = (0.5, 0.5, 0.5, 1)  # gray
+ANCHOR_RGBA_PEACH = (0.9, 0.75, 0.65, 1)   # peach
 # Gains and limits for a simple controller for the anchors.
 CTRL_MAX_FORCE = 10
 CTRL_PD_KD = 50.0
@@ -34,8 +35,9 @@ def get_closest(point, vertices, max_dist=None):
 def create_anchor(sim, pos, mass=ANCHOR_MASS, radius=ANCHOR_RADIUS,
                   rgba=ANCHOR_RGBA_INACTIVE, use_collision=True):
     """Create a small visual object at the provided pos in world coordinates.
-    If mass==0: this object does not collide with any other objects
-    and only serves to show grip location.
+    If mass==0: the anchor will be fixed (not moving)
+    If use_collision==False: this object does not collide with any other objects
+    and would only serve to show grip location.
     input: sim (pybullet sim), pos (list of 3 coords for anchor in world frame)
     output: anchorId (long) --> unique bullet ID to refer to the anchor object
     """
@@ -54,10 +56,10 @@ def create_anchor(sim, pos, mass=ANCHOR_MASS, radius=ANCHOR_RADIUS,
 
 
 def command_anchor_velocity(sim, anchor_bullet_id, tgt_vel):
-    anc_linvel, anc_angvel = sim.getBaseVelocity(anchor_bullet_id)
+    anc_linvel, _ = sim.getBaseVelocity(anchor_bullet_id)
     vel_diff = tgt_vel - np.array(anc_linvel)
     force = CTRL_PD_KD * vel_diff
-    force = np.clip(force, -1.0 * CTRL_MAX_FORCE, CTRL_MAX_FORCE)
+    force = np.clip(force, -1.0*CTRL_MAX_FORCE, CTRL_MAX_FORCE)
     sim.applyExternalForce(
         anchor_bullet_id, -1, force.tolist(), [0, 0, 0], pybullet.LINK_FRAME)
     # If we were using a robot (e.g. Yumi or other robot with precise
@@ -80,7 +82,6 @@ def attach_anchor(sim, anchor_id, deform_id):
     pos, ori = sim.getBasePositionAndOrientation(anchor_id)
     deform_anchored_vertex_ids = get_closest(
         [pos], get_mesh_data(sim, deform_id)[1], max_dist=ANCHOR_MIN_DIST)
-    print('OLD METHOD anchor', anchor_id, pos, deform_anchored_vertex_ids, )
     for v in deform_anchored_vertex_ids:
         sim.createSoftBodyAnchor(deform_id, v, anchor_id, -1)
 
@@ -90,9 +91,11 @@ def release_anchor(sim, anchor_id):
     sim.changeVisualShape(anchor_id, -1, rgbaColor=ANCHOR_RGBA_INACTIVE)
 
 
-def get_anchor_poses(sim, anchor_bullet_ids):
-    anchor_poses = []
-    for anchor_id in anchor_bullet_ids:
-        pos, _ = sim.getBasePositionAndOrientation(anchor_id)
-        anchor_poses.append(pos)
-    return anchor_poses
+def pin_fixed(sim, deform_id, vert_ids):
+    _, v_pos_list = get_mesh_data(sim, deform_id)
+    for v_idx in vert_ids:
+        v_pos = v_pos_list[v_idx]
+        anc_id = create_anchor(sim, v_pos, mass=0.0, radius=0.002,
+                               rgba=ANCHOR_RGBA_PEACH)
+        sim.createSoftBodyAnchor(deform_id, v_idx, anc_id, -1)
+

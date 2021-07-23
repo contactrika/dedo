@@ -1,8 +1,8 @@
 """
 A simple demo for envs (with random actions).
 
-python -m dedo.demo --task=HangBag --viz --debug
-python -m dedo.demo --task=HangCloth --viz --debug
+python -m dedo.demo --env=HangCloth-v0 --viz --debug
+python -m dedo.demo --env=HangBag-v1 --viz --debug
 
 @contactrika
 
@@ -17,15 +17,19 @@ import gym
 from dedo.utils.args import get_args
 
 
-def policy_simple(obs):
-    assert(2*3)
+def policy_simple(obs, act, task):
+    act = act.reshape(2, 3)
     obs = obs.reshape(-1, 3)
-    act = np.random.rand(2, 3)  # in [0,1]
-    if obs[0, 2] > 0.30:
-        act[:, 1] = -0.13  # decrease y
-        act[:, 2] = -0.1  # decrease z
-    else:
-        act[:] = 0.0  # rest
+    if task == 'Button':
+        act[:, :] = 0.0
+        if obs[0, 0] < 0.10:
+            act[:, 0] = 0.10  # increase x
+    elif task in ['Lasso', 'Hoop', 'Dress']:
+        if obs[0, 1] > 0.0:
+            act[:, 1] = -0.25  # decrease y
+    elif obs[0, 2] > 0.50:
+        act[:, 1] = -0.10  # decrease y
+        act[:, 2] = -0.06  # decrease z
     return act.reshape(-1)
 
 
@@ -38,12 +42,9 @@ def play(env, num_episodes, args):
         input('Reset done; press enter to start episode')
         while True:
             assert(not isinstance(env.action_space, gym.spaces.Discrete))
-            if args.cam_resolution is None:
-                act = policy_simple(obs)
-            else:
-                act = np.random.rand(*env.action_space.shape)  # in [0,1]
-            rng = env.action_space.high - env.action_space.low
-            act = act*rng + env.action_space.low
+            act = env.action_space.sample()  # in [-1,1]
+            noise_act = 0.1*act
+            act = policy_simple(obs, noise_act, args.task)
             next_obs, rwd, done, info = env.step(act)
             if args.viz and (args.cam_resolution is not None) and step%100==0:
                 img = next_obs
@@ -59,9 +60,8 @@ def play(env, num_episodes, args):
 def main(args):
     np.set_printoptions(precision=4, linewidth=150,
                         threshold=np.inf, suppress=True)
-    version = 0  # TODO: make versions
-    kwargs = {'version':version, 'args':args}
-    env = gym.make(args.task+'-v'+str(version), **kwargs)
+    kwargs = {'args': args}
+    env = gym.make(args.env, **kwargs)
     env.seed(env.args.seed)
     print('Created', args.task, 'with observation_space',
           env.observation_space.shape, 'action_space', env.action_space.shape)
@@ -70,4 +70,4 @@ def main(args):
 
 
 if __name__ == "__main__":
-    main(get_args()[0])
+    main(get_args())

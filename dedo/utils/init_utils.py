@@ -9,7 +9,6 @@ import time
 import numpy as np
 import pybullet
 import pybullet_data
-import pybullet_utils.bullet_client as bclient
 
 from .mesh_utils import get_mesh_data
 
@@ -39,10 +38,10 @@ def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori):
     return rigid_id
 
 
-def load_soft_object(sim, obj_file_name, texture_file_name,
-                     scale, init_pos, init_ori,
-                     bending_stiffness, damping_stiffness, elastic_stiffness,
-                     friction_coeff, debug):
+def load_deform_object(sim, obj_file_name, texture_file_name,
+                       scale, init_pos, init_ori,
+                       bending_stiffness, damping_stiffness, elastic_stiffness,
+                       friction_coeff, debug):
     """Load object from obj file with pybullet's loadSoftBody()."""
     # Note: do not set very small mass (e.g. 0.01 causes instabilities).
     deform_id = sim.loadSoftBody(
@@ -55,7 +54,7 @@ def load_soft_object(sim, obj_file_name, texture_file_name,
         springDampingStiffness=damping_stiffness,
         springBendingStiffness=bending_stiffness,
         frictionCoeff=friction_coeff,
-        collisionMargin=0.05,
+        collisionMargin=0.06,
         useSelfCollision=1,
         springDampingAllDirections=1,
         useFaceContact=1,
@@ -82,17 +81,9 @@ def load_soft_object(sim, obj_file_name, texture_file_name,
     return deform_id
 
 
-def init_bullet(args, sim=None, cam_on=False, cam_args={}):
-    """Initialize pybullet simulation."""
-    curr_dir = os.path.dirname(os.path.realpath(__file__))
-    parent_dir = os.path.dirname(curr_dir)
-    args.data_path = os.path.join(parent_dir, 'data')
-    if args.viz:
-        if sim is None:
-            sim = bclient.BulletClient(connection_mode=pybullet.GUI)
-        # don't render during init
-        pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 0)
-        # toggle aux menus in the gui
+def reset_bullet(args, sim, cam_on=False, cam_args={}):
+    """Reset/initialize pybullet simulation."""
+    if args.viz:  # toggle aux menus in the GUI.
         pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_GUI, cam_on)
         pybullet.configureDebugVisualizer(
             pybullet.COV_ENABLE_RGB_BUFFER_PREVIEW, cam_on)
@@ -101,9 +92,6 @@ def init_bullet(args, sim=None, cam_on=False, cam_args={}):
         pybullet.configureDebugVisualizer(
             pybullet.COV_ENABLE_SEGMENTATION_MARK_PREVIEW, cam_on)
         sim.resetDebugVisualizerCamera(**cam_args)
-    else:
-        if sim is None:
-            sim = bclient.BulletClient(connection_mode=pybullet.DIRECT)
     # Note: using sim.resetSimulation(pybullet.RESET_USE_DEFORMABLE_WORLD)
     # would turn on FEM, which could be very tricky to tune, so we avoid it.
     sim.resetSimulation()
