@@ -14,7 +14,7 @@ def get_args(parent=None):
     logging.basicConfig(
         level=logging.INFO, format='%(asctime)s %(message)s',
         handlers=[logging.StreamHandler(sys.stdout)])
-    parser = argparse.ArgumentParser(description='args', add_help=False)
+    parser = argparse.ArgumentParser(description='args', add_help=True)
     # Main/demo args.
     parser.add_argument('--env', type=str,
                         default='HangBag-v0', help='Env name')
@@ -62,12 +62,14 @@ def get_args(parent=None):
                         help='RGB camera resolution in pixels (both with and '
                              'height). Use none to get only anchor poses.')
     # Parse args and do sanity checks.
-    args, unknown = parser.parse_known_args()
+    args = parser.parse_args()
     env_parts = args.env.split('-v')
     assert(len(env_parts) == 2 and env_parts[1].isdigit()), \
         '--env=[Task]-v[Version] (e.g. HangCloth-v0)'
     args.task = env_parts[0]
     args.version = int(env_parts[1])
-    assert(args.task in TASK_INFO.keys()), 'TASK_INFO lists supported tasks'
+    if args.task not in TASK_INFO.keys():
+        print('Supported tasks are', list(TASK_INFO.keys()), 'got', args.task)
+        exit(1)
     assert(args.version < len(TASK_INFO[args.task])), 'env version too high'
-    return args, parser
+    return args

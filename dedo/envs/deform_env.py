@@ -87,8 +87,8 @@ class DeformEnv(gym.Env):
             assert(args.task in TASK_INFO)  # already checked in args
             assert(args.version < len(TASK_INFO[args.task]))  # checked in args
             deform_obj = TASK_INFO[args.task][args.version]
-        for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
-            setattr(args, arg_nm, arg_val)
+            for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
+                setattr(args, arg_nm, arg_val)
         texture_path = os.path.join(
             data_path, 'textures', 'blue_bright.png')
         deform_id = load_deform_object(
@@ -183,6 +183,8 @@ class DeformEnv(gym.Env):
         return obs, done
 
     def get_reward(self, action):
+        if not hasattr(self.args, 'deform_true_loop_vertices'):
+            return 0.0  # not reward info without info about true loops
         _, vertex_positions = get_mesh_data(self.sim, self.deform_id)
         accum = np.zeros(3)
         true_loop_vertices = self.args.deform_true_loop_vertices[0]

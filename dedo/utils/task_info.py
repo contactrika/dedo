@@ -60,7 +60,7 @@ SCENE_INFO = {
                 'globalScaling': 1.0,
             },
         },
-        'goal_pos': [0.00, 0.05, 0.26],
+        'goal_pos': [0.00, 0.05, 0.46],
     },
     'button': {
         'entities': {
@@ -110,10 +110,7 @@ DEFORM_INFO = {
     'bags/ts_purse_bag_resampled.obj': {  # TODO: REMOVE - PROPRIETARY MESH
         'deform_init_pos': [0, 0.40, 0.57],
         'deform_init_ori': [0, 0, np.pi/2],
-        'deform_scale' : 2.0,
-        'deform_anchored_vertex_ids': [
-            [357, 355, 40, 356, 372, 379, 296, 403],
-            [373, 342, 322, 384, 341, 383, 14, 317]],
+        'deform_scale': 2.0,
         'deform_true_loop_vertices': [
             [0, 1, 6, 8, 9, 10, 13, 14, 15, 16, 17, 18, 19, 22, 24, 27, 33, 34,
              36, 37, 38, 39, 40, 41, 42, 49, 50, 68, 104, 105, 106, 134, 136,
@@ -130,9 +127,6 @@ DEFORM_INFO = {
         'deform_init_pos': [0, 0.47, 0.47],
         'deform_init_ori': [np.pi/2, 0, 0],
         'deform_scale': 0.12,
-        'deform_true_loop_vertices': [
-            [0, 1, 2, 3]  # placeholder, since we don't know the true loops
-        ]
     },
     'cloth/ts_apron_twoloops.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL
         'anchor_init_pos' : [-0.04, 0.35, 0.75],
@@ -140,13 +134,6 @@ DEFORM_INFO = {
         'deform_init_pos': [0, 0.40, 0.57],
         'deform_init_ori': [0, 0, np.pi/2],
         'deform_scale': 0.8,
-        'deform_anchored_vertex_ids': [
-            [1158, 684, 1326, 1325, 1321, 1255, 1250, 683, 1015, 469, 470, 1235,
-             1014, 1013, 479, 130, 1159, 1145, 1085, 478, 1087, 143, 131, 1160,
-             1083, 542],
-            [885, 116, 117, 118, 738, 495, 1210, 884, 1252, 883, 882, 881, 496,
-             163, 164, 737, 165, 1290, 1166, 544, 739, 114, 115, 753, 886, 887]
-        ],
         'deform_true_loop_vertices': [
             [81, 116, 117, 131, 145, 149, 150, 155, 160, 161, 164,
              168, 176, 299, 375, 377, 480, 483, 492, 497, 500, 501,
@@ -169,17 +156,11 @@ DEFORM_INFO = {
         'deform_init_pos': [0, 0.47, 0.47],
         'deform_init_ori': [np.pi/2, 0, np.pi ],
         'deform_scale': 0.3,
-        'deform_true_loop_vertices': [
-            [0, 1, 2, 3]  # placeholder, since we don't know the true loops
-        ]
     },
     'cloth/apron_zehang.obj': {  # TODO: Yonk - what is this object?
         'deform_init_pos': [0, 0.47, 0.54],
         'deform_init_ori': [np.pi/2, 0, np.pi],
         'deform_scale': 0.3,
-        'deform_true_loop_vertices': [
-            [0, 1, 2, 3]  # placeholder, since we don't know the true loops
-        ]
     },
     'button_cloth.obj': {
         'anchor_init_pos': [-0.13, 0.8028, 0.3056],
@@ -187,16 +168,6 @@ DEFORM_INFO = {
         'deform_init_pos': [-0.13, 0.19, 0.17],  # [-0.13, 0.16, 0.21],
         'deform_init_ori': [0, 0, 0],
         'deform_scale': 0.8,  # 0.5
-        'deform_true_loop_vertices': [
-            [0, 1, 2, 3]  # placeholder, since we don't know the true loops
-        ],
-        'deform_anchored_vertex_ids': [
-            [1395, 1554, 1594, 1593, 1553, 1353, 1475, 1474, 1473, 1472, 1354,
-             1515, 1513, 1435, 1434, 1433, 1432, 1393, 1394, 1514, 1555, 1315,
-             1355, 1392, 1592, 1552, 1595, 1313, 1512, 1352, 1314],
-            [1560, 1400, 1439, 1440, 1479, 1480, 1481, 1519, 1520, 1521, 1559,
-             1399, 1478, 1359, 1401, 1522, 1442, 1441, 1438, 1358, 1398, 1360,
-             1361, 1518, 1562, 1561, 1320, 1319, 1558, 1482, 1517]],
         'deform_fixed_anchor_vertex_ids':
             [1, 120, 2, 3, 31, 78, 119, 118, 21, 104, 103, 102, 51, 90, 45, 3],
     },
@@ -205,30 +176,17 @@ DEFORM_INFO = {
         'other_anchor_init_pos': [-0.0867, 0.5413, 0.4843],
         'deform_init_pos': [-0.2, 0.42, 0.48],
         'deform_init_ori': [np.pi/2, 0, np.pi/2],
-        'deform_true_loop_vertices': [
-            [0, 1, 2, 3]  # placeholder, since we don't know the true loops
-        ],
     },
     'ts_hoop.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL
         'anchor_init_pos': [-0.12, 0.48, 0.48],
         'other_anchor_init_pos': [-0.08, 0.54, 0.48],
         'deform_init_pos': [-0.14, 0.525, 0.48],
         'deform_init_ori': [0, np.pi/2, 0],
-        'deform_true_loop_vertices': [
-            [0, 1, 2, 3]  # placeholder, since we don't know the true loops
-        ],
     },
     'ts_backpack_resampled.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL
         'deform_init_pos': [-0.08, 0.46, 0.52],
         'deform_init_ori': [0, 0, 0],
         'deform_scale': 0.75,
-        'deform_anchored_vertex_ids': [
-            [1373, 895, 1709, 894, 901, 1374, 1371, 1468, 899, 699, 890, 71,
-             1041, 1372, 1055, 70, 53, 69, 73, 74, 1378, 900, 877, 1377, 1044,
-             1708, 75, 1505, 54, 72, 1331, 1351, 52, 1214],
-            [1405, 1502, 916, 1368, 915, 1480, 1369, 1370, 898, 897, 1394, 1397,
-             1398, 896, 1705, 1704, 1399, 1396, 1360, 1361, 1703, 886, 1493,
-             1484, 1395, 1516, 884, 1404, 913, 914, 919, 1485, 1403, 1479]],
         'deform_true_loop_vertices': [
             [47, 51, 54, 75, 183, 184, 186, 188, 189, 190, 191,
              193, 656, 677, 681, 691, 785, 833, 863, 865, 871, 874,
@@ -256,8 +214,5 @@ DEFORM_INFO = {
         'deform_init_pos': [0, 0.43, 0.65],
         'deform_init_ori': [0, 0, np.pi],
         'deform_scale': 0.50,
-        'deform_true_loop_vertices': [
-            [0, 1, 2, 3]  # placeholder, since we don't know the true loops
-        ],
     },
 }
