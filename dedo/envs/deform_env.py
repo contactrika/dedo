@@ -13,9 +13,9 @@ import pybullet_data
 import pybullet_utils.bullet_client as bclient
 
 from ..utils.anchor_utils import (
-    attach_anchor, create_anchor, command_anchor_velocity, pin_fixed)
+    create_anchor, attach_anchor, create_anchor_geom, command_anchor_velocity, pin_fixed)
 from ..utils.init_utils import (
-    load_deform_object, load_rigid_object, reset_bullet)
+    load_deform_object, load_rigid_object, reset_bullet, get_preset_properties)
 from ..utils.mesh_utils import get_mesh_data
 from ..utils.task_info import DEFORM_INFO, SCENE_INFO, TASK_INFO
 
@@ -59,15 +59,20 @@ class DeformEnv(gym.Env):
         # Loading done, turn on visualizer if needed
         if self.args.viz:
             self.sim.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 1)
-
+    @property
+    def anchor_ids(self):
+        return list(self.anchors)
     def load_objects(self, sim, args):
         scene_name = self.args.task.lower()
         if scene_name.startswith('hang'):
             scene_name = 'hang'  # same scene for 'HangBag', 'HangCloth'
         elif scene_name.startswith('mask'):
             scene_name = 'dress'  # same human figure for dress and mask tasks
+        elif scene_name.startswith('button'):
+            scene_name = 'button'  # same human figure for dress and mask tasks
         data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
         sim.setAdditionalSearchPath(data_path)
+
         #
         # Load rigid objects.
         #
@@ -89,6 +94,7 @@ class DeformEnv(gym.Env):
             deform_obj = TASK_INFO[args.task][args.version]
             for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
                 setattr(args, arg_nm, arg_val)
+        self.deform_obj = deform_obj
         texture_path = os.path.join(
             data_path, 'textures', 'blue_bright.png')
         deform_id = load_deform_object(
@@ -97,7 +103,7 @@ class DeformEnv(gym.Env):
             args.deform_bending_stiffness, args.deform_damping_stiffness,
             args.deform_elastic_stiffness, args.deform_friction_coeff,
             args.debug)
-        if args.task == 'Button':  # pin cloth edge for buttoning task
+        if scene_name == 'button':  # pin cloth edge for buttoning task
             assert('deform_fixed_anchor_vertex_ids' in DEFORM_INFO[deform_obj])
             pin_fixed(sim, deform_id,
                       DEFORM_INFO[deform_obj]['deform_fixed_anchor_vertex_ids'])
@@ -106,8 +112,8 @@ class DeformEnv(gym.Env):
         #
         goal_pos = SCENE_INFO[scene_name]['goal_pos']
         if args.viz:
-            create_anchor(sim, goal_pos, mass=0.0, radius=0.01,
-                          rgba=(0,1,0,1), use_collision=True)
+            create_anchor_geom(sim, goal_pos, mass=0.0, radius=0.01,
+                               rgba=(0,1,0,1), use_collision=True)
 
         return rigid_ids, deform_id, np.array(goal_pos)
 
@@ -117,18 +123,27 @@ class DeformEnv(gym.Env):
     def reset(self):
         self.stepnum = 0
         self.episode_reward = 0.0
-        self.anchor_ids = []
+        self.anchors = {}
         self.topo_generators = []
         reset_bullet(self.args, self.sim, self.cam_on, self.cam_args)
         self.rigid_ids, self.deform_id, self.goal_pos = self.load_objects(
             self.sim, self.args)
+        self.sim.stepSimulation()  # step once to get initial state
         # Setup dynamic anchors.
+
         for i in range(DeformEnv.NUM_ANCHORS):  # make anchors
             anchor_init_pos = self.args.anchor_init_pos if (i%2)==0 else \
                 self.args.other_anchor_init_pos
-            anchor_id = create_anchor(self.sim, anchor_init_pos)
-            attach_anchor(self.sim, anchor_id, self.deform_id)
-            self.anchor_ids.append(anchor_id)
+
+            preset_dynamic_anchor_vertices = get_preset_properties(DEFORM_INFO, self.deform_obj, 'deform_anchored_vertex_ids')
+            _, mesh = get_mesh_data(self.sim, self.deform_id)
+            anchor_id, anchor_pos, anchor_vertices = create_anchor(self.sim, anchor_init_pos, i, preset_dynamic_anchor_vertices, mesh)
+            attach_anchor(self.sim, anchor_id, anchor_vertices,  self.deform_id)
+            self.anchors[anchor_id] = {
+                'pos':anchor_pos,
+                'vertices':anchor_vertices
+            }
+
         # Set up viz.
         if self.args.viz:  # loading done, so enable debug rendering if needed
             time.sleep(0.1)  # wait for debug visualizer to catch up

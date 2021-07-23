@@ -15,7 +15,8 @@ TASK_INFO = {
     'HangCloth': ['cloth/ts_apron_twoloops.obj',
                   'cloth/apron_zehang.obj',
                   'cloth/apron_z.obj'],
-    'Button': ['button_cloth.obj'],
+    'ButtonSimple': ['button_cloth.obj'],
+    'ButtonProcedural': ['button_cloth.obj'], # TODO wire up procedural cloths
     'Dress': ['ts_backpack_resampled.obj'],
     'Hoop': ['ts_hoop.obj'],
     'Lasso': ['ts_lasso_sparser.obj'],

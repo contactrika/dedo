@@ -1,17 +1,6 @@
 #
-# TODO: Yonk, plase remove this file; it has a lot of duplicated code, and some
-#   of it has not been updated to work with the most recent pybullet version.
-#   Could you please re-use the methods from utils when possible?
-#   A lot of this functionality is already implemented there.
-#   The reason it is better to use functions as opposed to instantiating a
-#   class (for small research projects like this) is that it is easier to
-#   keep track of what is being changed;  in one monolithic class with lots
-#   of members - any function can change any member, so it is difficult to
-#   keep track of what is being changed Classes and inheritance can be useful,
-#   but over-using that creates code that is very hard to trace.
-#   For example, Ioanna got completely lost in the previous repo, until I
-#   cleaned up the code to be a simple series of functions,
-#   where it was trivial to trace what was initialized, where and how.
+# TODO DEPRECATEd: This file is completely obsolete as we move away from this monolothic class.
+# However, I am keeping it as a reference for the traj collection scripts
 #
 import os
 

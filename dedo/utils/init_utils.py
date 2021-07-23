@@ -12,6 +12,11 @@ import pybullet_data
 
 from .mesh_utils import get_mesh_data
 
+def get_preset_properties(object_preset_dict, deform_obj_name, key):
+    if object_preset_dict is None or deform_obj_name not in object_preset_dict.keys():
+        return None
+    if key in object_preset_dict[deform_obj_name].keys():
+        return object_preset_dict[deform_obj_name][key]
 
 def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori):
     """Load a rigid object from file, create visual and collision shapes."""

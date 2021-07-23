@@ -24,7 +24,7 @@ import numpy as np
 import pybullet
 np.set_printoptions(precision=2, linewidth=150, threshold=10000, suppress=True)
 
-from gym_bullet_deform.utils.args import get_args
+from dedo.utils.args import get_args
 # from gym_bullet_deform.utils.cloth_utils import *
 from gym_bullet_deform.simulator import DeformSim
 from gym_bullet_deform.utils.process_camera import ProcessCamera

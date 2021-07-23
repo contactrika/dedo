@@ -4,9 +4,7 @@ import os
 import sys
 
 from ..sim import DeformSim
-from gym_bullet_deform.utils.cloth_objects_dict import (
-    CLOTH_OBJECTS_DICT, MAX_TRUE_LOCS_NLOOPS, MAX_TRUE_LOCS_SIZE)
-
+from dedo.utils.task_info import DEFORM_INFO
 
 class BaseCollector:
     CTRL_MAX_FORCE = 10.0
@@ -57,7 +55,6 @@ class BaseCollector:
                 if self.args.debug: print('Releasing anchors at step', step)
                 self.release_anchors(sim)
 
-
             # clean up rendering
             if self.args.viz and True:  # step >= NSTEPS_PER_WPT:
                 pybullet.configureDebugVisualizer(
@@ -86,7 +83,6 @@ class BaseCollector:
     def release_anchors(self, sim):
         for i in range(len(self.anchor_ids)):
             sim.removeConstraint(self.anchor_ids[i])
-            # sim.changeDynamics(self.anchor_ids[i], -1, mass=0.00001)
             sim.changeVisualShape(self.anchor_ids[i], -1, rgbaColor=[0.5, 0.5, 0.5, 1])
 
     def set_camera(self, sim):
@@ -133,23 +129,27 @@ class BaseCollector:
 
     def setup(self):
         self._setup_scene()
-        self.has_preset = self.args.cloth_obj in CLOTH_OBJECTS_DICT and 'traj_preset' in CLOTH_OBJECTS_DICT[self.args.cloth_obj] and self.rs.scene_name in \
-                          CLOTH_OBJECTS_DICT[self.args.cloth_obj]['traj_preset']
         self._setup_trajectory()
+    @property
+    def has_preset(self):
+        return self.args.deform_obj in DEFORM_INFO and 'traj_preset' in DEFORM_INFO[
+            self.args.deform_obj] and self.rs.scene_name in \
+        DEFORM_INFO[self.args.deform_obj]['traj_preset']
 
     def _setup_scene(self):
         args = self.args
         print('args', args)
-        print('Done seed', args.seed, 'scene', args.scene_version, 'cloth', args.cloth_obj)
+        print('Done seed', args.seed, 'scene', args.scene_version, 'cloth', args.deform_obj)
 
         np.random.seed(args.seed)  # legacy, but ok for our purposes
         scene_version = args.scene_version  # 0: pole, 1: hook ; 2: figure
-        if args.cloth_obj in CLOTH_OBJECTS_DICT:
-            for k, v in CLOTH_OBJECTS_DICT[args.cloth_obj].items():
+        if args.deform_obj in DEFORM_INFO:
+            for k, v in DEFORM_INFO[args.deform_obj].items():
                 if not hasattr(args, k): print( 'unknown arg ' + k)
                 setattr(args, k, v)
 
         self.rs = self._setup_sim(args)
+        # TODO Setup scene
 
         main_obj_id, main_obj_filepath = self._setup_main_object(args, self.rs)
         #
@@ -175,12 +175,12 @@ class BaseCollector:
     def _setup_main_object(self, args, rs):
         '''Loads the main object from the simulator'''
         # Loading soft object
-        cloth_obj_path = os.path.join(args.data_path, args.cloth_obj)
-        # If using procedural, load directly from cloth_obj
-        if 'procedural' in args.cloth_obj: cloth_obj_path = args.cloth_obj
+        deform_obj_path = os.path.join(args.data_path, args.deform_obj)
+        # If using procedural, load directly from deform_obj
+        if 'procedural' in args.deform_obj: deform_obj_path = args.deform_obj
         # Loading soft body
         cloth_id = rs.load_soft_object(
-            cloth_obj_path, args.cloth_scale,
+            deform_obj_path, args.cloth_scale,
             args.cloth_init_pos, args.cloth_init_ori,
             args.cloth_bending_stiffness, args.cloth_damping_stiffness,
             args.cloth_elastic_stiffness, args.cloth_friction_coeff,
@@ -188,7 +188,7 @@ class BaseCollector:
 
         rs.add_main_object(cloth_id)
 
-        return cloth_id, cloth_obj_path
+        return cloth_id, deform_obj_path
 
     def _setup_sim(self, args):
         rs = DeformSim(args, viz=args.viz)
