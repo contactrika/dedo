@@ -1,0 +1,28 @@
+##  Helper script for annotating objects in blender. This file should be separated into four separate scripts inside
+## blender.
+
+
+## Script one: Loading_file
+##
+
+import bpy
+import os
+bpy.ops.object.mode_set(mode='OBJECT')
+for key, scene_obj in dict(bpy.data.objects).items():
+    print(scene_obj)
+    scene_obj.select_set(True)
+    bpy.context.view_layer.objects.active = scene_obj
+    bpy.ops.object.delete()
+
+datapath = '/home/pyshi/code/dedo/dedo/data/'
+obj_name = 'cloth/tshirt_0.obj'
+filepath = os.path.join(datapath, obj_name)
+bpy.ops.import_scene.obj(filepath=filepath)
+print(">>>>>>",dict(bpy.data.objects))
+# edit mode in the first object
+objs = dict(bpy.data.objects)
+obj = list(objs.values())[0]
+print( '>>>>>',obj)
+obj.select_set(True)
+bpy.context.view_layer.objects.active = obj
+bpy.ops.object.mode_set(mode='EDIT')

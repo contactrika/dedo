@@ -12,7 +12,7 @@ import pybullet_data
 
 from .mesh_utils import get_mesh_data
 from .anchor_utils import create_anchor_geom, pin_fixed
-from task_info import DEFORM_INFO, SCENE_INFO, TASK_INFO
+from .task_info import DEFORM_INFO, SCENE_INFO, TASK_INFO
 
 
 def get_preset_properties(object_preset_dict, deform_obj_name, key):
