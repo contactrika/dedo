@@ -26,6 +26,8 @@ def get_args():
     parser.add_argument('--rl_algo', type=str, default=None,
                         choices=['A2C', 'DDPG', 'HER', 'PPO', 'SAC', 'TD3'],
                         help='Name of RL algo from Stable Baselines to train')
+    parser.add_argument('--num_envs', type=int, default=8,
+                        help='Number of parallel envs (for A2C, PPO, SAC)')
     parser.add_argument('--num_play_runs', type=int, default=10,
                         help='Number of runs/episodes to play')
     parser.add_argument('--viz', action='store_true', help='Whether to visualize')

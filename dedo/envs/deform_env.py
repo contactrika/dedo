@@ -13,7 +13,8 @@ import pybullet_data
 import pybullet_utils.bullet_client as bclient
 
 from ..utils.anchor_utils import (
-    create_anchor, attach_anchor, create_anchor_geom, command_anchor_velocity, pin_fixed)
+    create_anchor, attach_anchor, create_anchor_geom, command_anchor_velocity,
+    pin_fixed)
 from ..utils.init_utils import (
     load_deform_object, load_rigid_object, reset_bullet, get_preset_properties)
 from ..utils.mesh_utils import get_mesh_data

@@ -29,8 +29,8 @@ class CustomCallback(BaseCallback):
 
     :param verbose: (int) Verbosity level 0: not output 1: info 2: debug
     """
-    def __init__(self, eval_env, num_play_episodes, logdir,
-                 num_rollouts_between_play=4, verbose=0):
+    def __init__(self, eval_env, num_play_episodes, logdir, num_train_envs,
+                 num_steps_between_play=20000, verbose=0):
         super(CustomCallback, self).__init__(verbose)
         # Those variables will be accessible in the callback
         # (they are defined in the base class)
@@ -52,8 +52,9 @@ class CustomCallback(BaseCallback):
         self._eval_env = eval_env
         self._num_play_episodes = num_play_episodes
         self._logdir = logdir
-        self._num_rollouts_between_play = num_rollouts_between_play
-        self._rollouts_since_play = 0
+        self._num_train_envs = num_train_envs
+        self._num_steps_between_play = num_steps_between_play
+        self._steps_since_play = 0
 
     def _on_training_start(self) -> None:
         """
@@ -78,18 +79,19 @@ class CustomCallback(BaseCallback):
 
         :return: (bool) If the callback returns False, training is aborted early.
         """
+        self._steps_since_play += self._num_train_envs
+        if self._steps_since_play > self._num_steps_between_play:
+            play(self._eval_env, self._num_play_episodes, self.model)
+            self._steps_since_play = 0
+            if self._logdir is not None:
+                self.model.save(self._logdir)
         return True
 
     def _on_rollout_end(self) -> None:
         """
         This event is triggered before updating the policy.
         """
-        self._rollouts_since_play += 1
-        if self._rollouts_since_play > self._num_rollouts_between_play:
-            play(self._eval_env, self._num_play_episodes, self.model)
-            self._rollouts_since_play = 0
-        if self._logdir is not None:
-            self.model.save(self._logdir)
+        pass
 
     def _on_training_end(self) -> None:
         """
