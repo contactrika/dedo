@@ -13,7 +13,8 @@ import pybullet_data
 import pybullet_utils.bullet_client as bclient
 
 from ..utils.anchor_utils import (
-    create_anchor, attach_anchor, create_anchor_geom, command_anchor_velocity, pin_fixed)
+    create_anchor, attach_anchor, create_anchor_geom, command_anchor_velocity,
+    pin_fixed)
 from ..utils.init_utils import (
     load_deform_object, load_rigid_object, reset_bullet, get_preset_properties)
 from ..utils.mesh_utils import get_mesh_data
@@ -156,7 +157,8 @@ class DeformEnv(gym.Env):
     def step(self, action):
         # action is num_anchors x 3 for 3D velocity for anchors/grippers;
         # assume action in [-1,1], we convert to [-MAX_ACT_VEL, MAX_ACT_VEL].
-        print('action', action)
+        if self.args.debug:
+            print('action', action)
         assert((np.abs(action) <= 1.0).all())
         action = action.reshape(DeformEnv.NUM_ANCHORS, 3)*DeformEnv.MAX_ACT_VEL
         for i in range(DeformEnv.NUM_ANCHORS):

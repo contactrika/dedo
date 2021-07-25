@@ -11,14 +11,19 @@ import pybullet
 import pybullet_data
 
 from .mesh_utils import get_mesh_data
+from .anchor_utils import create_anchor_geom, pin_fixed
+from task_info import DEFORM_INFO, SCENE_INFO, TASK_INFO
+
 
 def get_preset_properties(object_preset_dict, deform_obj_name, key):
-    if object_preset_dict is None or deform_obj_name not in object_preset_dict.keys():
+    if object_preset_dict is None or \
+            deform_obj_name not in object_preset_dict.keys():
         return None
     if key in object_preset_dict[deform_obj_name].keys():
         return object_preset_dict[deform_obj_name][key]
 
-def load_objects(sim, scene_name, ):
+
+def load_objects(sim, scene_name, args):
     if scene_name.startswith('hang'):
         scene_name = 'hang'  # same scene for 'HangBag', 'HangCloth'
     elif scene_name.startswith('mask'):
@@ -70,6 +75,7 @@ def load_objects(sim, scene_name, ):
         create_anchor_geom(sim, goal_pos, mass=0.0, radius=0.01,
                            rgba=(0, 1, 0, 1), use_collision=True)
     pass
+
 
 def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori):
     """Load a rigid object from file, create visual and collision shapes."""

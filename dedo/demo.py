@@ -58,14 +58,13 @@ def play(env, num_episodes, args):
 
 
 def main(args):
-    np.set_printoptions(precision=4, linewidth=150,
-                        threshold=np.inf, suppress=True)
+    np.set_printoptions(precision=4, linewidth=150, suppress=True)
     kwargs = {'args': args}
     env = gym.make(args.env, **kwargs)
     env.seed(env.args.seed)
     print('Created', args.task, 'with observation_space',
           env.observation_space.shape, 'action_space', env.action_space.shape)
-    play(env, env.args.num_runs, args)
+    play(env, env.args.num_play_runs, args)
     env.close()
 
 

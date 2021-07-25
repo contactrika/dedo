@@ -35,35 +35,6 @@ def get_closest(init_pos, mesh, max_dist=None):
     return new_anc_pos, anchor_vertices
 
 
-def create_anchor(sim, anchor_pos, anchor_idx, preset_vertices, mesh, mass=0.1, radius=0.005,
-                  rgba=(1, 0, 1, 1.0), use_preset=True, use_closest=True):
-    '''
-    Create an anchor in Pybullet to grab or pin an object.
-    :param sim: The simulator object
-    :param anchor_pos: initial anchor position
-    :param anchor_idx: index of the anchor (0:left, 1:right ...)
-    :param preset_vertices: a preset list of vertices for the anchors to grab on to (if use_preset is enabled)
-    :param mesh: mesh of the deform object
-    :param mass: mass of the anchor
-    :param radius: visual radius of the anchor object
-    :param rgba: color of the anchor
-    :param use_preset: Use preset of anchor vertices
-    :param use_closest: Use closest vertices to anchor as grabbing vertices (if no preset is used), ensuring anchors
-    has something to grab on to
-    :return: Anchor's ID, anchor's position, anchor's vertices
-    '''
-    anchor_vertices = None
-    mesh = np.array(mesh)
-    if use_preset and preset_vertices is not None:
-        anchor_vertices = preset_vertices[anchor_idx]
-        anchor_pos = mesh[anchor_vertices].mean(axis=0)
-    elif use_closest:
-        anchor_pos, anchor_vertices = get_closest(anchor_pos, mesh)
-
-    anchorGeomId = create_anchor_geom(sim, anchor_pos, mass, radius, rgba)
-    return anchorGeomId, anchor_pos, anchor_vertices
-
-
 def create_anchor_geom(sim, pos, mass=ANCHOR_MASS, radius=ANCHOR_RADIUS,
                        rgba=ANCHOR_RGBA_INACTIVE, use_collision=True):
     """Create a small visual object at the provided pos in world coordinates.
@@ -73,18 +44,51 @@ def create_anchor_geom(sim, pos, mass=ANCHOR_MASS, radius=ANCHOR_RADIUS,
     input: sim (pybullet sim), pos (list of 3 coords for anchor in world frame)
     output: anchorId (long) --> unique bullet ID to refer to the anchor object
     """
-    anchorVisualShape = sim.createVisualShape(
+    anchor_visual_shape = sim.createVisualShape(
         pybullet.GEOM_SPHERE, radius=radius, rgbaColor=rgba)
     if mass > 0 and use_collision:
-        anchorCollisionShape = sim.createCollisionShape(
+        anchor_collision_shape = sim.createCollisionShape(
             pybullet.GEOM_SPHERE, radius=radius)
     else:
-        anchorCollisionShape = -1
-    anchorId = sim.createMultiBody(baseMass=mass, basePosition=pos,
-                                   baseCollisionShapeIndex=anchorCollisionShape,
-                                   baseVisualShapeIndex=anchorVisualShape,
-                                   useMaximalCoordinates=True)
-    return anchorId
+        anchor_collision_shape = -1
+    anchor_id = sim.createMultiBody(
+        baseMass=mass, basePosition=pos,
+        baseCollisionShapeIndex=anchor_collision_shape,
+        baseVisualShapeIndex=anchor_visual_shape,
+        useMaximalCoordinates=True)
+    return anchor_id
+
+
+def create_anchor(sim, anchor_pos, anchor_idx, preset_vertices, mesh,
+                  mass=0.1, radius=0.005, rgba=(1, 0, 1, 1.0),
+                  use_preset=True, use_closest=True):
+    """
+    Create an anchor in Pybullet to grab or pin an object.
+    :param sim: The simulator object
+    :param anchor_pos: initial anchor position
+    :param anchor_idx: index of the anchor (0:left, 1:right ...)
+    :param preset_vertices: a preset list of vertices for the anchors
+                            to grab on to (if use_preset is enabled)
+    :param mesh: mesh of the deform object
+    :param mass: mass of the anchor
+    :param radius: visual radius of the anchor object
+    :param rgba: color of the anchor
+    :param use_preset: Use preset of anchor vertices
+    :param use_closest: Use closest vertices to anchor as grabbing vertices
+           (if no preset is used), ensuring anchors
+    has something to grab on to
+    :return: Anchor's ID, anchor's position, anchor's vertices
+    """
+    anchor_vertices = None
+    mesh = np.array(mesh)
+    if use_preset and preset_vertices is not None:
+        anchor_vertices = preset_vertices[anchor_idx]
+        anchor_pos = mesh[anchor_vertices].mean(axis=0)
+    elif use_closest:
+        anchor_pos, anchor_vertices = get_closest(anchor_pos, mesh)
+
+    anchor_geom_id = create_anchor_geom(sim, anchor_pos, mass, radius, rgba)
+    return anchor_geom_id, anchor_pos, anchor_vertices
 
 
 def command_anchor_velocity(sim, anchor_bullet_id, tgt_vel):

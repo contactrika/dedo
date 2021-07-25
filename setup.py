@@ -5,5 +5,7 @@ setup(name='dedo',
       description='Dynamic Environments with Deformable Objects.',
       packages=['dedo'],
       install_requires=[
-            'numpy', 'matplotlib', 'gym', 'pybullet==3.1.7',
+            'numpy', 'gym', 'pybullet==3.1.7',
+            'torch', 'stable_baselines3',
+            'matplotlib', 'tensorboard',
       ])

@@ -7,7 +7,8 @@ Workshop page with paper+poster: https://sites.google.com/nvidia.com/do-sim/post
 
 **Table of Contents:**<br />
 [Installation](#install)<br />
-[Examples](#examples)<br />
+[Basic Examples](#examples)<br />
+[RL Examples](#rl)<br />
 
 <a name="install"></a>
 ## Installation
@@ -25,8 +26,8 @@ pip install numpy
 pip install -e .
 ```
 
-
-### Examples
+<a name="examples"></a>
+### Basic Examples
 
 ```
 python -m dedo.demo --env=HangBag-v0 --viz --debug
@@ -100,3 +101,24 @@ python -m dedo.demo --env=HangCloth-v0 --viz --debug \
    --deform_scale 2.0 --anchor_init_pos -0.10 0.40 0.70 \
    --other_anchor_init_pos 0.10 0.40 0.70
 ```
+
+<a name="rl"></a>
+## RL Examples
+
+`dedo/rl_demo.py` gives an example of how to train an Rl
+algorithm from Stable Baselines:
+
+```
+python -m dedo.rl_demo --env=HangCloth-v0 \
+    --logdir=/tmp/dedo --num_play_runs=3 --viz --debug
+
+tensorboard --logdir=/tmp/dedo --bind_all --port 6006 \
+  --samples_per_plugin images=1000
+```
+
+After 5-10 minutes of training (on a laptop) on a simplified
+env version where the anchor positions are given as
+observations we get:
+
+![misc/imgs/apron_ppo_play.gif](misc/imgs/apron_ppo_play.gif)
+
