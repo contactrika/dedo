@@ -136,7 +136,7 @@ class DeformEnv(gym.Env):
             anchor_init_pos = self.args.anchor_init_pos if (i%2)==0 else \
                 self.args.other_anchor_init_pos
 
-            preset_dynamic_anchor_vertices = get_preset_properties(DEFORM_INFO, self.deform_obj, 'deform_anchored_vertex_ids')
+            preset_dynamic_anchor_vertices = get_preset_properties(DEFORM_INFO, self.deform_obj, 'deform_anchor_vertices')
             _, mesh = get_mesh_data(self.sim, self.deform_id)
             anchor_id, anchor_pos, anchor_vertices = create_anchor(self.sim, anchor_init_pos, i, preset_dynamic_anchor_vertices, mesh)
             attach_anchor(self.sim, anchor_id, anchor_vertices,  self.deform_id)

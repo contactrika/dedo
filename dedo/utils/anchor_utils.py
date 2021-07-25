@@ -53,6 +53,7 @@ def create_anchor(sim, anchor_pos, anchor_idx, preset_vertices, mesh, mass=0.1, 
     :return: Anchor's ID, anchor's position, anchor's vertices
     '''
     anchor_vertices = None
+    mesh = np.array(mesh)
     if use_preset and preset_vertices is not None:
         anchor_vertices = preset_vertices[anchor_idx]
         anchor_pos = mesh[anchor_vertices].mean(axis=0)
