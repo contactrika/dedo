@@ -156,7 +156,8 @@ class DeformEnv(gym.Env):
     def step(self, action):
         # action is num_anchors x 3 for 3D velocity for anchors/grippers;
         # assume action in [-1,1], we convert to [-MAX_ACT_VEL, MAX_ACT_VEL].
-        print('action', action)
+        if self.args.debug:
+            print('action', action)
         assert((np.abs(action) <= 1.0).all())
         action = action.reshape(DeformEnv.NUM_ANCHORS, 3)*DeformEnv.MAX_ACT_VEL
         for i in range(DeformEnv.NUM_ANCHORS):
