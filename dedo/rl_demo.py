@@ -1,7 +1,7 @@
 """
-A simple demo with an example of PPO training using Stable Baselines RL.
+A simple demo with an example of RL training using Stable Baselines.
 
-python -m dedo.rl_demo --env=HangCloth-v0 --rl_algo TD3 \
+python -m dedo.rl_demo --env=HangCloth-v0 --rl_algo PPO \
     --logdir=/tmp/dedo --num_play_runs=3 --viz --debug
 
 tensorboard --logdir=/tmp/dedo --bind_all --port 6006 \
