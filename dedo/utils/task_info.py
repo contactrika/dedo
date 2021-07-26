@@ -12,19 +12,19 @@ import numpy as np
 TASK_INFO = {
     'HangBag': ['bags/ts_purse_bag_resampled.obj',
                 'bags/bags_zehang/obj/normal/bag1-1.obj',
-
+                'bags/backpack_0_dense.obj',
                 ],
     'HangCloth': ['cloth/apron_0.obj',
                   'cloth/apron_1.obj',
                   'cloth/apron_2_dense.obj',
-                  'cloth/apron_3.obj',
+                  'cloth/apron_3_dense.obj',
                   'cloth/apron_4.obj',
                   'cloth/tshirt_0.obj',
                   ],
     'ButtonSimple': ['button_cloth.obj'],
     'ButtonProcedural': ['button_cloth.obj'],  # TODO wire up procedural cloths
     'Dress': ['ts_backpack_resampled.obj',
-              'bags/backpack_0.obj',
+              'bags/backpack_0_dense.obj',
               ],
     'Hoop': ['ts_hoop.obj'],
     'Lasso': ['ts_lasso_sparser.obj',
@@ -189,10 +189,26 @@ DEFORM_INFO = {
              1319]
         ],
     },
-    'bags/backpack_0.obj': {
+    # 'bags/backpack_0.obj': {
+    #     'deform_init_pos': [-0.2, 0.27, 0.6],
+    #     'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
+    #     'deform_scale': 0.3,
+    #     'deform_anchor_vertices': [
+    #         [262, 263, 264, 265, 266, 267, 268, 269, 270],
+    #         [540, 542, 543, 544, 545, 547, 549],
+    #     ],
+    #     'deform_true_loop_vertices': [
+    #         [140, 201, 220, 240, 241, 242, 243, 244, 247, 249, 252, 254, 256, 258, 259, 263, 264, 265, 266, 267, 268,
+    #          269, 270, 271, 272, 278, 296, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 587],
+    #         [311, 313, 326, 327, 391, 392, 406, 433, 435, 496, 516, 517, 518, 519, 520, 522, 524, 527, 530, 531, 533,
+    #          535, 537, 540, 541, 542, 543, 544, 545, 546, 547, 548, 549, 554, 572, 574, 576, 577, 578, 579, 580, 581,
+    #          582, 583, 584],
+    #     ],
+    # },
+    'bags/backpack_0_dense.obj': {
         'deform_init_pos': [-0.2, 0.27, 0.6],
         'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
-        'deform_scale': 0.3,
+        'deform_scale': 0.2,
         'deform_anchor_vertices': [
             [262, 263, 264, 265, 266, 267, 268, 269, 270],
             [540, 542, 543, 544, 545, 547, 549],
@@ -302,8 +318,8 @@ DEFORM_INFO = {
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 0.3,
         'deform_anchor_vertices': [
-            [71, 72, 73, 76, 77, 78, 79, 227, 230, 602, 604, 721, 722],  # 11, 13, 14, 15, 16],
-            [6, 159, 161, 162, 163, 285, 288, 520, 522, 680, 681, 763],  # 166, 168, 170, 172, 173, 175],
+            [71],  #, 72, 73, 76, 77, 78, 79, 227, 230, 602, 604, 721, 722],
+            [6 ],  # 159, 161, 162, 163, 285, 288, 520, 522, 680, 681, 763],
         ],
         'deform_true_loop_vertices': [
             [3, 4, 5, 9, 10, 11, 14, 62, 68, 69, 70, 71, 76, 78, 163, 164, 239, 281, 282, 283, 286, 287, 288, 354, 406,
@@ -320,13 +336,13 @@ DEFORM_INFO = {
              831, 832, 833, 863, 864, 865, 866, 867, 868],
         ],
     },
-    'cloth/apron_3.obj': {  # This used to be apron_zehang
+    'cloth/apron_3_dense.obj': {  # This used to be apron_zehang
         'deform_init_pos': [0, 0.47, 0.47],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 0.3,
         'deform_anchor_vertices': [
-            [15],  # 10, 12, 13, 14, 15],
-            [174],  # 167, 169, 171, 172, 174],
+            [79, 81, 171, 172, 349, 351, 352, 473, 474, 778, 885, 886, 1352, 1515, 1637, 1701, 2157, 2182],  # 10, 12, 13, 14, 15],
+            [128, 129, 404, 504, 592, 645, 660, 708, 894, 895, 1223, 1596, 1609, 2035, 2110],  # 167, 169, 171, 172, 174],
         ],
         'deform_true_loop_vertices': [
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 15, 16, 17, 20, 22, 24, 26, 29, 30, 31, 32, 33, 115, 158, 159,
