@@ -12,7 +12,6 @@ import numpy as np
 TASK_INFO = {
     'HangBag': ['bags/ts_purse_bag_resampled.obj',
                 'bags/bags_zehang/obj/normal/bag1-1.obj',
-                'bags/backpack_0_dense.obj',
                 ],
     'HangCloth': ['cloth/apron_0.obj',
                   'cloth/apron_1.obj',
