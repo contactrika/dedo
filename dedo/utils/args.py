@@ -62,7 +62,7 @@ def get_args():
                         help='deform spring damping stiffness')
     parser.add_argument('--deform_elastic_stiffness', type=float, default=1.0,
                         help='deform spring elastic stiffness')  # 1.0-300.0
-    parser.add_argument('--deform_friction_coeff', type=float, default=0.0,
+    parser.add_argument('--deform_friction_coeff', type=float, default=0.1,
                         help='deform friction coefficient')
     # Camera args.
     parser.add_argument('--cam_resolution', type=int, default=None,

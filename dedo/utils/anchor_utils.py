@@ -24,13 +24,13 @@ def get_closest(init_pos, mesh, max_dist=None):
 
     init_pos = np.array(init_pos).reshape(1, -1)
     mesh = np.array(mesh)
-    num_pins_per_pt = max(1, mesh.shape[0] // 50)
-    num_to_pin = min(mesh.shape[0], num_pins_per_pt)
+    # num_pins_per_pt = max(1, mesh.shape[0] // 50)
+    # num_to_pin = min(mesh.shape[0], num_pins_per_pt)
+    num_to_pin = 1  # new pybullet behaves well with 1 vertex per anchor
     dists = np.linalg.norm(mesh - init_pos, axis=1)
     anchor_vertices = np.argpartition(dists, num_to_pin)[0:num_to_pin]
     if max_dist is not None:
         anchor_vertices = anchor_vertices[dists[anchor_vertices] <= max_dist]
-
     new_anc_pos = mesh[anchor_vertices].mean(axis=0)
     return new_anc_pos, anchor_vertices
 

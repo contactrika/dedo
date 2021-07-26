@@ -36,6 +36,7 @@ def main(args):
         tstamp = datetime.strftime(datetime.today(), '%y%m%d_%H%M%S')
         subdir = '_'.join([args.rl_algo, tstamp, args.env])
         logdir = os.path.join(os.path.expanduser(args.logdir), subdir)
+    # Stable baselines only support vectorized envs for on-policy algos.
     n_envs = args.num_envs if args.rl_algo in ['A2C', 'PPO'] else 1
     train_args = deepcopy(args)
     train_args.debug = False  # no debug during training
