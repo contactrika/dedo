@@ -14,7 +14,8 @@ def play(env, num_episodes, rl_agent):
         step = 0
         print('Starting eval episode', epsd)
         while True:
-            act, _states = rl_agent.predict(obs, deterministic=True)
+            # rl_agent.predict() to get acts, not forcing deterministic.
+            act, _states = rl_agent.predict(obs)
             next_obs, rwd, done, info = env.step(act)
             if done:
                 break
