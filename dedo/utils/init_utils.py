@@ -32,7 +32,6 @@ def load_objects(sim, scene_name, args):
         scene_name = 'button'  # same human figure for dress and mask tasks
     data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
     sim.setAdditionalSearchPath(data_path)
-
     #
     # Load rigid objects.
     #
@@ -54,7 +53,6 @@ def load_objects(sim, scene_name, args):
         deform_obj = TASK_INFO[args.task][args.version]
         for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
             setattr(args, arg_nm, arg_val)
-
     texture_path = os.path.join(
         data_path, 'textures', 'blue_bright.png')
     deform_id = load_deform_object(
@@ -118,13 +116,16 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
         springDampingStiffness=damping_stiffness,
         springBendingStiffness=bending_stiffness,
         frictionCoeff=friction_coeff,
-        collisionMargin=0.06, # how far apart do two objects begin interacting
+        collisionMargin=0.06,  # how far apart do two objects begin interacting
         useSelfCollision=1,
         springDampingAllDirections=1,
         useFaceContact=1,
         useNeoHookean=0,
         useMassSpring=1,
         useBendingSprings=1)
+    # PyBullet examples for loading and anchoring deformables:
+    # https://github.com/bulletphysics/bullet3/examples/pybullet/examples/deformable_anchor.py
+    # sim.setPhysicsEngineParameter(sparseSdfVoxelSize=0.25)
     texture_id = sim.loadTexture(texture_file_name)
     kwargs = {}
     if hasattr(pybullet, 'VISUAL_SHAPE_DOUBLE_SIDED'):
@@ -161,6 +162,11 @@ def reset_bullet(args, sim, cam_on=False, cam_args={}):
     sim.resetSimulation()
     sim.setGravity(0, 0, args.sim_gravity)
     sim.setTimeStep(1.0/args.sim_frequency)
+    sim.setPhysicsEngineParameter(
+        # numSubSteps=10,
+        # allowedCcdPenetration=0.01,
+        # erp=0.1,
+    )
     # Load floor plane and rigid objects
     sim.setAdditionalSearchPath(pybullet_data.getDataPath())
     floor_id = sim.loadURDF('plane.urdf')

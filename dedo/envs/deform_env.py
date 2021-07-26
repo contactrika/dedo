@@ -60,9 +60,11 @@ class DeformEnv(gym.Env):
         # Loading done, turn on visualizer if needed
         if self.args.viz:
             self.sim.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 1)
+
     @property
     def anchor_ids(self):
         return list(self.anchors)
+
     def load_objects(self, sim, args):
         scene_name = self.args.task.lower()
         if scene_name.startswith('hang'):
@@ -137,14 +139,15 @@ class DeformEnv(gym.Env):
             anchor_init_pos = self.args.anchor_init_pos if (i%2)==0 else \
                 self.args.other_anchor_init_pos
 
-            preset_dynamic_anchor_vertices = get_preset_properties(DEFORM_INFO, self.deform_obj, 'deform_anchor_vertices')
+            preset_dynamic_anchor_vertices = get_preset_properties(
+                DEFORM_INFO, self.deform_obj, 'deform_anchor_vertices')
             _, mesh = get_mesh_data(self.sim, self.deform_id)
-            anchor_id, anchor_pos, anchor_vertices = create_anchor(self.sim, anchor_init_pos, i, preset_dynamic_anchor_vertices, mesh)
-            attach_anchor(self.sim, anchor_id, anchor_vertices,  self.deform_id)
-            self.anchors[anchor_id] = {
-                'pos':anchor_pos,
-                'vertices':anchor_vertices
-            }
+            anchor_id, anchor_pos, anchor_vertices = create_anchor(
+                self.sim, anchor_init_pos, i,
+                preset_dynamic_anchor_vertices, mesh)
+            attach_anchor(self.sim, anchor_id, anchor_vertices, self.deform_id)
+            self.anchors[anchor_id] = {'pos': anchor_pos,
+                                       'vertices': anchor_vertices}
 
         # Set up viz.
         if self.args.viz:  # loading done, so enable debug rendering if needed
