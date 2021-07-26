@@ -75,15 +75,16 @@ def load_objects(sim, scene_name, args):
     pass
 
 
-def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori):
+def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori, rgba_color=None):
     """Load a rigid object from file, create visual and collision shapes."""
     if obj_file_name.endswith('.obj'):  # mesh info
+        xyz_scale = [scale, scale, scale]
         viz_shape_id = sim.createVisualShape(
-            shapeType=pybullet.GEOM_MESH, rgbaColor=None,
-            fileName=obj_file_name, meshScale=scale)
+            shapeType=pybullet.GEOM_MESH, rgbaColor=rgba_color,
+            fileName=obj_file_name, meshScale=xyz_scale)
         col_shape_id = sim.createCollisionShape(
             shapeType=pybullet.GEOM_MESH,
-            fileName=obj_file_name, meshScale=scale)
+            fileName=obj_file_name, meshScale=xyz_scale)
         rigid_id = sim.createMultiBody(
             baseMass=0.0,  # mass==0 => fixed at the position where it is loaded
             basePosition=init_pos,

@@ -42,23 +42,30 @@ TASK_INFO = {
 SCENE_INFO = {
     'dress': {
         'entities': {
-            'urdf/figure.urdf': {
+            'urdf/figure_headless.urdf': {
                 'basePosition': [-0.22, 0, 0.28],
                 'baseOrientation': [0, 0, np.pi / 2],
                 'globalScaling': 0.95,
             },
-            'parts/ts_pointy_ear_small.obj': {  # TODO: REMOVE - PROPRIETARY MESH
-                'basePosition': [-0.296, 0.00, 0.64],
+            'head_with_ears.obj': {
+                'basePosition': [-0.22, 0.00, 0.64],
                 'baseOrientation': [0, 0, np.pi * 1.05],
-                'globalScaling': 1,
+                'globalScaling': 0.05,
                 'rgbaColor': (0.9, 0.75, 0.65, 1),
             },
-            'parts/ts_pointy_ear_small_flip.obj': {  # TODO: REMOVE - PROPRIETARY MESH
-                'basePosition': [-0.146, 0.00, 0.64],
-                'baseOrientation': [0, 0, np.pi * 1.05],
-                'globalScaling': 1,
-                'rgbaColor': (0.9, 0.75, 0.65, 1),
-            },
+
+            # 'parts/ts_pointy_ear_small.obj': {  # TODO: REMOVE - PROPRIETARY MESH
+            #     'basePosition': [-0.296, 0.00, 0.64],
+            #     'baseOrientation': [0, 0, np.pi * 1.05],
+            #     'globalScaling': 1,
+            #     'rgbaColor': (0.9, 0.75, 0.65, 1),
+            # },
+            # 'parts/ts_pointy_ear_small_flip.obj': {  # TODO: REMOVE - PROPRIETARY MESH
+            #     'basePosition': [-0.146, 0.00, 0.64],
+            #     'baseOrientation': [0, 0, np.pi * 1.05],
+            #     'globalScaling': 1,
+            #     'rgbaColor': (0.9, 0.75, 0.65, 1),
+            # },
         },
         'goal_pos': [-0.077, 0.03, 0.315],
         'easy_target_pos': [-0.077, 0.12, 0.315],

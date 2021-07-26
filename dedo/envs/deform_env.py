@@ -82,9 +82,10 @@ class DeformEnv(gym.Env):
         rigid_ids = []
         for name, kwargs in SCENE_INFO[scene_name]['entities'].items():
             pth = os.path.join(data_path, name)
+            rgba_color = kwargs['rgbaColor']if 'rgbaColor' in kwargs else None
             id = load_rigid_object(
                 sim, pth, kwargs['globalScaling'],
-                kwargs['basePosition'], kwargs['baseOrientation'])
+                kwargs['basePosition'], kwargs['baseOrientation'], rgba_color)
             rigid_ids.append(id)
         #
         # Load deformable object.
