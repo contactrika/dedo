@@ -40,7 +40,7 @@
   <joint name="right_shoulder_joint" type="fixed">
     <parent link="torso"/>
     <child link="right_shoulder"/>
-    <origin xyz="0 -0.1 0.27" rpy="1.57 0 0"/>
+    <origin xyz="0 -0.08 0.27" rpy="1.57 0 0"/>
   </joint>
   <link name="right_shoulder">
     <inertial>
@@ -89,7 +89,7 @@
   <joint name="left_shoulder_joint" type="fixed">
     <parent link="torso"/>
     <child link="left_shoulder"/>
-    <origin xyz="0 0.1 0.27" rpy="1.57 0 0"/>
+    <origin xyz="0 0.08 0.27" rpy="1.57 0 0"/>
   </joint>
   <link name="left_shoulder">
     <inertial>

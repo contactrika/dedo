@@ -108,7 +108,7 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
     """Load object from obj file with pybullet's loadSoftBody()."""
     # Note: do not set very small mass (e.g. 0.01 causes instabilities).
     deform_id = sim.loadSoftBody(
-        mass=1.0,  # 1kg is default; bad sim with lower mass
+        mass=10.0,  # 1kg is default; bad sim with lower mass
         fileName=obj_file_name,
         scale=scale,
         basePosition=init_pos,
@@ -117,13 +117,15 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
         springDampingStiffness=damping_stiffness,
         springBendingStiffness=bending_stiffness,
         frictionCoeff=friction_coeff,
-        collisionMargin=0.06,  # how far apart do two objects begin interacting
+        collisionMargin=0.1,  # how far apart do two objects begin interacting
         useSelfCollision=1,
         springDampingAllDirections=1,
         useFaceContact=1,
-        useNeoHookean=0,
+        useNeoHookean=1,
         useMassSpring=1,
-        useBendingSprings=1)
+        useBendingSprings=1,
+        repulsionStiffness=1000,
+    )
     # PyBullet examples for loading and anchoring deformables:
     # https://github.com/bulletphysics/bullet3/examples/pybullet/examples/deformable_anchor.py
     # sim.setPhysicsEngineParameter(sparseSdfVoxelSize=0.25)

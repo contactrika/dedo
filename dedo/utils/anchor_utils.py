@@ -15,8 +15,8 @@ ANCHOR_RGBA_ACTIVE = (1, 0, 1, 1)  # magenta
 ANCHOR_RGBA_INACTIVE = (0.5, 0.5, 0.5, 1)  # gray
 ANCHOR_RGBA_PEACH = (0.9, 0.75, 0.65, 1)  # peach
 # Gains and limits for a simple controller for the anchors.
-CTRL_MAX_FORCE = 10
-CTRL_PD_KD = 50.0
+CTRL_MAX_FORCE = 70 # 10
+CTRL_PD_KD = 500.0 # 50
 
 
 def get_closest(init_pos, mesh, max_dist=None):

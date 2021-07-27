@@ -205,7 +205,7 @@ DEFORM_INFO = {
     #     ],
     # },
     'bags/backpack_0_dense.obj': {
-        'deform_init_pos': [-0.2, 0.27, 0.6],
+        'deform_init_pos': [-0.2, 0.27, 0.55],
         'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
         'deform_scale': 0.2,
         'deform_anchor_vertices': [
