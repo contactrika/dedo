@@ -23,6 +23,8 @@ def get_args():
     parser.add_argument('--seed', type=int, default=0, help='Random seed')
     parser.add_argument('--logdir', type=str, default=None,
                         help='Path for logs')
+    parser.add_argument('--device', type=str, default='cuda:0',
+                        help='Name of the device for training.')
     parser.add_argument('--rl_algo', type=str, default=None,
                         choices=['A2C', 'DDPG', 'HER', 'PPO', 'SAC', 'TD3'],
                         help='Name of RL algo from Stable Baselines to train')

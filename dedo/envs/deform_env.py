@@ -175,7 +175,8 @@ class DeformEnv(gym.Env):
         info = {}
         if (self.args.debug or self.args.viz) and self.stepnum%10==0:
             print(f'step {self.stepnum:d} reward {reward:0.4f}')
-            if done: print(f'episode reward {self.episode_reward:0.4f}')
+            if done:
+                print(f'episode reward {self.episode_reward:0.4f}')
         self.stepnum += 1
 
         return next_obs, reward, done, info
