@@ -7,5 +7,5 @@ setup(name='dedo',
       install_requires=[
             'numpy', 'gym', 'pybullet==3.1.7',
             'torch', 'stable_baselines3',
-            'matplotlib', 'tensorboard',
+            'matplotlib', 'tensorboard', 'moviepy',
       ])

@@ -18,7 +18,7 @@ from ..utils.anchor_utils import (
 from ..utils.init_utils import (
     load_deform_object, load_rigid_object, reset_bullet, get_preset_properties)
 from ..utils.mesh_utils import get_mesh_data
-from ..utils.task_info import DEFORM_INFO, SCENE_INFO, TASK_INFO
+from ..utils.task_info import CAM_INFO, DEFORM_INFO, SCENE_INFO, TASK_INFO
 
 
 class DeformEnv(gym.Env):
@@ -174,9 +174,10 @@ class DeformEnv(gym.Env):
         self.episode_reward += reward
         done = (done or self.stepnum >= self.max_episode_len)
         info = {}
-        if (self.args.debug or self.args.viz) and self.stepnum%10==0:
+        if self.args.debug and self.stepnum%10==0:
             print(f'step {self.stepnum:d} reward {reward:0.4f}')
-            if done: print(f'episode reward {self.episode_reward:0.4f}')
+            if done:
+                print(f'episode reward {self.episode_reward:0.4f}')
         self.stepnum += 1
 
         return next_obs, reward, done, info
@@ -199,8 +200,7 @@ class DeformEnv(gym.Env):
             obs = anc_obs
         else:
             w, h, rgba_px, _, _ = self.sim.getCameraImage(
-                width=self.args.cam_resolution,
-                height=self.args.cam_resolution,
+                width=self.args.cam_resolution, height=self.args.cam_resolution,
                 renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
             obs = rgba_px[:,:,0:3]
         return obs, done
@@ -215,5 +215,14 @@ class DeformEnv(gym.Env):
             accum += np.array(vertex_positions[v])
         loop_centroid = accum/len(true_loop_vertices)
         dist = np.linalg.norm(loop_centroid-self.goal_pos)
-        rwd = -1.0*dist
+        rwd = -1.0*dist - 0.1*np.linalg.norm(action)
         return rwd
+
+    def render(self, mode='rgb_array', width=300, height=300):
+        assert(mode == 'rgb_array')
+        w, h, rgba_px, _, _ = self.sim.getCameraImage(
+            width=width, height=height, viewMatrix=CAM_INFO['view_mat'],
+            projectionMatrix=CAM_INFO['proj_mat'],
+            renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
+        img = rgba_px[:, :, 0:3]
+        return img

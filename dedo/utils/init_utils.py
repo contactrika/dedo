@@ -119,7 +119,7 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
         springDampingStiffness=damping_stiffness,
         springBendingStiffness=bending_stiffness,
         frictionCoeff=friction_coeff,
-        collisionMargin=0.03,  # how far apart do two objects begin interacting
+        collisionMargin=0.05,  # how far apart do two objects begin interacting
         useSelfCollision=True,
         springDampingAllDirections=1,
         useFaceContact=True,

@@ -1,11 +1,9 @@
 """
 A simple demo with an example of RL training using Stable Baselines.
 
-python -m dedo.rl_demo --env=HangCloth-v0 --rl_algo PPO \
-    --logdir=/tmp/dedo --num_play_runs=3 --viz --debug
+python -m dedo.rl_demo --env=HangCloth-v0 --rl_algo PPO --logdir=/tmp/dedo
 
-tensorboard --logdir=/tmp/dedo --bind_all --port 6006 \
-  --samples_per_plugin images=1000
+tensorboard --logdir=/tmp/dedo --bind_all --port 6006
 
 
 @contactrika
@@ -51,10 +49,11 @@ def main(args):
     print('Created', args.task, 'with observation_space',
           vec_env.observation_space.shape, 'action_space',
           vec_env.action_space.shape)
-    rl_agent = eval(args.rl_algo)('MlpPolicy', vec_env,
+    rl_agent = eval(args.rl_algo)('MlpPolicy', vec_env, device=args.device,
                                   tensorboard_log=logdir, verbose=1)
     cb = CustomCallback(eval_env, args.num_play_runs, logdir, n_envs,
-                        num_steps_between_play=10000)
+                        num_steps_between_play=50000,
+                        viz=args.viz, debug=args.debug)
     rl_agent.learn(total_timesteps=rl_tot_steps, callback=cb)
     vec_env.close()
 
