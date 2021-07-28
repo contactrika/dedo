@@ -106,6 +106,8 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
                        bending_stiffness, damping_stiffness, elastic_stiffness,
                        friction_coeff, debug):
     """Load object from obj file with pybullet's loadSoftBody()."""
+
+    print('Loading filename', obj_file_name)
     # Note: do not set very small mass (e.g. 0.01 causes instabilities).
     deform_id = sim.loadSoftBody(
         mass=10.0,  # 1kg is default; bad sim with lower mass
@@ -117,13 +119,13 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
         springDampingStiffness=damping_stiffness,
         springBendingStiffness=bending_stiffness,
         frictionCoeff=friction_coeff,
-        collisionMargin=0.1,  # how far apart do two objects begin interacting
-        useSelfCollision=1,
+        collisionMargin=0.03,  # how far apart do two objects begin interacting
+        useSelfCollision=True,
         springDampingAllDirections=1,
-        useFaceContact=1,
-        useNeoHookean=1,
-        useMassSpring=1,
-        useBendingSprings=1,
+        useFaceContact=True,
+        useNeoHookean=False,
+        useMassSpring=True,
+        useBendingSprings=True,
         repulsionStiffness=1000,
     )
     # PyBullet examples for loading and anchoring deformables:
@@ -136,6 +138,7 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
     sim.changeVisualShape(
         deform_id, -1, textureUniqueId=texture_id, **kwargs)
     num_mesh_vertices = get_mesh_data(sim, deform_id)[0]
+
     if debug:
         print('Loaded deform_id', deform_id, 'with',
               num_mesh_vertices, 'mesh vertices', 'init_pos', init_pos)

@@ -16,7 +16,7 @@ ANCHOR_RGBA_INACTIVE = (0.5, 0.5, 0.5, 1)  # gray
 ANCHOR_RGBA_PEACH = (0.9, 0.75, 0.65, 1)  # peach
 # Gains and limits for a simple controller for the anchors.
 CTRL_MAX_FORCE = 70 # 10
-CTRL_PD_KD = 500.0 # 50
+CTRL_PD_KD = 60.0 # 50
 
 
 def get_closest(init_pos, mesh, max_dist=None):
@@ -91,10 +91,24 @@ def create_anchor(sim, anchor_pos, anchor_idx, preset_vertices, mesh,
     return anchor_geom_id, anchor_pos, anchor_vertices
 
 
+def target_pos_to_velocity_controller(sim, anchor_bullet_id, tgt_pos, t):
+    anc_pos, anc_or = sim.getBasePositionAndOrientation(anchor_bullet_id) # getting position
+    anc_linvel, anc_angvel = sim.getBaseVelocity(anchor_bullet_id) # getting velocity
+    print('t=',t )
+    pos_diff = np.array(tgt_pos) - np.array(anc_pos)
+    print('d_pos', pos_diff)
+    tgt_vel = (pos_diff) / t
+    return tgt_vel
+
+
 def command_anchor_velocity(sim, anchor_bullet_id, tgt_vel):
+    print('tgt_vel', tgt_vel)
     anc_linvel, _ = sim.getBaseVelocity(anchor_bullet_id)
     vel_diff = tgt_vel - np.array(anc_linvel)
+    print('anc_linvel', anc_linvel)
+    print('vel_diff', vel_diff)
     force = CTRL_PD_KD * vel_diff
+    print('force', force)
     force = np.clip(force, -1.0 * CTRL_MAX_FORCE, CTRL_MAX_FORCE)
     sim.applyExternalForce(
         anchor_bullet_id, -1, force.tolist(), [0, 0, 0], pybullet.LINK_FRAME)

@@ -158,12 +158,13 @@ class DeformEnv(gym.Env):
         obs, _ = self.get_obs()
         return obs
 
-    def step(self, action):
+    def step(self, action, absolute_velocity=False):
         # action is num_anchors x 3 for 3D velocity for anchors/grippers;
         # assume action in [-1,1], we convert to [-MAX_ACT_VEL, MAX_ACT_VEL].
         if self.args.debug:
             print('action', action)
-        assert((np.abs(action) <= 1.0).all())
+        if not absolute_velocity:
+            assert((np.abs(action) <= 1.0).all()), 'action must be in range [-1, 1] or use absolute velocity control'
         action = action.reshape(DeformEnv.NUM_ANCHORS, 3)*DeformEnv.MAX_ACT_VEL
         for i in range(DeformEnv.NUM_ANCHORS):
             command_anchor_velocity(self.sim, self.anchor_ids[i], action[i])
