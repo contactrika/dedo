@@ -11,12 +11,12 @@ from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.logger import Video
 
 
-def play(env, num_episodes, rl_agent):
+def play(env, num_episodes, rl_agent, debug=False):
     for epsd in range(num_episodes):
-        print('------------ Play episode ', epsd, '------------------')
+        if debug:
+            print('------------ Play episode ', epsd, '------------------')
         obs = env.reset()
         step = 0
-        print('Starting eval episode', epsd)
         while True:
             # rl_agent.predict() to get acts, not forcing deterministic.
             act, _states = rl_agent.predict(obs)
@@ -30,13 +30,11 @@ def play(env, num_episodes, rl_agent):
 
 class CustomCallback(BaseCallback):
     """
-    A custom callback that derives from ``BaseCallback``.
-
-    :param verbose: (int) Verbosity level 0: not output 1: info 2: debug
+    A custom callback that runs eval and adds videos to Tensorboard.
     """
     def __init__(self, eval_env, num_play_episodes, logdir, num_train_envs,
-                 num_steps_between_play=20000, verbose=0):
-        super(CustomCallback, self).__init__(verbose)
+                 num_steps_between_play=20000, viz=False, debug=False):
+        super(CustomCallback, self).__init__(debug)
         # Those variables will be accessible in the callback
         # (they are defined in the base class)
         # The RL model
@@ -58,8 +56,10 @@ class CustomCallback(BaseCallback):
         self._num_play_episodes = num_play_episodes
         self._logdir = logdir
         self._num_train_envs = num_train_envs
+        self._viz = viz
+        self._debug = debug
         self._num_steps_between_play = num_steps_between_play
-        self._steps_since_play = 0
+        self._steps_since_play = num_steps_between_play  # play right away
 
     def _on_training_start(self) -> None:
         """
@@ -85,7 +85,7 @@ class CustomCallback(BaseCallback):
         :return: (bool) If the callback returns False, training is aborted early.
         """
         self._steps_since_play += self._num_train_envs
-        if self._steps_since_play > self._num_steps_between_play or self.num_timesteps == 0:
+        if self._steps_since_play >= self._num_steps_between_play:
             screens = []
 
             def grab_screens(_locals, _globals):
@@ -101,7 +101,9 @@ class CustomCallback(BaseCallback):
                 'trajectory/video', Video(torch.ByteTensor([screens]), fps=50),
                 exclude=('stdout', 'log', 'json', 'csv'))
 
-            play(self._eval_env, self._num_play_episodes, self.model)
+            if self._viz:
+                play(self._eval_env, self._num_play_episodes, self.model,
+                     self._debug)
             self._steps_since_play = 0
             if self._logdir is not None:
                 self.model.save(self._logdir)
