@@ -214,7 +214,7 @@ class DeformEnv(gym.Env):
             accum += np.array(vertex_positions[v])
         loop_centroid = accum/len(true_loop_vertices)
         dist = np.linalg.norm(loop_centroid-self.goal_pos)
-        rwd = -1.0*dist
+        rwd = -1.0*dist - 0.1*np.linalg.norm(action)
         return rwd
 
     def render(self, mode='rgb_array', width=300, height=300):
@@ -223,5 +223,5 @@ class DeformEnv(gym.Env):
             width=width, height=height, viewMatrix=CAM_INFO['view_mat'],
             projectionMatrix=CAM_INFO['proj_mat'],
             renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
-        img = rgba_px[:,:,0:3]
+        img = rgba_px[:, :, 0:3]
         return img
