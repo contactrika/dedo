@@ -199,8 +199,7 @@ class DeformEnv(gym.Env):
             obs = anc_obs
         else:
             w, h, rgba_px, _, _ = self.sim.getCameraImage(
-                width=self.args.cam_resolution,
-                height=self.args.cam_resolution,
+                width=self.args.cam_resolution, height=self.args.cam_resolution,
                 renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
             obs = rgba_px[:,:,0:3]
         return obs, done
@@ -217,3 +216,11 @@ class DeformEnv(gym.Env):
         dist = np.linalg.norm(loop_centroid-self.goal_pos)
         rwd = -1.0*dist
         return rwd
+
+    def render(self, mode='rgb_array', width=300, height=300):
+        assert(mode == 'rgb_array')
+        w, h, rgba_px, _, _ = self.sim.getCameraImage(
+            width=width, height=height,
+            renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
+        img = rgba_px[:,:,0:3]
+        return img

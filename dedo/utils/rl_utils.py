@@ -4,7 +4,11 @@ Utilities for RL training and eval.
 @contactrika
 
 """
+import torch
+
 from stable_baselines3.common.callbacks import BaseCallback
+from stable_baselines3.common.evaluation import evaluate_policy
+from stable_baselines3.common.logger import Video
 
 
 def play(env, num_episodes, rl_agent):
@@ -81,7 +85,22 @@ class CustomCallback(BaseCallback):
         :return: (bool) If the callback returns False, training is aborted early.
         """
         self._steps_since_play += self._num_train_envs
-        if self._steps_since_play > self._num_steps_between_play:
+        if self._steps_since_play > self._num_steps_between_play or self.num_timesteps == 0:
+            screens = []
+
+            def grab_screens(_locals, _globals):
+                screen = self._eval_env.render(
+                    mode='rgb_array', width=300, height=300)
+                # PyTorch uses CxHxW vs HxWxC gym (and TF) images
+                screens.append(screen.transpose(2, 0, 1))
+
+            evaluate_policy(
+                self.model, self._eval_env, callback=grab_screens,
+                n_eval_episodes=self._num_play_episodes, deterministic=False)
+            self.logger.record(
+                'trajectory/video', Video(torch.ByteTensor([screens]), fps=50),
+                exclude=('stdout', 'log', 'json', 'csv'))
+
             play(self._eval_env, self._num_play_episodes, self.model)
             self._steps_since_play = 0
             if self._logdir is not None:
