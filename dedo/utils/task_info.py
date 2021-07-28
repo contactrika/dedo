@@ -24,6 +24,7 @@ TASK_INFO = {
     'ButtonProcedural': ['button_cloth.obj'],  # TODO wire up procedural cloths
     'Dress': ['ts_backpack_resampled.obj',
               'bags/backpack_0_dense.obj',
+              'bags/backpack_0_dense_flipped.obj',
               'bags/backpack_0_thick.obj',
               ],
     'Hoop': ['ts_hoop.obj'],
@@ -35,11 +36,49 @@ TASK_INFO = {
              'cloth/mask_2.obj',
              'cloth/mask_3.obj',
              'cloth/mask_4.obj',
-             ]
+             ],
+    'Debug': ['ts_backpack_resampled.obj',
+              'bags/backpack_0.obj',
+              'bags/backpack_0_dense.obj',
+              'bags/backpack_0_thick.obj',
+              'cloth/apron_2_dense.obj',
+              'cloth/ts_apron_twoloops.obj',
+              'cloth/apron_1.obj',
+
+              'cloth/apron_2_dense.obj',
+              'cloth/apron_3_dense.obj',
+              ]
 }
 
 # Information about rigid objects to load into the scene.
 SCENE_INFO = {
+    'debug': {
+        'entities': {
+            # 'debug_pole_dense.obj': {
+            #     'basePosition': [-0.22, 0.00, 0.5],  # 'basePosition': [-0.22, 0.00, 0.64],
+            #     'baseOrientation': [np.pi/2, 0, 0],
+            #     'globalScaling': 0.05,
+            #     'rgbaColor': (0.9, 0.75, 0.65, 1),
+            # },
+            # 'urdf/hanger.urdf': {
+            #     'basePosition': [0.0, 0, 0.35],
+            #     'baseOrientation': [0, 0, 0],
+            #     'globalScaling': 1.0,
+            # },
+            'ts_hanger_hooked.obj': {
+                'basePosition': [0.0, 0, 6.5],
+                'baseOrientation': [0, 0, np.pi / 2],
+                'globalScaling': 10.0,
+            },
+            'urdf/rod.urdf': {
+                'basePosition': [0.00, 0.00, 2.00],
+                'baseOrientation': [0, 0, 0],
+                'globalScaling': 10.0,
+            },
+        },
+        'goal_pos': [-0.077, 0.03, 0.315],
+        'easy_target_pos': [-0.077, 0.12, 0.315],
+    },
     'dress': {
         'entities': {
             'urdf/figure_headless.urdf': {
@@ -48,22 +87,21 @@ SCENE_INFO = {
                 'globalScaling': 0.95,
             },
             'head_with_ears.obj': {
-                'basePosition': [-0.22, 0.00, 0.64],
+                'basePosition': [-0.22, 0.00, 0.6],  # 'basePosition': [-0.22, 0.00, 0.64],
                 'baseOrientation': [0, 0, np.pi * 1.05],
                 'globalScaling': 0.05,
                 'rgbaColor': (0.9, 0.75, 0.65, 1),
             },
 
-            # 'parts/ts_pointy_ear_small.obj': {  # TODO: REMOVE - PROPRIETARY MESH
-            #     'basePosition': [-0.296, 0.00, 0.64],
-            #     'baseOrientation': [0, 0, np.pi * 1.05],
-            #     'globalScaling': 1,
-            #     'rgbaColor': (0.9, 0.75, 0.65, 1),
+            # 'urdf/figure_headless.urdf': {
+            #     'basePosition': [-0.22, 0, 0.28],
+            #     'baseOrientation': [0, 0, np.pi / 2],
+            #     'globalScaling': 0.95,
             # },
-            # 'parts/ts_pointy_ear_small_flip.obj': {  # TODO: REMOVE - PROPRIETARY MESH
-            #     'basePosition': [-0.146, 0.00, 0.64],
+            # 'head_with_ears.obj': {
+            #     'basePosition': [-0.22, 0.00, 0.64], #'basePosition': [-0.22, 0.00, 0.64],
             #     'baseOrientation': [0, 0, np.pi * 1.05],
-            #     'globalScaling': 1,
+            #     'globalScaling': 0.05,
             #     'rgbaColor': (0.9, 0.75, 0.65, 1),
             # },
         },
@@ -164,9 +202,9 @@ DEFORM_INFO = {
     'cloth/ts_apron_twoloops.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL
         'anchor_init_pos': [-0.04, 0.35, 0.75],
         'other_anchor_init_pos': [0.04, 0.35, 0.75],
-        'deform_init_pos': [0, 0.40, 0.57],
+        'deform_init_pos': [0, 0.3, 5], # [0, 0.05, 0.47],
         'deform_init_ori': [0, 0, np.pi / 2],
-        'deform_scale': 0.8,
+        'deform_scale': 8,
         'deform_anchor_vertices': [
             [131],
             [116],
@@ -189,6 +227,21 @@ DEFORM_INFO = {
              1319]
         ],
     },
+    'ts_backpack_resampled.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL
+        # 'deform_init_pos': [-0.08, 0.46, 0.52],
+        'deform_init_pos': [0, 0.05, 0.5],  # [-0.2, 0.2, 0.52]
+        # 'deform_init_ori': [0, 0, 0],
+        'deform_init_ori': [0, 0, -np.pi / 2],
+        'deform_scale': 0.4,
+        'deform_anchor_vertices': [
+            [999, 1000, 1138, 1140, 1152, 1293, 1298, 1301, 1302, 1304, 1305, 1341, 1342, 1343, 1344, 1370],
+            [935, 1030, 1031, 1082, 1087, 1373, 1374, 1381, 1409],
+        ],
+        'deform_true_loop_vertices': [
+            [47, 51, 54, ],
+            [21, 24, 244, ]
+        ],
+    },
     # 'bags/backpack_0.obj': {
     #     'deform_init_pos': [-0.2, 0.27, 0.6],
     #     'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
@@ -206,12 +259,28 @@ DEFORM_INFO = {
     #     ],
     # },
     'bags/backpack_0_dense.obj': {
-        'deform_init_pos': [-0.2, 0.27, 0.55],
+        'deform_init_pos': [0, 0.05, 0.6],
         'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
-        'deform_scale': 0.2,
+        'deform_scale': 0.3,
         'deform_anchor_vertices': [
-            [247, 260, 261, 264, 837, 849, 851, 852],
-            [540, 542, 543, 544, 545, 547, 549],
+            [247, ],
+            [522, ],
+        ],
+        'deform_true_loop_vertices': [
+            [140, 201, 220, 240, 241, 242, 243, 244, 247, 249, 252, 254, 256, 258, 259, 263, 264, 265, 266, 267, 268,
+             269, 270, 271, 272, 278, 296, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 587],
+            [311, 313, 326, 327, 391, 392, 406, 433, 435, 496, 516, 517, 518, 519, 520, 522, 524, 527, 530, 531, 533,
+             535, 537, 540, 541, 542, 543, 544, 545, 546, 547, 548, 549, 554, 572, 574, 576, 577, 578, 579, 580, 581,
+             582, 583, 584],
+        ],
+    },
+    'bags/backpack_0_dense_flipped.obj': {
+        'deform_init_pos': [-0.2, 0.27, 0.3],
+        'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
+        'deform_scale': 0.3,
+        'deform_anchor_vertices': [
+            [244, 247, 259, 263, 1394, 1489, 1628, 1799, 1938, 1941, 2054, 2057],
+            [518, 520, 522, 537, 782, 1012, 1013, 1034, 1036, 2034],
         ],
         'deform_true_loop_vertices': [
             [140, 201, 220, 240, 241, 242, 243, 244, 247, 249, 252, 254, 256, 258, 259, 263, 264, 265, 266, 267, 268,
@@ -224,7 +293,7 @@ DEFORM_INFO = {
     'bags/backpack_0_thick.obj': {
         'deform_init_pos': [-0.2, 0.27, 0.55],
         'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
-        'deform_scale': 0.2,
+        'deform_scale': 0.3,
         'deform_anchor_vertices': [
             [262, 263, 264, 265, 266, 267, 268, 269, 270],
             [522, 536, 537, 538, 545, 547, 1112, 1127, 1128, 1130, 1131, 1133],
@@ -314,9 +383,9 @@ DEFORM_INFO = {
         ],
     },
     'cloth/apron_1.obj': {  # This used to be apron_zehang
-        'deform_init_pos': [0, 0.47, 0.47],
-        'deform_init_ori': [np.pi / 2, 0, np.pi],
-        'deform_scale': 0.3,
+        'deform_init_pos': [0, 0.3, 5.5],
+        'deform_init_ori': [np.pi, 0, np.pi],
+        'deform_scale': 3,
         'deform_anchor_vertices': [
             [15],  # 10, 12, 13, 14, 15],
             [174],  # 167, 169, 171, 172, 174],
@@ -330,12 +399,12 @@ DEFORM_INFO = {
         ],
     },
     'cloth/apron_2_dense.obj': {
-        'deform_init_pos': [0, 0.47, 0.47],
-        'deform_init_ori': [np.pi / 2, 0, np.pi],
-        'deform_scale': 0.3,
+        'deform_init_pos': [0, 0.45, 7.5],
+        'deform_init_ori': [0, 0, np.pi],
+        'deform_scale': 3,
         'deform_anchor_vertices': [
-            [71],  #, 72, 73, 76, 77, 78, 79, 227, 230, 602, 604, 721, 722],
-            [6 ],  # 159, 161, 162, 163, 285, 288, 520, 522, 680, 681, 763],
+            [181,],  # , 72, 73, 76, 77, 78, 79, 227, 230, 602, 604, 721, 722],
+            [ 16,],  # 159, 161, 162, 163, 285, 288, 520, 522, 680, 681, 763],
         ],
         'deform_true_loop_vertices': [
             [3, 4, 5, 9, 10, 11, 14, 62, 68, 69, 70, 71, 76, 78, 163, 164, 239, 281, 282, 283, 286, 287, 288, 354, 406,
@@ -353,9 +422,9 @@ DEFORM_INFO = {
         ],
     },
     'cloth/apron_3_dense.obj': {  # This used to be apron_zehang
-        'deform_init_pos': [0, 0.47, 0.47],
-        'deform_init_ori': [np.pi / 2, 0, np.pi],
-        'deform_scale': 0.3,
+        'deform_init_pos': [0, 0.3, 4.7],
+        'deform_init_ori': [-np.pi / 2, 0, np.pi],
+        'deform_scale': 3,
         'deform_anchor_vertices': [
             [128],  # 10, 12, 13, 14, 15],
             [79],  # 167, 169, 171, 172, 174],
@@ -528,33 +597,7 @@ DEFORM_INFO = {
         'deform_init_pos': [-0.14, 0.525, 0.48],
         'deform_init_ori': [0, np.pi / 2, 0],
     },
-    'ts_backpack_resampled.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL
-        'deform_init_pos': [-0.08, 0.46, 0.52],
-        'deform_init_ori': [0, 0, 0],
-        'deform_scale': 0.75,
-        'deform_true_loop_vertices': [
-            [47, 51, 54, 75, 183, 184, 186, 188, 189, 190, 191,
-             193, 656, 677, 681, 691, 785, 833, 863, 865, 871, 874,
-             883, 885, 886, 887, 888, 890, 893, 897, 903, 909, 910,
-             911, 913, 914, 916, 917, 920, 921, 925, 927, 928, 932,
-             937, 944, 946, 948, 949, 950, 952, 953, 954, 956, 957,
-             958, 965, 966, 967, 968, 1041, 1056, 1090, 1112, 1122, 1131,
-             1132, 1172, 1173, 1176, 1177, 1183, 1196, 1345, 1361, 1362, 1364,
-             1368, 1390, 1391, 1392, 1393, 1394, 1395, 1396, 1399, 1416, 1423,
-             1445, 1464, 1472, 1477, 1480, 1485, 1491, 1493, 1494, 1495, 1496,
-             1516],
-            [21, 24, 244, 245, 249, 254, 255, 308, 696, 931, 941,
-             943, 959, 962, 963, 969, 970, 971, 973, 975, 979, 982,
-             986, 989, 991, 993, 994, 995, 996, 997, 998, 999, 1000,
-             1003, 1004, 1007, 1010, 1012, 1015, 1017, 1021, 1022, 1023, 1024,
-             1025, 1026, 1029, 1031, 1035, 1036, 1042, 1052, 1054, 1106, 1107,
-             1108, 1134, 1169, 1179, 1182, 1189, 1220, 1230, 1252, 1334, 1335,
-             1338, 1444, 1487, 1507, 1508, 1538, 1539, 1540, 1541, 1542, 1544,
-             1545, 1559, 1563, 1567, 1572, 1578, 1599, 1603, 1604, 1605, 1606,
-             1607, 1610, 1616, 1618, 1636, 1640, 1641, 1642, 1643, 1646, 1647,
-             1653]
-        ],
-    },
+
     'ts_mask.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL
         'deform_init_pos': [0, 0.43, 0.65],
         'deform_init_ori': [0, 0, np.pi],
@@ -575,4 +618,3 @@ CAM_INFO = {
                  0.0, 0.0, -1.0000200271606445, -1.0,
                  0.0, 0.0, -0.02000020071864128, 0.0)
 }
-

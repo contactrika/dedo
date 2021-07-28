@@ -88,6 +88,7 @@ def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori, rgba_color=
         rigid_id = sim.createMultiBody(
             baseMass=0.0,  # mass==0 => fixed at the position where it is loaded
             basePosition=init_pos,
+            # useMaximalCoordinates=1, # TODO Delete me
             baseCollisionShapeIndex=col_shape_id,
             baseVisualShapeIndex=viz_shape_id,
             baseOrientation=pybullet.getQuaternionFromEuler(init_ori))
@@ -123,10 +124,10 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
         useSelfCollision=True,
         springDampingAllDirections=1,
         useFaceContact=True,
-        useNeoHookean=False,
+        useNeoHookean=True,
         useMassSpring=True,
         useBendingSprings=True,
-        repulsionStiffness=1000,
+        repulsionStiffness=10000000,
     )
     # PyBullet examples for loading and anchoring deformables:
     # https://github.com/bulletphysics/bullet3/examples/pybullet/examples/deformable_anchor.py
