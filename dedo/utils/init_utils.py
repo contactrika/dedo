@@ -107,8 +107,8 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
                        bending_stiffness, damping_stiffness, elastic_stiffness,
                        friction_coeff, debug):
     """Load object from obj file with pybullet's loadSoftBody()."""
-
-    print('Loading filename', obj_file_name)
+    if debug:
+        print('Loading filename', obj_file_name)
     # Note: do not set very small mass (e.g. 0.01 causes instabilities).
     deform_id = sim.loadSoftBody(
         mass=10.0,  # 1kg is default; bad sim with lower mass
