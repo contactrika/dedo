@@ -220,7 +220,10 @@ class DeformEnv(gym.Env):
         assert(mode == 'rgb_array')
         w, h, rgba_px, _, _ = self.sim.getCameraImage(
             width=width, height=height,
-            renderer=pybullet.ER_BULLET_HARDWARE_OPENGL, **CAM_INFO)
+            renderer=pybullet.ER_BULLET_HARDWARE_OPENGL,
+            # TODO: figure out why passing viewMatrix and projectionMatrix
+            #   does not seem to work any more when --viz=False
+        )
         # If getCameraImage() returns a tuple instead of numpy array that
         # means that pybullet was installed without numpy being present.
         # Uninstall pybullet, then install numpy, then install pybullet.
