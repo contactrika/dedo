@@ -9,14 +9,14 @@ import pybullet
 from .mesh_utils import get_mesh_data
 
 ANCHOR_MIN_DIST = 0.02  # 2cm
-ANCHOR_MASS = 0.100  # 100g
-ANCHOR_RADIUS = 0.007  # 7mm
+ANCHOR_MASS = 0.100     # 100g
+ANCHOR_RADIUS = 0.05    # 5cm
 ANCHOR_RGBA_ACTIVE = (1, 0, 1, 1)  # magenta
 ANCHOR_RGBA_INACTIVE = (0.5, 0.5, 0.5, 1)  # gray
 ANCHOR_RGBA_PEACH = (0.9, 0.75, 0.65, 1)  # peach
 # Gains and limits for a simple controller for the anchors.
-CTRL_MAX_FORCE = 500 # 10
-CTRL_PD_KD = 50.0 # 50
+CTRL_MAX_FORCE = 1000  # 10
+CTRL_PD_KD = 100.0  # 50
 
 
 def get_closest(init_pos, mesh, max_dist=None):
@@ -60,7 +60,7 @@ def create_anchor_geom(sim, pos, mass=ANCHOR_MASS, radius=ANCHOR_RADIUS,
 
 
 def create_anchor(sim, anchor_pos, anchor_idx, preset_vertices, mesh,
-                  mass=0.1, radius=0.005, rgba=(1, 0, 1, 1.0),
+                  mass=0.1, radius=ANCHOR_RADIUS, rgba=(1, 0, 1, 1.0),
                   use_preset=True, use_closest=True):
     """
     Create an anchor in Pybullet to grab or pin an object.
@@ -107,10 +107,8 @@ def command_anchor_velocity(sim, anchor_bullet_id, tgt_vel, debug=False):
     force = CTRL_PD_KD * vel_diff
     force = np.clip(force, -1.0 * CTRL_MAX_FORCE, CTRL_MAX_FORCE)
     if debug:
-        print('tgt_vel', tgt_vel)
-        print('anc_linvel', anc_linvel)
-        print('vel_diff', vel_diff)
-        print('force', force)
+        print('tgt_vel', tgt_vel, 'anc_linvel', anc_linvel)
+        print('vel_diff', vel_diff, 'force', force)
     sim.applyExternalForce(
         anchor_bullet_id, -1, force.tolist(), [0, 0, 0], pybullet.LINK_FRAME)
     # If we were using a robot (e.g. Yumi or other robot with precise
@@ -124,7 +122,7 @@ def command_anchor_velocity(sim, anchor_bullet_id, tgt_vel, debug=False):
     # (e.g. deformable is attached to a fixed object on multiple sides) -
     # other control methods would be more appropriate.
     # sim.resetBaseVelocity(anchor_bullet_id, linearVelocity=tgt_vel.tolist(),
-    #                      angularVelocity=[0, 0, 0])
+    #                       angularVelocity=[0, 0, 0])
 
 
 def attach_anchor(sim, anchor_id, anchor_vertices, deform_id, change_color=False):
