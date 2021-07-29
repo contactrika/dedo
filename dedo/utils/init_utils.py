@@ -167,6 +167,7 @@ def reset_bullet(args, sim, cam_on=False, cam_args={}):
     # Note: using sim.resetSimulation(pybullet.RESET_USE_DEFORMABLE_WORLD)
     # would turn on FEM, which could be very tricky to tune, so we avoid it.
     sim.resetSimulation()
+    # sim.resetSimulation(pybullet.RESET_USE_DEFORMABLE_WORLD)
     sim.setGravity(0, 0, args.sim_gravity)
     sim.setTimeStep(1.0/args.sim_frequency)
     sim.setPhysicsEngineParameter(

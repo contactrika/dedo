@@ -110,8 +110,8 @@ def command_anchor_velocity(sim, anchor_bullet_id, tgt_vel):
     force = CTRL_PD_KD * vel_diff
     print('force', force)
     force = np.clip(force, -1.0 * CTRL_MAX_FORCE, CTRL_MAX_FORCE)
-    # sim.applyExternalForce(
-    #     anchor_bullet_id, -1, force.tolist(), [0, 0, 0], pybullet.LINK_FRAME)
+    sim.applyExternalForce(
+        anchor_bullet_id, -1, force.tolist(), [0, 0, 0], pybullet.LINK_FRAME)
     # If we were using a robot (e.g. Yumi or other robot with precise
     # non-compliant velocity control interface) - then we could simply command
     # that velocity to the robot. For a free-floating anchor - one option would
@@ -122,8 +122,8 @@ def command_anchor_velocity(sim, anchor_bullet_id, tgt_vel):
     # For cases where the anchors are very much constrained by the cloth
     # (e.g. deformable is attached to a fixed object on multiple sides) -
     # other control methods would be more appropriate.
-    sim.resetBaseVelocity(anchor_bullet_id, linearVelocity=tgt_vel.tolist(),
-                          angularVelocity=[0, 0, 0])
+    # sim.resetBaseVelocity(anchor_bullet_id, linearVelocity=tgt_vel.tolist(),
+    #                       angularVelocity=[0, 0, 0])
 
 
 def attach_anchor(sim, anchor_id, anchor_vertices, deform_id, change_color=False):

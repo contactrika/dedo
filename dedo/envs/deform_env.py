@@ -32,10 +32,11 @@ class DeformEnv(gym.Env):
         self.max_episode_len = args.max_episode_len
         self.cam_on = args.cam_resolution is not None
         self.cam_args = {
-            'cameraDistance': 1.2,
-            'cameraYaw': 140,
-            'cameraPitch': -40,
-            'cameraTargetPosition': np.array([0.0, 0, 0])
+            'cameraDistance': 13.8,
+            'cameraPitch': -34.40,
+            'cameraYaw': 256,
+            'cameraTargetPosition': np.array([-0.1, -0.4, 1.3])
+
         }
         # Initialize sim and load objects.
         self.sim = bclient.BulletClient(
@@ -133,6 +134,7 @@ class DeformEnv(gym.Env):
         reset_bullet(self.args, self.sim, self.cam_on, self.cam_args)
         self.rigid_ids, self.deform_id, self.goal_pos = self.load_objects(
             self.sim, self.args)
+        # view_mat = self.sim.computeViewMatrixFromYawPitchRoll([-0.1, -0.4, 1.3], 13.8, -34.40, 256, 2 )
         self.sim.stepSimulation()  # step once to get initial state
         # Setup dynamic anchors.
 
@@ -161,6 +163,7 @@ class DeformEnv(gym.Env):
     def step(self, action, absolute_velocity=False):
         # action is num_anchors x 3 for 3D velocity for anchors/grippers;
         # assume action in [-1,1], we convert to [-MAX_ACT_VEL, MAX_ACT_VEL].
+
         if self.args.debug:
             print('action', action)
         if not absolute_velocity:

@@ -21,6 +21,7 @@ def policy_simple(obs, act, task):
     act = act.reshape(2, 3)
     act = np.zeros_like(act) # TODO delete me
     act[:, 1] = -0.1
+    act[:, 2] = -0.01
     return act.reshape(-1)
     obs = obs.reshape(-1, 3)
     if task == 'Button':

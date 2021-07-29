@@ -202,8 +202,8 @@ DEFORM_INFO = {
     'cloth/ts_apron_twoloops.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL
         'anchor_init_pos': [-0.04, 0.35, 0.75],
         'other_anchor_init_pos': [0.04, 0.35, 0.75],
-        'deform_init_pos': [0, 0.3, 5], # [0, 0.05, 0.47],
-        'deform_init_ori': [0, 0, np.pi / 2],
+        'deform_init_pos': [0, 0.8, 6.5], # [0, 0.05, 0.47],
+        'deform_init_ori': [-0, -np.pi / 2, np.pi / 2],
         'deform_scale': 8,
         'deform_anchor_vertices': [
             [131],
@@ -383,7 +383,7 @@ DEFORM_INFO = {
         ],
     },
     'cloth/apron_1.obj': {  # This used to be apron_zehang
-        'deform_init_pos': [0, 0.3, 5.5],
+        'deform_init_pos': [0, 0.3, 7.5],
         'deform_init_ori': [np.pi, 0, np.pi],
         'deform_scale': 3,
         'deform_anchor_vertices': [
