@@ -22,8 +22,8 @@ from ..utils.task_info import CAM_INFO, DEFORM_INFO, SCENE_INFO, TASK_INFO
 
 
 class DeformEnv(gym.Env):
-    MAX_OBS_VEL = 20.0  # max vel (in m/s) for the anchor observations
-    MAX_ACT_VEL = 10.0  # max vel (in m/s) for the anchor actions
+    MAX_OBS_VEL = 10.0  # max vel (in m/s) for the anchor observations
+    MAX_ACT_VEL = 1.0   # max vel (in m/s) for the anchor actions
     NUM_ANCHORS = 2
     WORKSPACE_BOX_SIZE = 2.0  # workspace box limits (needs to be >=1)
 
@@ -170,6 +170,8 @@ class DeformEnv(gym.Env):
         self.sim.stepSimulation()
         next_obs, done = self.get_obs()
         reward = self.get_reward(action)
+        if done:  # if terminating early use reward from current step for rest
+            reward *= (self.max_episode_len - self.stepnum)
         self.episode_reward += reward
         done = (done or self.stepnum >= self.max_episode_len)
         info = {}
