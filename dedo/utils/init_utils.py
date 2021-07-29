@@ -75,7 +75,8 @@ def load_objects(sim, scene_name, args):
     pass
 
 
-def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori, rgba_color=None):
+def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori,
+                      rgba_color=None):
     """Load a rigid object from file, create visual and collision shapes."""
     if obj_file_name.endswith('.obj'):  # mesh info
         xyz_scale = [scale, scale, scale]
@@ -107,8 +108,8 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
                        bending_stiffness, damping_stiffness, elastic_stiffness,
                        friction_coeff, debug):
     """Load object from obj file with pybullet's loadSoftBody()."""
-
-    print('Loading filename', obj_file_name)
+    if debug:
+        print('Loading filename', obj_file_name)
     # Note: do not set very small mass (e.g. 0.01 causes instabilities).
     deform_id = sim.loadSoftBody(
         mass=10.0,  # 1kg is default; bad sim with lower mass
@@ -153,7 +154,7 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
     return deform_id
 
 
-def reset_bullet(args, sim, cam_on=False, cam_args={}):
+def reset_bullet(args, sim, cam_on=False, cam_args={}, debug=False):
     """Reset/initialize pybullet simulation."""
     if args.viz:  # toggle aux menus in the GUI.
         pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_GUI, cam_on)
@@ -164,6 +165,11 @@ def reset_bullet(args, sim, cam_on=False, cam_args={}):
         pybullet.configureDebugVisualizer(
             pybullet.COV_ENABLE_SEGMENTATION_MARK_PREVIEW, cam_on)
         sim.resetDebugVisualizerCamera(**cam_args)
+        if debug:
+            res = sim.getDebugVisualizerCamera()
+            print('Camera info for', cam_args)
+            print('viewMatrix', res[2])
+            print('projectionMatrix', res[3])
     # Note: using sim.resetSimulation(pybullet.RESET_USE_DEFORMABLE_WORLD)
     # would turn on FEM, which could be very tricky to tune, so we avoid it.
     sim.resetSimulation()

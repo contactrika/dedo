@@ -36,6 +36,8 @@ def main(args):
         logdir = os.path.join(os.path.expanduser(args.logdir), subdir)
     # Stable baselines only support vectorized envs for on-policy algos.
     n_envs = args.num_envs if args.rl_algo in ['A2C', 'PPO'] else 1
+    eval_env = gym.make(args.env, args=args)
+    eval_env.seed(args.seed)
     train_args = deepcopy(args)
     train_args.debug = False  # no debug during training
     train_args.viz = False  # no viz during training
@@ -44,8 +46,6 @@ def main(args):
         vec_env_cls=SubprocVecEnv if n_envs > 1 else DummyVecEnv,
         env_kwargs={'args': train_args})
     vec_env.seed(args.seed)
-    eval_env = gym.make(args.env, args=args)
-    eval_env.seed(args.seed)
     print('Created', args.task, 'with observation_space',
           vec_env.observation_space.shape, 'action_space',
           vec_env.action_space.shape)

@@ -101,9 +101,6 @@ class CustomCallback(BaseCallback):
                 'trajectory/video', Video(torch.ByteTensor([screens]), fps=50),
                 exclude=('stdout', 'log', 'json', 'csv'))
 
-            if self._viz:
-                play(self._eval_env, self._num_play_episodes, self.model,
-                     self._debug)
             self._steps_since_play = 0
             if self._logdir is not None:
                 self.model.save(self._logdir)
