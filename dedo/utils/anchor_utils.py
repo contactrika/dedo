@@ -123,6 +123,7 @@ def command_anchor_velocity(sim, anchor_bullet_id, tgt_vel, debug=False):
 
 
 def attach_anchor(sim, anchor_id, anchor_vertices, deform_id, change_color=False):
+
     if change_color:
         sim.changeVisualShape(
             anchor_id, -1, rgbaColor=ANCHOR_RGBA_ACTIVE)

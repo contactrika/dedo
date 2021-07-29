@@ -32,10 +32,10 @@ class DeformEnv(gym.Env):
         self.max_episode_len = args.max_episode_len
         self.cam_on = args.cam_resolution is not None
         self.cam_args = {
-            'cameraDistance': 13.8,
-            'cameraPitch': -34.40,
-            'cameraYaw': 256,
-            'cameraTargetPosition': np.array([-0.1, -0.4, 1.3])
+            'cameraDistance': 7.4,
+            'cameraPitch': -22.40,
+            'cameraYaw': 257,
+            'cameraTargetPosition': np.array([-0.08, -0.29, 1.8])
 
         }
         # Initialize sim and load objects.
@@ -193,11 +193,11 @@ class DeformEnv(gym.Env):
             anc_obs.extend(pos)
             anc_obs.extend((np.array(linvel)/DeformEnv.MAX_OBS_VEL).tolist())
         anc_obs = np.array(anc_obs)
-        if (np.abs(anc_obs) > self.anchor_lims).any():
-            if self.args.debug:
-                print('clipping anchor obs', anc_obs)
-            anc_obs = np.clip(anc_obs, -1.0*self.anchor_lims, self.anchor_lims)
-            done = True
+        # if (np.abs(anc_obs) > self.anchor_lims).any():
+        #     if self.args.debug:
+        #         print('clipping anchor obs', anc_obs)
+        #     anc_obs = np.clip(anc_obs, -1.0*self.anchor_lims, self.anchor_lims)
+        #     done = True
         if self.args.cam_resolution is None:
             obs = anc_obs
         else:

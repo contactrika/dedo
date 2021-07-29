@@ -122,17 +122,17 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
         springBendingStiffness=bending_stiffness,
         frictionCoeff=friction_coeff,
         collisionMargin=0.05,  # how far apart do two objects begin interacting
-        useSelfCollision=True,
+        useSelfCollision=0,
         springDampingAllDirections=1,
         useFaceContact=True,
-        useNeoHookean=True,
+        useNeoHookean=0,
         useMassSpring=True,
         useBendingSprings=True,
-        repulsionStiffness=10000000,
+        # repulsionStiffness=10000000,
     )
     # PyBullet examples for loading and anchoring deformables:
     # https://github.com/bulletphysics/bullet3/examples/pybullet/examples/deformable_anchor.py
-    # sim.setPhysicsEngineParameter(sparseSdfVoxelSize=0.25)
+    sim.setPhysicsEngineParameter(sparseSdfVoxelSize=0.25)
     texture_id = sim.loadTexture(texture_file_name)
     kwargs = {}
     if hasattr(pybullet, 'VISUAL_SHAPE_DOUBLE_SIDED'):
@@ -172,8 +172,8 @@ def reset_bullet(args, sim, cam_on=False, cam_args={}, debug=False):
             print('projectionMatrix', res[3])
     # Note: using sim.resetSimulation(pybullet.RESET_USE_DEFORMABLE_WORLD)
     # would turn on FEM, which could be very tricky to tune, so we avoid it.
-    sim.resetSimulation()
-    # sim.resetSimulation(pybullet.RESET_USE_DEFORMABLE_WORLD)
+    # sim.resetSimulation()
+    sim.resetSimulation(pybullet.RESET_USE_DEFORMABLE_WORLD)
     sim.setGravity(0, 0, args.sim_gravity)
     sim.setTimeStep(1.0/args.sim_frequency)
     sim.setPhysicsEngineParameter(
