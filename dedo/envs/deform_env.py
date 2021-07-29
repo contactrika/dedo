@@ -44,9 +44,9 @@ class DeformEnv(gym.Env):
         self.rigid_ids, self.deform_id, self.goal_pos = self.load_objects(
             self.sim, self.args)
         # Define sizes of observation and action spaces.
-        self.anchor_lims = np.hstack(  # 3D pos and 3D linvel/MAX_OBS_VEL
-            [DeformEnv.WORKSPACE_BOX_SIZE*np.ones(DeformEnv.NUM_ANCHORS*3),
-             np.ones(DeformEnv.NUM_ANCHORS*3)])
+        self.anchor_lims = np.tile(np.concatenate(  # 3D pos and 3D linvel/MAX_OBS_VEL
+            [DeformEnv.WORKSPACE_BOX_SIZE*np.ones(3),
+             np.ones(3)]), DeformEnv.NUM_ANCHORS)
         if args.cam_resolution is None:
             self.observation_space = gym.spaces.Box(
                 -1.0*self.anchor_lims, self.anchor_lims)
@@ -145,7 +145,7 @@ class DeformEnv(gym.Env):
             _, mesh = get_mesh_data(self.sim, self.deform_id)
             anchor_id, anchor_pos, anchor_vertices = create_anchor(
                 self.sim, anchor_init_pos, i,
-                preset_dynamic_anchor_vertices, mesh)
+                preset_dynamic_anchor_vertices, mesh, radius=0.05)
             attach_anchor(self.sim, anchor_id, anchor_vertices, self.deform_id)
             self.anchors[anchor_id] = {'pos': anchor_pos,
                                        'vertices': anchor_vertices}
@@ -158,12 +158,13 @@ class DeformEnv(gym.Env):
         obs, _ = self.get_obs()
         return obs
 
-    def step(self, action):
+    def step(self, action, absolute_velocity=False):
         # action is num_anchors x 3 for 3D velocity for anchors/grippers;
         # assume action in [-1,1], we convert to [-MAX_ACT_VEL, MAX_ACT_VEL].
         if self.args.debug:
             print('action', action)
-        assert((np.abs(action) <= 1.0).all())
+        if not absolute_velocity:
+            assert((np.abs(action) <= 1.0).all()), 'action must be in range [-1, 1] or use absolute velocity control'
         action = action.reshape(DeformEnv.NUM_ANCHORS, 3)*DeformEnv.MAX_ACT_VEL
         for i in range(DeformEnv.NUM_ANCHORS):
             command_anchor_velocity(self.sim, self.anchor_ids[i], action[i])
@@ -192,11 +193,11 @@ class DeformEnv(gym.Env):
             anc_obs.extend(pos)
             anc_obs.extend((np.array(linvel)/DeformEnv.MAX_OBS_VEL).tolist())
         anc_obs = np.array(anc_obs)
-        if (np.abs(anc_obs) > self.anchor_lims).any():
-            if self.args.debug:
-                print('clipping anchor obs', anc_obs)
-            anc_obs = np.clip(anc_obs, -1.0*self.anchor_lims, self.anchor_lims)
-            done = True
+        # if (np.abs(anc_obs) > self.anchor_lims).any():
+        #     if self.args.debug:
+        #         print('clipping anchor obs', anc_obs)
+        #     anc_obs = np.clip(anc_obs, -1.0*self.anchor_lims, self.anchor_lims)
+        #     done = True
         if self.args.cam_resolution is None:
             obs = anc_obs
         else:

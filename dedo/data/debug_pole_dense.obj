@@ -1,6 +1,6 @@
 # Blender v2.93.1 OBJ File: ''
 # www.blender.org
-mtllib button_cloth.mtl
+mtllib debug_pole_dense.mtl
 o Cylinder.001
 v 0.000000 -9.868812 -1.000000
 v 0.000000 9.868812 -1.000000

@@ -88,6 +88,7 @@ def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori, rgba_color=
         rigid_id = sim.createMultiBody(
             baseMass=0.0,  # mass==0 => fixed at the position where it is loaded
             basePosition=init_pos,
+            # useMaximalCoordinates=1, # TODO Delete me
             baseCollisionShapeIndex=col_shape_id,
             baseVisualShapeIndex=viz_shape_id,
             baseOrientation=pybullet.getQuaternionFromEuler(init_ori))
@@ -106,6 +107,8 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
                        bending_stiffness, damping_stiffness, elastic_stiffness,
                        friction_coeff, debug):
     """Load object from obj file with pybullet's loadSoftBody()."""
+
+    print('Loading filename', obj_file_name)
     # Note: do not set very small mass (e.g. 0.01 causes instabilities).
     deform_id = sim.loadSoftBody(
         mass=10.0,  # 1kg is default; bad sim with lower mass
@@ -118,13 +121,13 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
         springBendingStiffness=bending_stiffness,
         frictionCoeff=friction_coeff,
         collisionMargin=0.05,  # how far apart do two objects begin interacting
-        useSelfCollision=1,
+        useSelfCollision=True,
         springDampingAllDirections=1,
-        useFaceContact=1,
-        useNeoHookean=1,
-        useMassSpring=1,
-        useBendingSprings=1,
-        repulsionStiffness=1000,
+        useFaceContact=True,
+        useNeoHookean=True,
+        useMassSpring=True,
+        useBendingSprings=True,
+        repulsionStiffness=10000000,
     )
     # PyBullet examples for loading and anchoring deformables:
     # https://github.com/bulletphysics/bullet3/examples/pybullet/examples/deformable_anchor.py
@@ -136,6 +139,7 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
     sim.changeVisualShape(
         deform_id, -1, textureUniqueId=texture_id, **kwargs)
     num_mesh_vertices = get_mesh_data(sim, deform_id)[0]
+
     if debug:
         print('Loaded deform_id', deform_id, 'with',
               num_mesh_vertices, 'mesh vertices', 'init_pos', init_pos)

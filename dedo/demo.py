@@ -19,6 +19,9 @@ from dedo.utils.args import get_args
 
 def policy_simple(obs, act, task):
     act = act.reshape(2, 3)
+    act = np.zeros_like(act) # TODO delete me
+    act[:, 1] = -0.1
+    return act.reshape(-1)
     obs = obs.reshape(-1, 3)
     if task == 'Button':
         act[:, :] = 0.0
@@ -42,6 +45,7 @@ def play(env, num_episodes, args):
         input('Reset done; press enter to start episode')
         while True:
             assert(not isinstance(env.action_space, gym.spaces.Discrete))
+            print(step)
             act = env.action_space.sample()  # in [-1,1]
             noise_act = 0.1*act
             act = policy_simple(obs, noise_act, args.task)
@@ -54,6 +58,7 @@ def play(env, num_episodes, args):
                 break
             obs = next_obs
             step += 1
+
         input('Episode ended; press enter to go on')
 
 
