@@ -92,8 +92,8 @@ SCENE_INFO = {
                 'rgbaColor': (0.9, 0.75, 0.65, 1),
             },
         },
-        'goal_pos': [-0.077, 0.03, 0.315],
-        'easy_target_pos': [-0.077, 0.12, 0.315],
+        'goal_pos': [-1, 0.03, 5.7], # TODO other arm's goal position
+        'easy_target_pos': [-0.077, 2, 3.00],
     },
     'hang': {
         'entities': {
@@ -109,7 +109,7 @@ SCENE_INFO = {
             },
 
         },
-        'goal_pos': [0.00, 0.00, 0.35],
+        'goal_pos': [0.00, 0.00, 5.7],
     },
     'button': {
         'entities': {
@@ -129,7 +129,7 @@ SCENE_INFO = {
                 'globalScaling': 12.8,
             },
         },
-        'goal_pos': [-0.02, 0.13, 0.250],
+        'goal_pos':[0.0, 1.1, 1.3], # TODO top button goal pos
     },
     'hoop': {
         'entities': {
