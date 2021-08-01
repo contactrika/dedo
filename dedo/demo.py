@@ -17,18 +17,33 @@ import gym
 from dedo.utils.args import get_args
 
 
-def policy_simple(obs, act, task):
+def policy_simple(obs, act, task, step):
     act = act.reshape(2, 3)
-    # act = np.zeros_like(act) # TODO delete me
-    # act[:, 1] = -0.2  # y axis
-    # act[:, 2] = -0.01  # z axis
+    act = np.zeros_like(act) # TODO delete me
+    # # act[:, 0] = 1  # z axis
+    # act[0, 0] = 1  # z axis
+    # act[1, 0] = -1  # z axis
+    # # act[:, 1] = -0.2 # -0.2  # y axis
+    # act[:, 2] = -1 # -0.01  # z axis
     # return act.reshape(-1)
     obs = obs.reshape(-1, 3)
     if task == 'Button':
         act[:, :] = 0.0
         if obs[0, 0] < 0.10:
             act[:, 0] = 0.10  # increase x
-    elif task in ['Lasso', 'Hoop', 'Dress']:
+    elif task in ['HangCloth']:
+        # Dragging T Shirt
+        act[0, 0] = 1
+        act[1, 0] = -1
+        act[:, 2] = -1
+    elif task in ['HangBag']:
+        # Dragging T Shirt
+        act[:, 1] = -0.5
+        act[:, 2] = -0.6
+    elif task in ['Dress']:
+        act[:, 1] = -0.25
+        act[:, 2] = 0.2
+    elif task in ['Lasso', 'Hoop']:
         if obs[0, 1] > 0.0:
             act[:, 1] = -0.25  # decrease y
     elif obs[0, 2] > 0.50:
@@ -49,7 +64,7 @@ def play(env, num_episodes, args):
             print(step)
             act = env.action_space.sample()  # in [-1,1]
             noise_act = 0.1*act
-            act = policy_simple(obs, noise_act, args.task)
+            act = policy_simple(obs, noise_act, args.task, step)
             next_obs, rwd, done, info = env.step(act)
             if args.viz and (args.cam_resolution is not None) and step%100==0:
                 img = next_obs

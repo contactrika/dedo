@@ -34,7 +34,7 @@
       <material name="peach"/>
     </visual>
     <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
+<origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <cylinder length="0.1" radius="0.03"/>
       </geometry>
@@ -53,14 +53,14 @@
       <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
     </inertial>
     <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <cylinder length="0.02" radius="0.05"/>
       </geometry>
       <material name="green"/>
     </visual>
     <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <cylinder length="0.02" radius="0.05"/>
       </geometry>

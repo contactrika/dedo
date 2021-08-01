@@ -68,9 +68,9 @@ class DeformEnv(gym.Env):
 
     def load_objects(self, sim, args):
         scene_name = self.args.task.lower()
-        if scene_name.startswith('hang'):
-            scene_name = 'hang'  # same scene for 'HangBag', 'HangCloth'
-        elif scene_name.startswith('mask'):
+        # if scene_name.startswith('hang'):
+        #     scene_name = 'hang'  # same scene for 'HangBag', 'HangCloth'
+        if scene_name.startswith('mask'):
             scene_name = 'dress'  # same human figure for dress and mask tasks
         elif scene_name.startswith('button'):
             scene_name = 'button'  # same human figure for dress and mask tasks
@@ -112,14 +112,17 @@ class DeformEnv(gym.Env):
             assert('deform_fixed_anchor_vertex_ids' in DEFORM_INFO[deform_obj])
             pin_fixed(sim, deform_id,
                       DEFORM_INFO[deform_obj]['deform_fixed_anchor_vertex_ids'])
+
+
         #
         # Mark the goal.
         #
-        goal_pos = SCENE_INFO[scene_name]['goal_pos']
+        goal_poses = SCENE_INFO[scene_name]['goal_pos']
         if args.viz:
-            create_anchor_geom(sim, goal_pos, mass=0.0,
-                               rgba=(0,1,0,1), use_collision=False)
-        return rigid_ids, deform_id, deform_obj, np.array(goal_pos)
+            for goal_pos in goal_poses:
+                create_anchor_geom(sim, goal_pos, mass=0.0,
+                                   rgba=(0,1,0,1), use_collision=False)
+        return rigid_ids, deform_id, deform_obj, np.array(goal_poses)
 
     def seed(self, seed):
         np.random.seed(seed)
@@ -134,6 +137,10 @@ class DeformEnv(gym.Env):
             self.load_objects(self.sim, self.args)
 
         self.sim.stepSimulation()  # step once to get initial state
+
+        if self.args.debug and self.args.viz:
+            self.debug_viz_cent_loop()
+
         #
         # Setup dynamic anchors.
         for i in range(DeformEnv.NUM_ANCHORS):  # make anchors
@@ -157,12 +164,24 @@ class DeformEnv(gym.Env):
         obs, _ = self.get_obs()
         return obs
 
+    def debug_viz_cent_loop(self):
+        # DEBUG True loop center
+        if not hasattr(self.args, "deform_true_loop_vertices"): return
+        _, vertex_positions = get_mesh_data(self.sim, self.deform_id)
+        vv = np.array(vertex_positions)
+        for i, true_loop_vertices in enumerate(self.args.deform_true_loop_vertices):
+            cent_pos = vv[true_loop_vertices].mean(axis=0)
+            color = i # black = primary loop, white = secondary loop
+            create_anchor_geom(self.sim, cent_pos, mass=0.0,
+                               rgba=(color, color, color, 1), use_collision=False)
+
     def step(self, action, absolute_velocity=False):
         # action is num_anchors x 3 for 3D velocity for anchors/grippers;
         # assume action in [-1,1], we convert to [-MAX_ACT_VEL, MAX_ACT_VEL].
 
         if self.args.debug:
-            print('action', action)
+            # print('action', action)
+            pass
         if not absolute_velocity:  # TODO: absolute velocity seems like a strange notion
             assert((np.abs(action) <= 1.0).all()), 'action must be in [-1, 1]'
         action = action.reshape(DeformEnv.NUM_ANCHORS, 3)*DeformEnv.MAX_ACT_VEL
@@ -211,12 +230,16 @@ class DeformEnv(gym.Env):
         if not hasattr(self.args, 'deform_true_loop_vertices'):
             return 0.0  # not reward info without info about true loops
         _, vertex_positions = get_mesh_data(self.sim, self.deform_id)
-        accum = np.zeros(3)
-        true_loop_vertices = self.args.deform_true_loop_vertices[0]
-        for v in true_loop_vertices:
-            accum += np.array(vertex_positions[v])
-        loop_centroid = accum/len(true_loop_vertices)
-        dist = np.linalg.norm(loop_centroid-self.goal_pos)
+        dist = 0
+
+        # Simple solution for cases when there's a mismatch between number of goals and number of ground truth loops
+        num_holes_to_track = min(len(self.args.deform_true_loop_vertices), len(self.goal_pos))
+        for i in range(num_holes_to_track): # loop through goal vertices
+            true_loop_vertices = self.args.deform_true_loop_vertices[i]
+            goal_pos = self.goal_pos[i]
+            vv = np.array(vertex_positions)
+            cent_pos = vv[true_loop_vertices].mean(axis=0)
+            dist += np.linalg.norm(cent_pos-goal_pos)
         rwd = -1.0*dist/DeformEnv.WORKSPACE_BOX_SIZE
         return rwd
 
