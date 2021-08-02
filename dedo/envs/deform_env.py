@@ -23,7 +23,7 @@ from ..utils.task_info import CAM_INFO, DEFORM_INFO, SCENE_INFO, TASK_INFO
 
 class DeformEnv(gym.Env):
     MAX_OBS_VEL = 20.0  # max vel (in m/s) for the anchor observations
-    MAX_ACT_VEL = 10.0   # max vel (in m/s) for the anchor actions
+    MAX_ACT_VEL = 10.0  # max vel (in m/s) for the anchor actions
     NUM_ANCHORS = 2
     WORKSPACE_BOX_SIZE = 20.0  # workspace box limits (needs to be >=1)
 
@@ -32,7 +32,7 @@ class DeformEnv(gym.Env):
         self.max_episode_len = args.max_episode_len
         self.cam_on = args.cam_resolution is not None
         self.cam_args = {
-            'cameraDistance': 7.4,
+            'cameraDistance': 11.4,
             'cameraPitch': -22.40,
             'cameraYaw': 257,
             'cameraTargetPosition': np.array([-0.08, -0.29, 1.8])
@@ -46,18 +46,18 @@ class DeformEnv(gym.Env):
             self.load_objects(self.sim, self.args)
         # Define sizes of observation and action spaces.
         self.anchor_lims = np.tile(np.concatenate(  # 3D pos and 3D linvel/MAX_OBS_VEL
-            [DeformEnv.WORKSPACE_BOX_SIZE*np.ones(3),
+            [DeformEnv.WORKSPACE_BOX_SIZE * np.ones(3),
              np.ones(3)]), DeformEnv.NUM_ANCHORS)
         if args.cam_resolution is None:
             self.observation_space = gym.spaces.Box(
-                -1.0*self.anchor_lims, self.anchor_lims)
+                -1.0 * self.anchor_lims, self.anchor_lims)
         else:  # RGB
             self.observation_space = gym.spaces.Box(
                 np.zeros((args.cam_resolution, args.cam_resolution, 3)),
                 np.ones((args.cam_resolution, args.cam_resolution, 3)))
         self.action_space = gym.spaces.Box(  # [-1,1]
-            -1.0*np.ones(DeformEnv.NUM_ANCHORS*3),
-            np.ones(DeformEnv.NUM_ANCHORS*3))
+            -1.0 * np.ones(DeformEnv.NUM_ANCHORS * 3),
+            np.ones(DeformEnv.NUM_ANCHORS * 3))
         # Loading done, turn on visualizer if needed
         if self.args.viz:
             self.sim.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 1)
@@ -83,7 +83,7 @@ class DeformEnv(gym.Env):
         rigid_ids = []
         for name, kwargs in SCENE_INFO[scene_name]['entities'].items():
             pth = os.path.join(data_path, name)
-            rgba_color = kwargs['rgbaColor']if 'rgbaColor' in kwargs else None
+            rgba_color = kwargs['rgbaColor'] if 'rgbaColor' in kwargs else None
             id = load_rigid_object(
                 sim, pth, kwargs['globalScaling'],
                 kwargs['basePosition'], kwargs['baseOrientation'], rgba_color)
@@ -94,8 +94,8 @@ class DeformEnv(gym.Env):
         if args.override_deform_obj is not None:
             deform_obj = args.override_deform_obj
         else:
-            assert(args.task in TASK_INFO)  # already checked in args
-            assert(args.version < len(TASK_INFO[args.task]))  # checked in args
+            assert (args.task in TASK_INFO)  # already checked in args
+            assert (args.version < len(TASK_INFO[args.task]))  # checked in args
             deform_obj = TASK_INFO[args.task][args.version]
             for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
                 setattr(args, arg_nm, arg_val)
@@ -103,16 +103,15 @@ class DeformEnv(gym.Env):
         texture_path = os.path.join(
             data_path, 'textures', 'blue_bright.png')
         deform_id = load_deform_object(
-            sim, deform_obj,  texture_path, args.deform_scale,
+            sim, deform_obj, texture_path, args.deform_scale,
             args.deform_init_pos, args.deform_init_ori,
             args.deform_bending_stiffness, args.deform_damping_stiffness,
             args.deform_elastic_stiffness, args.deform_friction_coeff,
             args.debug)
         if scene_name == 'button':  # pin cloth edge for buttoning task
-            assert('deform_fixed_anchor_vertex_ids' in DEFORM_INFO[deform_obj])
+            assert ('deform_fixed_anchor_vertex_ids' in DEFORM_INFO[deform_obj])
             pin_fixed(sim, deform_id,
                       DEFORM_INFO[deform_obj]['deform_fixed_anchor_vertex_ids'])
-
 
         #
         # Mark the goal.
@@ -120,9 +119,9 @@ class DeformEnv(gym.Env):
         goal_poses = SCENE_INFO[scene_name]['goal_pos']
         if args.viz:
             for i, goal_pos in enumerate(goal_poses):
-                alpha = 1 if i == 0 else 0.3 # alpha indicate primary and secondary goals
+                alpha = 1 if i == 0 else 0.3  # alpha indicate primary and secondary goals
                 create_anchor_geom(sim, goal_pos, mass=0.0,
-                                   rgba=(0,1,0,alpha), use_collision=False)
+                                   rgba=(0, 1, 0, alpha), use_collision=False)
         return rigid_ids, deform_id, deform_obj, np.array(goal_poses)
 
     def seed(self, seed):
@@ -145,7 +144,7 @@ class DeformEnv(gym.Env):
         #
         # Setup dynamic anchors.
         for i in range(DeformEnv.NUM_ANCHORS):  # make anchors
-            anchor_init_pos = self.args.anchor_init_pos if (i%2)==0 else \
+            anchor_init_pos = self.args.anchor_init_pos if (i % 2) == 0 else \
                 self.args.other_anchor_init_pos
             preset_dynamic_anchor_vertices = get_preset_properties(
                 DEFORM_INFO, self.deform_obj, 'deform_anchor_vertices')
@@ -172,20 +171,21 @@ class DeformEnv(gym.Env):
         vv = np.array(vertex_positions)
         for i, true_loop_vertices in enumerate(self.args.deform_true_loop_vertices):
             cent_pos = vv[true_loop_vertices].mean(axis=0)
-            alpha = 1 if i == 0 else 0.3 # Primary = solid, secondary = 50% transparent
+            alpha = 1 if i == 0 else 0.3  # Primary = solid, secondary = 50% transparent
             create_anchor_geom(self.sim, cent_pos, mass=0.0,
                                rgba=(0, 1, 0.8, alpha), use_collision=False)
 
-    def step(self, action, absolute_velocity=False):
+    def step(self, action, unscaled_velocity=False):
         # action is num_anchors x 3 for 3D velocity for anchors/grippers;
         # assume action in [-1,1], we convert to [-MAX_ACT_VEL, MAX_ACT_VEL].
 
         if self.args.debug:
-            # print('action', action)
+            print('action', action)
             pass
-        if not absolute_velocity:  # TODO: absolute velocity seems like a strange notion
-            assert((np.abs(action) <= 1.0).all()), 'action must be in [-1, 1]'
-        action = action.reshape(DeformEnv.NUM_ANCHORS, 3)*DeformEnv.MAX_ACT_VEL
+        if not unscaled_velocity:
+            assert ((np.abs(action) <= 1.0).all()), 'action must be in [-1, 1]'
+            action *= DeformEnv.MAX_ACT_VEL
+        action = action.reshape(DeformEnv.NUM_ANCHORS, 3)
         for i in range(DeformEnv.NUM_ANCHORS):
             command_anchor_velocity(self.sim, self.anchor_ids[i], action[i])
         self.sim.stepSimulation()
@@ -196,7 +196,7 @@ class DeformEnv(gym.Env):
         self.episode_reward += reward
         done = (done or self.stepnum >= self.max_episode_len)
         info = {}
-        if self.args.debug and self.stepnum%10==0:
+        if self.args.debug and self.stepnum % 10 == 0:
             print(f'step {self.stepnum:d} reward {reward:0.4f}')
             if done:
                 print(f'episode reward {self.episode_reward:0.4f}')
@@ -211,7 +211,7 @@ class DeformEnv(gym.Env):
             pos, _ = self.sim.getBasePositionAndOrientation(self.anchor_ids[i])
             linvel, _ = self.sim.getBaseVelocity(self.anchor_ids[i])
             anc_obs.extend(pos)
-            anc_obs.extend((np.array(linvel)/DeformEnv.MAX_OBS_VEL).tolist())
+            anc_obs.extend((np.array(linvel) / DeformEnv.MAX_OBS_VEL).tolist())
         anc_obs = np.array(anc_obs)
         # if (np.abs(anc_obs) > self.anchor_lims).any():
         #     if self.args.debug:
@@ -224,7 +224,7 @@ class DeformEnv(gym.Env):
             w, h, rgba_px, _, _ = self.sim.getCameraImage(
                 width=self.args.cam_resolution, height=self.args.cam_resolution,
                 renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
-            obs = rgba_px[:,:,0:3]
+            obs = rgba_px[:, :, 0:3]
         return obs, done
 
     def get_reward(self):
@@ -235,26 +235,37 @@ class DeformEnv(gym.Env):
 
         # Simple solution for cases when there's a mismatch between number of goals and number of ground truth loops
         num_holes_to_track = min(len(self.args.deform_true_loop_vertices), len(self.goal_pos))
-        for i in range(num_holes_to_track): # loop through goal vertices
+        for i in range(num_holes_to_track):  # loop through goal vertices
             true_loop_vertices = self.args.deform_true_loop_vertices[i]
             goal_pos = self.goal_pos[i]
             vv = np.array(vertex_positions)
             cent_pos = vv[true_loop_vertices].mean(axis=0)
-            dist += np.linalg.norm(cent_pos-goal_pos)
-        rwd = -1.0*dist/DeformEnv.WORKSPACE_BOX_SIZE
+            dist += np.linalg.norm(cent_pos - goal_pos)
+        rwd = -1.0 * dist / DeformEnv.WORKSPACE_BOX_SIZE
         return rwd
 
     def render(self, mode='rgb_array', width=300, height=300):
-        assert(mode == 'rgb_array')
+        assert (mode == 'rgb_array')
+        cam = {
+            'distance': 11.4,
+            'pitch': -22.40,
+            'yaw': 257,
+            'cameraTargetPosition': np.array([-0.08, -0.29, 1.8]),
+            'upAxisIndex':2,
+            'roll':0,
+        }
+        view_mat = self.sim.computeViewMatrixFromYawPitchRoll(**cam)
         w, h, rgba_px, _, _ = self.sim.getCameraImage(
             width=width, height=height,
             renderer=pybullet.ER_BULLET_HARDWARE_OPENGL,
+            viewMatrix=view_mat,
+            **CAM_INFO,
             # TODO: figure out why passing viewMatrix and projectionMatrix
             #   does not seem to work any more when --viz=False
         )
         # If getCameraImage() returns a tuple instead of numpy array that
         # means that pybullet was installed without numpy being present.
         # Uninstall pybullet, then install numpy, then install pybullet.
-        assert(isinstance(rgba_px, np.ndarray)), 'Install numpy before pybullet'
+        assert (isinstance(rgba_px, np.ndarray)), 'Install numpy before pybullet'
         img = rgba_px[:, :, 0:3]
         return img

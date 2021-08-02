@@ -15,8 +15,8 @@ ANCHOR_RGBA_ACTIVE = (1, 0, 1, 1)  # magenta
 ANCHOR_RGBA_INACTIVE = (0.5, 0.5, 0.5, 1)  # gray
 ANCHOR_RGBA_PEACH = (0.9, 0.75, 0.65, 1)  # peach
 # Gains and limits for a simple controller for the anchors.
-CTRL_MAX_FORCE = 1000  # 10
-CTRL_PD_KD = 100.0  # 50
+CTRL_MAX_FORCE = 10  # 10
+CTRL_PD_KD = 50.0  # 50
 
 
 def get_closest(init_pos, mesh, max_dist=None):
@@ -101,9 +101,11 @@ def target_pos_to_velocity_controller(sim, anchor_bullet_id, tgt_pos, t):
     return tgt_vel
 
 
-def command_anchor_velocity(sim, anchor_bullet_id, tgt_vel, debug=False):
+def command_anchor_velocity(sim, anchor_bullet_id, tgt_vel,  debug=False):
     anc_linvel, _ = sim.getBaseVelocity(anchor_bullet_id)
     vel_diff = tgt_vel - np.array(anc_linvel)
+    # print('tgt_vel',tgt_vel)
+    # print('vel_diff',vel_diff)
     force = CTRL_PD_KD * vel_diff
     force = np.clip(force, -1.0 * CTRL_MAX_FORCE, CTRL_MAX_FORCE)
     sim.applyExternalForce(
@@ -120,6 +122,8 @@ def command_anchor_velocity(sim, anchor_bullet_id, tgt_vel, debug=False):
     # other control methods would be more appropriate.
     # sim.resetBaseVelocity(anchor_bullet_id, linearVelocity=tgt_vel.tolist(),
     #                       angularVelocity=[0, 0, 0])
+    # _, ori = sim.getBasePositionAndOrientation(anchor_bullet_id)
+    # sim.resetBasePositionAndOrientation(anchor_bullet_id, tgt_vel, ori)
 
 
 def attach_anchor(sim, anchor_id, anchor_vertices, deform_id, change_color=False):

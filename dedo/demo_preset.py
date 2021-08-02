@@ -17,6 +17,7 @@ import gym
 
 from dedo.utils.args import get_args
 from dedo.utils.anchor_utils import create_anchor_geom, target_pos_to_velocity_controller
+from dedo.utils.waypoint_utils import create_trajectory, interpolate_waypts
 
 preset_traj = {
     # TODO add constraint to scene name
@@ -24,13 +25,15 @@ preset_traj = {
         'waypoints': {
             'left': [
                 # [ x, y, z, timesteps]
-                [-0.2, 0.1, 0.7, 80],  # waypoint 0
-                [-0.2, 0.2, 0.7, 200],  # waypoint 1
+                [-2, 2, 7, 100],  # waypoint 0
+                [-2, 1, 7, 100],
+                [-2, -1, 7, 200],
             ],
             'right': [
                 # [ x, y, z, timesteps]
-                [0.2, 0.1, 0.7, 80],  # waypoint 0
-                [0.2, 0.2, 0.7, 200],  # waypoint 1
+                [2, 2, 7, 100],  # waypoint 0
+                [2, 1, 7, 100],
+                [2, -1, 7, 200],
             ]
         },
     },
@@ -67,31 +70,20 @@ def play(env, num_episodes, args):
         # Need to step to get low-dim state from info.
         step = 0
 
-        # waypoint subcounts
-        i_wp_l = 0
-        i_wp_r = 0
-        wp_l = 0
-        wp_r = 0
+        traj_a = build_traj(env, preset_wp, 'left', anchor_idx=0, sim_freq=args.sim_frequency)
+        traj_b = build_traj(env, preset_wp, 'right', anchor_idx=1, sim_freq=args.sim_frequency)
+        # traj_b = np.zeros_like(traj_b)
+        traj = np.concatenate([ traj_a,traj_b,], axis=-1) # TODO async trajectories
+
 
         while True:
             assert (not isinstance(env.action_space, gym.spaces.Discrete))
-            # act = env.action_space.sample()  # in [-1,1]
-            # noise_act = 0.1 * act
-            # act = policy_simple(obs, noise_act, args.task)
-            if preset_wp['left'][wp_l][-1] <= i_wp_l:
-                i_wp_l = 0
-                wp_l += 1
-            if preset_wp['right'][wp_r][-1] <= i_wp_r:
-                i_wp_r = 0
-                wp_r += 1
-            wp_left = np.array(preset_wp['left'][wp_l])
-            wp_right = np.array(preset_wp['right'][wp_r])
-            tgt_vel_l = target_pos_to_velocity_controller(env.sim, env.anchor_ids[0], wp_left[:3], wp_left[-1] - i_wp_l)
-            tgt_vel_r = target_pos_to_velocity_controller(env.sim, env.anchor_ids[0], wp_right[:3], wp_right[-1] - i_wp_r)
-            tgt_vel = np.concatenate([tgt_vel_l, tgt_vel_r])
 
-            # print(tgt_vel_l)
-            next_obs, rwd, done, info = env.step(tgt_vel, absolute_velocity=True)
+            act = traj[step]
+            next_obs, rwd, done, info = env.step(act, unscaled_velocity=True)
+            img = env.render()
+            plt.imshow(img)
+            plt.show()
 
             if args.viz and (args.cam_resolution is not None) and step % 100 == 0:
                 img = next_obs
@@ -101,9 +93,26 @@ def play(env, num_episodes, args):
                 break
             obs = next_obs
             step += 1
-            i_wp_l += 1
-            i_wp_r += 1
+
         input('Episode ended; press enter to go on')
+
+
+def build_traj(env, preset_wp, left_or_right, anchor_idx, sim_freq):
+    anc_id = list(env.anchors.keys())[anchor_idx]
+    init_anc_pos = env.anchors[anc_id]['pos']
+    print('init_anc_pos 0', init_anc_pos)
+    wp = np.array(preset_wp[left_or_right])
+    # Traditional wp
+    pos = create_trajectory(init_anc_pos, wp[:, :3], wp[:, -1].astype('int32'), sim_freq)# [:,3:]
+    # traj = pos[:, :3]
+    # traj = pos[1:, :3] - pos[:-1, :3]
+    traj = pos[:,3:]
+
+    # Using the savgol_filter
+    # wp_pos = interpolate_waypts(wp, 1000)
+    # traj = wp_pos[1:] - wp_pos[:-1]
+
+    return traj
 
 
 def main(args):
