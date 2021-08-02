@@ -33,6 +33,11 @@ TASK_INFO = {
         'bags/backpack_2.obj',
         'bags/backpack_3.obj',
         'bags/backpack_4.obj',
+'cloth/cardigan_0.obj',
+'cloth/cardigan_1.obj',
+'cloth/cardigan_2.obj',
+        'cloth/cardigan_3.obj',
+'cloth/cardigan_4.obj',
         'bags/backpack_0_dense.obj',
         'bags/backpack_0_thick.obj',  # Failure case
     ],
@@ -466,7 +471,7 @@ DEFORM_INFO = {
         ],
 
         'deform_true_loop_vertices': [
-            [588, 589, 590, 591, 592, 593, 594, 595, 596, 597, 598, 599, 600, 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612],
+            [0, 3, 5, 7, 9, 13, 14, 17, 19, 21, 250, 304, 306, 308, 309, 311, 313, 316, 318, 320, 322, 324, 325, 533],
         ],
     },
     'cloth/tshirt_4.obj': {
@@ -480,6 +485,80 @@ DEFORM_INFO = {
 
         'deform_true_loop_vertices': [
             [0, 3, 5, 7, 9, 13, 14, 17, 19, 21, 250, 305, 307, 309, 310, 312, 314, 317, 319, 321, 323, 325, 326, 534],
+        ],
+    },
+    'cloth/cardigan_0.obj': {
+        'deform_init_pos': [0, 2, 5],
+        'deform_init_ori': [np.pi / 2, 0, 0],
+        'deform_scale': 2.5,
+        'deform_anchor_vertices': [
+            [0],
+            [192],
+        ],
+
+        'deform_true_loop_vertices': [
+            [200, 201, 203, 247, 248, 285, 288, 293, 296, 299, 358, 359, 360, 361, 366, 368, 369],
+            [6, 8, 9, 10, 57, 59, 93, 95, 96, 99, 102, 104, 172, 173, 174, 179, 180, 182, 183],
+
+        ],
+    },
+    'cloth/cardigan_1.obj': {
+        'deform_init_pos': [0, 2, 5],
+        'deform_init_ori': [np.pi / 2, 0, 0],
+        'deform_scale': 2.5,
+        'deform_anchor_vertices': [
+            [0],
+            [195],
+        ],
+
+        'deform_true_loop_vertices': [
+            [200, 202, 203, 205, 249, 250, 289, 292, 297, 299, 300, 302, 362, 363, 364, 369, 371, 372],
+            [6, 8, 9, 10, 56, 58, 95, 97, 98, 101, 103, 104, 106, 175, 176, 181, 182, 184, 185],
+
+        ],
+    },
+    'cloth/cardigan_2.obj': {
+        'deform_init_pos': [0, 2, 5],
+        'deform_init_ori': [np.pi / 2, 0, 0],
+        'deform_scale': 2.5,
+        'deform_anchor_vertices': [
+            [0],
+            [214],
+        ],
+
+        'deform_true_loop_vertices': [
+            [221, 222, 224, 267, 268, 308, 316, 320, 324, 325, 326, 386, 387, 388, 393, 395, 396],
+            [53, 54, 55, 56, 60, 62, 109, 114, 115, 119, 121, 194, 195, 201],
+
+        ],
+    },
+    'cloth/cardigan_3.obj': {
+        'deform_init_pos': [0, 2, 5],
+        'deform_init_ori': [np.pi / 2, 0, 0],
+        'deform_scale': 3,
+        'deform_anchor_vertices': [
+            [0],
+            [198],
+        ],
+
+        'deform_true_loop_vertices': [
+            [206, 207, 209, 254, 255, 305, 310, 314, 315, 379, 380, 385, 387, 388],
+            [8, 9, 10, 57, 59, 97, 104, 108, 109, 111, 112, 165, 167, 180, 188, 190, 191, 192, 193],
+        ],
+    },
+    'cloth/cardigan_4.obj': {
+        'deform_init_pos': [0, 2, 5],
+        'deform_init_ori': [np.pi / 2, 0, 0],
+        'deform_scale': 2.5,
+        'deform_anchor_vertices': [
+            [0],
+            [200],
+        ],
+
+        'deform_true_loop_vertices': [
+            [206, 208, 209, 211, 255, 256, 296, 304, 305, 307, 308, 310, 370, 371, 372, 377, 379, 380],
+            [8, 9, 10, 56, 58, 96, 103, 107, 111, 112, 113, 182, 183, 184, 189, 191, 192],
+
         ],
     },
     'cloth/mask_0.obj': {

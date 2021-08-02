@@ -112,7 +112,7 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
         print('Loading filename', obj_file_name)
     # Note: do not set very small mass (e.g. 0.01 causes instabilities).
     deform_id = sim.loadSoftBody(
-        mass=10.0,  # 1kg is default; bad sim with lower mass
+        mass=1.0,  # 1kg is default; bad sim with lower mass
         fileName=obj_file_name,
         scale=scale,
         basePosition=init_pos,

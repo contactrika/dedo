@@ -119,9 +119,10 @@ class DeformEnv(gym.Env):
         #
         goal_poses = SCENE_INFO[scene_name]['goal_pos']
         if args.viz:
-            for goal_pos in goal_poses:
+            for i, goal_pos in enumerate(goal_poses):
+                alpha = 1 if i == 0 else 0.3 # alpha indicate primary and secondary goals
                 create_anchor_geom(sim, goal_pos, mass=0.0,
-                                   rgba=(0,1,0,1), use_collision=False)
+                                   rgba=(0,1,0,alpha), use_collision=False)
         return rigid_ids, deform_id, deform_obj, np.array(goal_poses)
 
     def seed(self, seed):
@@ -171,9 +172,9 @@ class DeformEnv(gym.Env):
         vv = np.array(vertex_positions)
         for i, true_loop_vertices in enumerate(self.args.deform_true_loop_vertices):
             cent_pos = vv[true_loop_vertices].mean(axis=0)
-            color = i # black = primary loop, white = secondary loop
+            alpha = 1 if i == 0 else 0.3 # Primary = solid, secondary = 50% transparent
             create_anchor_geom(self.sim, cent_pos, mass=0.0,
-                               rgba=(color, color, color, 1), use_collision=False)
+                               rgba=(0, 1, 0.8, alpha), use_collision=False)
 
     def step(self, action, absolute_velocity=False):
         # action is num_anchors x 3 for 3D velocity for anchors/grippers;
