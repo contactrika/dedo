@@ -20,7 +20,6 @@ from ..utils.init_utils import (
 from ..utils.mesh_utils import get_mesh_data
 from ..utils.task_info import CAM_INFO, DEFORM_INFO, SCENE_INFO, TASK_INFO
 
-
 class DeformEnv(gym.Env):
     MAX_OBS_VEL = 20.0  # max vel (in m/s) for the anchor observations
     MAX_ACT_VEL = 10.0  # max vel (in m/s) for the anchor actions
@@ -279,6 +278,7 @@ class DeformEnv(gym.Env):
         # If getCameraImage() returns a tuple instead of numpy array that
         # means that pybullet was installed without numpy being present.
         # Uninstall pybullet, then install numpy, then install pybullet.
+
         assert (isinstance(rgba_px, np.ndarray)), 'Install numpy before pybullet'
         img = rgba_px[:, :, 0:3]
         return img

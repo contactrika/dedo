@@ -33,15 +33,15 @@ TASK_INFO = {
         'bags/backpack_2.obj',
         'bags/backpack_3.obj',
         'bags/backpack_4.obj',
-'cloth/cardigan_0.obj',
-'cloth/cardigan_1.obj',
-'cloth/cardigan_2.obj',
+        'cloth/cardigan_0.obj',
+        'cloth/cardigan_1.obj',
+        'cloth/cardigan_2.obj',
         'cloth/cardigan_3.obj',
-'cloth/cardigan_4.obj',
+        'cloth/cardigan_4.obj',
         'bags/backpack_0_dense.obj',
         'bags/backpack_0_thick.obj',  # Failure case
-    ],
-    'Hoop': ['ts/ts_hoop.obj'],
+    ], # TODO Backpack preset traj
+    'Hoop': ['ts/ts_hoop.obj'], # TODO Hoop preset traj
     'Lasso': [
         'ropes/lasso3d_0.obj',
     ],
@@ -50,7 +50,7 @@ TASK_INFO = {
              'cloth/mask_2.obj',
              'cloth/mask_3.obj',
              'cloth/mask_4.obj',
-             ],
+             ],     # TODO Model issue & preset traj
     'Debug': ['ts/ts_backpack_resampled.obj',
               'bags/backpack_0.obj',
               'bags/backpack_0_dense.obj',
@@ -97,7 +97,7 @@ SCENE_INFO = {
             },
         },
         'goal_pos': [[-1, 0.03, 5.3],
-                     [0.6, 0.03, 5.3],],
+                     [0.6, 0.03, 5.3], ],
         'easy_target_pos': [-0.077, 2, 3.00],
     },
     'hangbag': {
@@ -148,10 +148,11 @@ SCENE_INFO = {
             'urdf/button_fixed2.urdf': {
                 'basePosition': [0.85, 1.25, 1.35],
                 'baseOrientation': [0, 0, np.pi / 2],
-                'globalScaling':7,
+                'globalScaling': 7,
             },
         },
         'goal_pos': [[0.85, 1.2, 1.4], [0.85, 1.2, 3.05]],
+
     },
     'hoop': {
         'entities': {
@@ -184,6 +185,8 @@ DEFORM_INFO = {
         'deform_init_pos': [0, 8, 1],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 0.5,
+        'deform_elastic_stiffness': 50,
+        'deform_bending_stiffness': 10,
         'deform_anchor_vertices': [
             [808],
             [1238],
@@ -193,6 +196,7 @@ DEFORM_INFO = {
             [267, 269, 271, 273, 275, 820, 822, 824, 832, 835, 838, 1274, 1275, 1276],
             [687, 689, 691, 693, 695, 732, 734, 736, 744, 747, 750, 1271, 1272, 1273],
         ],
+        'cam_viewmat': [11.2, -22.8, 197.4, -0.23, 0.12, 4.2],
     },
     'bags/bags_zehang/bag2_0.obj': {
         'deform_init_pos': [0, 8, 1],
@@ -341,8 +345,8 @@ DEFORM_INFO = {
         'deform_init_pos': [0, 5, 5.5],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 3,
-        'deform_elastic_stiffness':50,
-        'deform_bending_stiffness':50,
+        'deform_elastic_stiffness': 50,
+        'deform_bending_stiffness': 50,
         'deform_anchor_vertices': [
             [15],  # 10, 12, 13, 14, 15],
             [170],  # 163, 165, 167, 168, 170],
@@ -426,7 +430,7 @@ DEFORM_INFO = {
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 3,
         'deform_elastic_stiffness': 80,
-        'cam_viewmat': [11.3,-28,193.4,-0.08,0.29,1.80],
+        'cam_viewmat': [11.3, -28, 193.4, -0.08, 0.29, 1.80],
         'deform_anchor_vertices': [
             [110],
             [383],
@@ -493,7 +497,9 @@ DEFORM_INFO = {
     'cloth/cardigan_0.obj': {
         'deform_init_pos': [0, 2, 5],
         'deform_init_ori': [np.pi / 2, 0, 0],
-        'deform_scale': 2.5,
+        'deform_scale': 3,
+        'deform_elastic_stiffness': 1,
+        'deform_bending_stiffness': 5,
         'deform_anchor_vertices': [
             [0],
             [192],
@@ -503,11 +509,14 @@ DEFORM_INFO = {
             [6, 8, 9, 10, 57, 59, 93, 95, 96, 99, 102, 104, 172, 173, 174, 179, 180, 182, 183],
 
         ],
+        'cam_viewmat': [8.4, -48, 153, -0.08, 0.29, 1.80],
     },
     'cloth/cardigan_1.obj': {
         'deform_init_pos': [0, 2, 5],
         'deform_init_ori': [np.pi / 2, 0, 0],
-        'deform_scale': 2.5,
+        'deform_scale': 3,
+        'deform_elastic_stiffness': 1,
+        'deform_bending_stiffness': 5,
         'deform_anchor_vertices': [
             [0],
             [195],
@@ -518,11 +527,14 @@ DEFORM_INFO = {
             [6, 8, 9, 10, 56, 58, 95, 97, 98, 101, 103, 104, 106, 175, 176, 181, 182, 184, 185],
 
         ],
+        'cam_viewmat': [8.4, -48, 153, -0.08, 0.29, 1.80],
     },
     'cloth/cardigan_2.obj': {
         'deform_init_pos': [0, 2, 5],
         'deform_init_ori': [np.pi / 2, 0, 0],
-        'deform_scale': 2.5,
+        'deform_scale': 3,
+        'deform_elastic_stiffness': 1,
+        'deform_bending_stiffness': 5,
         'deform_anchor_vertices': [
             [0],
             [214],
@@ -533,11 +545,14 @@ DEFORM_INFO = {
             [53, 54, 55, 56, 60, 62, 109, 114, 115, 119, 121, 194, 195, 201],
 
         ],
+        'cam_viewmat': [8.4, -48, 153, -0.08, 0.29, 1.80],
     },
     'cloth/cardigan_3.obj': {
         'deform_init_pos': [0, 2, 5],
         'deform_init_ori': [np.pi / 2, 0, 0],
         'deform_scale': 3,
+        'deform_elastic_stiffness': 1,
+        'deform_bending_stiffness': 5,
         'deform_anchor_vertices': [
             [0],
             [198],
@@ -547,11 +562,14 @@ DEFORM_INFO = {
             [206, 207, 209, 254, 255, 305, 310, 314, 315, 379, 380, 385, 387, 388],
             [8, 9, 10, 57, 59, 97, 104, 108, 109, 111, 112, 165, 167, 180, 188, 190, 191, 192, 193],
         ],
+        'cam_viewmat': [8.4, -48, 153, -0.08, 0.29, 1.80],
     },
     'cloth/cardigan_4.obj': {
         'deform_init_pos': [0, 2, 5],
         'deform_init_ori': [np.pi / 2, 0, 0],
-        'deform_scale': 2.5,
+        'deform_scale': 3,
+        'deform_elastic_stiffness': 1,
+        'deform_bending_stiffness': 5,
         'deform_anchor_vertices': [
             [0],
             [200],
@@ -562,11 +580,13 @@ DEFORM_INFO = {
             [8, 9, 10, 56, 58, 96, 103, 107, 111, 112, 113, 182, 183, 184, 189, 191, 192],
 
         ],
+        'cam_viewmat': [8.4, -48, 153, -0.08, 0.29, 1.80],
     },
     'cloth/mask_0.obj': {
         'deform_init_pos': [-0.2, 2, 6.2],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 1,
+
         'deform_anchor_vertices': [
             [354, ],
             [288, ]
@@ -577,11 +597,14 @@ DEFORM_INFO = {
             [117, 193, 194, 198, 212, 215, 216, 217, 268, 269, 271, 273, 275, 277, 278, 279, 280, 281, 290, 296, 297,
              299, 301, 303, 305, 306, 307, 308, 309, 314, 322, 402, 404]
         ],
+        'cam_viewmat': [3.80, -23.6, 177.4, -0.42, 0.06, 5.00],
     },
     'cloth/mask_1.obj': {
         'deform_init_pos': [-0.2, 2, 6.2],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 1,
+        'deform_elastic_stiffness': 10,
+        'deform_bending_stiffness': 10,
         'deform_anchor_vertices': [
             [355, ],
             [288, ],
@@ -641,19 +664,22 @@ DEFORM_INFO = {
         'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
         'deform_scale': 5,
         'deform_anchor_vertices': [
-            [324, ],
+            [378, ],
             [131, ],
         ],
+        'deform_elastic_stiffness': 100,
+        'deform_bending_stiffness': 10,
         'deform_true_loop_vertices': [
-            [338, 351, 356, 357, 358, 366, 378, 397, 399, 400, 402, 405, 406,
-             409, 412, 423, 425, 428, 431, 440, 442, 455, 459, 460, 464, 469,
-             472, 473, 475, 479, 485, 487, 488, 489, 490, 491, 505, 511, 519,
-             520, 521, 527, 528, 533, 537, 540, 549, 551, 560, 705, 712, 721,
-             723, 724, 740, 742, 748, 749, 750, 755, 764, 765, 768, 771, 784,
-             785, 787, 788, 791, 796, 797, 799, 803, 807, 813, 816, 817, 823,
-             824, 832, 833, 834, 849, 851, 852, 855, 856, 860, 864, 865, 866,
-             876, 878, 881, 882, 883, 893, 897, 898, 903],
+            [356, 358, 359, 381, 400, 401, 402, 403, 405, 406, 407, 409, 413,
+             419, 424, 427, 428, 431, 436, 440, 453, 455, 458, 460, 468, 473,
+             474, 475, 476, 480, 484, 487, 489, 495, 500, 506, 508, 511, 516,
+             517, 520, 522, 524, 528, 533, 535, 536, 538, 549, 551, 560, 720,
+             721, 724, 733, 736, 737, 738, 740, 749, 751, 753, 755, 756, 764,
+             766, 771, 772, 774, 785, 787, 791, 799, 800, 802, 807, 813, 817,
+             818, 820, 823, 824, 833, 835, 844, 852, 856, 861, 863, 864, 867,
+             868, 871, 877, 878, 880, 881, 886, 892, 897],
         ],
+        'cam_viewmat': [7, -45, 267, -0.08, 0.32, 2.7],
     },
     'cloth/button_cloth.obj': {
         'deform_init_pos': [-0.0, 1.95, 2.3],  # [-0.13, 0.16, 0.21],
@@ -755,7 +781,8 @@ CAM_INFO = {
     # Camera info for {cameraDistance: 11.0, cameraYaw: 140, 
     # cameraPitch: -40, cameraTargetPosition: array([0., 0., 0.])}
     # 'viewMatrix': (0.22495108842849731, -0.371303528547287, 0.9008499979972839, 0.0, 0.0, 0.9245460629463196, 0.3810703456401825, 0.0, -0.9743700623512268, -0.0857221856713295, 0.20797763764858246, 0.0, 1.771862268447876, 0.3927137553691864, -7.591782093048096, 1.0),
-    'projectionMatrix': (1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0000200271606445, -1.0, 0.0, 0.0, -0.02000020071864128, 0.0)
+    'projectionMatrix': (
+    1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0000200271606445, -1.0, 0.0, 0.0, -0.02000020071864128, 0.0)
 }
 
 """

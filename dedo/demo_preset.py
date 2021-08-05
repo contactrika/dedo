@@ -21,7 +21,7 @@ from dedo.utils.waypoint_utils import create_trajectory, interpolate_waypts
 
 preset_traj = {
     # TODO add constraint to scene name
-    'cloth/apron_0.obj': {  # HangCloth-v0
+    'cloth/apron_0.obj': {  # HangCloth-v0, 600 steps
         'waypoints': {
             'a': [
                 # [ x, y, z, timesteps]
@@ -39,7 +39,7 @@ preset_traj = {
             ],
         },
     },
-    'cloth/tshirt_0.obj': {  # HangCloth-v5
+    'cloth/tshirt_0.obj': {  # HangCloth-v5, 1500 steps
         'waypoints': {
             'a': [
                 # [ x, y, z, timesteps]
@@ -57,7 +57,7 @@ preset_traj = {
             ]
         },
     },
-    'cloth/button_cloth.obj': {  # ButtonSimple-v0
+    'cloth/button_cloth.obj': {  # ButtonSimple-v0, 800 steps
         'waypoints': {
             'a': [
                 # [ x, y, z, timesteps]
@@ -80,6 +80,80 @@ preset_traj = {
             ]
         },
     },
+    'bags/bags_zehang/bag1_0.obj': {  # HangBag-v0, 1500 steps
+        'waypoints': {
+            'a': [
+                [0.2, 2, 20, 500],
+                [0.2, 2, 20, 500],
+                [0.2, 1, 20, 100],
+            ],
+            'b': [
+                [-0.2, 2, 20, 500],
+                [-0.2, 2, 20, 500],
+                [-0.2, 1, 20, 100],
+            ]
+        },
+    },
+    'cloth/cardigan_0.obj':{ # Dress-v5
+        'waypoints': {
+            'a': [
+                # [-0.278 ,  1.7888,  6.245 ],
+                [0.6 ,  1.7888,  6.245, 300 ],
+                # [0.6 ,  1.1,  6.245, 100 ],
+                # [0.6 ,  0.8,  6.245, 100 ],
+                [0.6 ,  0.0,  6.245, 400 ],
+                [0 ,  0,  6.445, 600 ],
+
+            ],
+            'b': [
+                # [0.3004, 1.7888, 6.245 ]
+                [2.3, 1.7888, 6.245, 300 ],
+                # [2.3, 0.5, 6.245, 100 ],
+                # [2.3, -0.3, 6.245, 100 ],
+                [2.8, -1, 6.245, 400 ],
+                [0, -3, 6.245, 450 ],
+                [-2, 0, 6.245, 300 ],
+                [-2, 2, 6.245, 400 ],
+                [-1, 5, 6.245, 600 ],
+                [-1, 5, 6.245, 300 ],
+                [-1, 3, 6.245, 300 ],
+
+            ]
+        },
+    },
+    'cloth/mask_1.obj':{ # Mask-v0
+        'waypoints': {
+            'a': [
+                # [0.4332, 1.9885, 6.1941],
+                [0.6332, 1.3885, 6.1941, 100]
+
+            ],
+            'b': [
+                # [-0.8332 , 1.9885 , 6.1941]
+                [-1 , 1.3885 , 6.1941, 100]
+
+            ]
+        },
+    },
+    'ropes/lasso3d_0.obj':{
+        'waypoints': {
+            'a': [
+                # [1.1346, 3.3335, 6.1546],
+                [1.1346, 3.3335, 6.1546, 600],
+                [1, 1.5,6, 300],
+                [-0.5, -0.6, 4.7, 600],
+                [-0.5, -0.6, 1, 300],
+
+            ],
+            'b': [
+                # [-0.8025 , 1.6467 , 5.9768]
+                [-0.8025 , 1.6467 , 5.9768, 600],
+                [-1 , -1 , 4.9768, 800],
+                [-1 , -1 , 1, 300],
+
+            ]
+        },
+    }
 }
 
 
@@ -122,7 +196,7 @@ def play(env, num_episodes, args):
         traj_a = build_traj(env, preset_wp, 'a', anchor_idx=0, sim_freq=args.sim_frequency)
         traj_b = build_traj(env, preset_wp, 'b', anchor_idx=1, sim_freq=args.sim_frequency)
         # traj_b = np.zeros_like(traj_b)
-        traj = np.concatenate([traj_a, traj_b, ], axis=-1)  # TODO async trajectories
+        traj = merge_traj(traj_a, traj_b)
 
         while True:
             assert (not isinstance(env.action_space, gym.spaces.Discrete))
@@ -137,6 +211,18 @@ def play(env, num_episodes, args):
         input('Episode ended; press enter to go on')
 
 
+def merge_traj(traj_a, traj_b):
+
+    if traj_a.shape[0] != traj_b.shape[0]:      # padding is required
+        n_pad = np.abs(traj_a.shape[0] - traj_b.shape[0])
+        zero_pad = np.zeros((n_pad, traj_a.shape[1]))
+        if traj_a.shape[0] > traj_b.shape[0]:   # pad b
+            traj_b = np.concatenate([traj_b, zero_pad, ], axis=0)
+        else:                                   # pad a
+            traj_a = np.concatenate([traj_a, zero_pad, ], axis=0)
+
+    traj = np.concatenate([traj_a, traj_b, ], axis=-1)
+    return traj
 def build_traj(env, preset_wp, left_or_right, anchor_idx, sim_freq):
     anc_id = list(env.anchors.keys())[anchor_idx]
     init_anc_pos = env.anchors[anc_id]['pos']

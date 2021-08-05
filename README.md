@@ -14,8 +14,8 @@ Workshop page with paper+poster: https://sites.google.com/nvidia.com/do-sim/post
 ## Installation
 
 Optional initial step: create a new conda environment with
-`conda create --name dedo python=3.8` and activate it with
-`conda activate dedo`. Conda is not strictly needed;
+`conda create --name dedo python=3.7` and activate it with
+`conda activate dedo`. Conda is not strictly needed, _but python 3.7 is required_ as pybullet does not compile with numpy in python3.8.
 alternatives like virtualenv can be used;
 a direct install without using virtual environments is ok as well.
 
