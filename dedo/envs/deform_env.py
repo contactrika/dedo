@@ -33,10 +33,9 @@ class DeformEnv(gym.Env):
         self.cam_on = args.cam_resolution is not None
         self.cam_args = {
             'cameraDistance': 11.4,
-            'cameraPitch': -22.40,
+            'cameraPitch': -22.4,
             'cameraYaw': 257,
             'cameraTargetPosition': np.array([-0.08, -0.29, 1.8])
-
         }
         # Initialize sim and load objects.
         self.sim = bclient.BulletClient(
@@ -44,6 +43,16 @@ class DeformEnv(gym.Env):
         reset_bullet(args, self.sim, self.cam_on, self.cam_args, args.debug)
         self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos = \
             self.load_objects(self.sim, self.args)
+        # setting cam_args again after loading preset data
+        if self.args.cam_viewmat is not None:
+            dist, pitch, yaw, pos_x, pos_y, pos_z = self.args.cam_viewmat
+            self.cam_args = {
+                'cameraDistance': dist,
+                'cameraPitch': pitch,
+                'cameraYaw': yaw,
+                'cameraTargetPosition': np.array([pos_x, pos_y, pos_z])
+            }
+
         # Define sizes of observation and action spaces.
         self.anchor_lims = np.tile(np.concatenate(  # 3D pos and 3D linvel/MAX_OBS_VEL
             [DeformEnv.WORKSPACE_BOX_SIZE * np.ones(3),
@@ -244,13 +253,17 @@ class DeformEnv(gym.Env):
         rwd = -1.0 * dist / DeformEnv.WORKSPACE_BOX_SIZE
         return rwd
 
-    def render(self, mode='rgb_array', width=300, height=300):
+    def render(self, mode='rgb_array', width=300, height=300, dist=11.4, pitch=-22.4, yaw=257, tgt_pos=[-0.08, -0.29, 1.8]):
         assert (mode == 'rgb_array')
+        if self.args.cam_viewmat is None:
+            dist, pitch, yaw, pos_x, pos_y, pos_z = [11.4,-22.4, 257, -0.08, -0.29, 1.8,]
+        else:
+            dist, pitch, yaw, pos_x, pos_y, pos_z = self.args.cam_viewmat
         cam = {
-            'distance': 11.4,
-            'pitch': -22.40,
-            'yaw': 257,
-            'cameraTargetPosition': np.array([-0.08, -0.29, 1.8]),
+            'distance': dist,
+            'pitch': pitch,
+            'yaw': yaw,
+            'cameraTargetPosition': [pos_x, pos_y, pos_z],
             'upAxisIndex':2,
             'roll':0,
         }

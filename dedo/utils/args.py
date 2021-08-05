@@ -56,6 +56,8 @@ def get_args():
     parser.add_argument('--deform_init_ori', type=float, nargs=3,
                         default=[0,0,0],
                         help='Initial orientation for deform (in Euler angles)')
+
+
     parser.add_argument('--deform_scale', type=float, default=1.0,
                         help='Scaling for the deform object')
     parser.add_argument('--deform_bending_stiffness', type=float, default=1.0,
@@ -70,6 +72,9 @@ def get_args():
     parser.add_argument('--cam_resolution', type=int, default=None,
                         help='RGB camera resolution in pixels (both with and '
                              'height). Use none to get only anchor poses.')
+    parser.add_argument('--cam_viewmat', type=float, nargs=6,
+                        default=None,
+                        help='Generate the view matrix for rendering camera (Not the debug camera!). [distance, pitch, yaw, positionX, positionY, positionZ')
     # Parse args and do sanity checks.
     args = parser.parse_args()
     env_parts = args.env.split('-v')

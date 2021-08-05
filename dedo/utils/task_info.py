@@ -141,17 +141,17 @@ SCENE_INFO = {
                 'globalScaling': 12.8,
             },
             'urdf/button_fixed.urdf': {
-                'basePosition': [-0.02, 1.28, 2.9],
+                'basePosition': [0.85, 1.25, 3.0],
                 'baseOrientation': [0, 0, np.pi / 2],
-                'globalScaling': 12.8,
+                'globalScaling': 7,
             },
             'urdf/button_fixed2.urdf': {
-                'basePosition': [0.00, 1.28, 1.2],
+                'basePosition': [0.85, 1.25, 1.35],
                 'baseOrientation': [0, 0, np.pi / 2],
-                'globalScaling': 12.8,
+                'globalScaling':7,
             },
         },
-        'goal_pos': [[0.0, 1.2, 1.3], [0.0, 1.2, 3.0]],  # TODO top button goal pos
+        'goal_pos': [[0.85, 1.2, 1.4], [0.85, 1.2, 3.05]],
     },
     'hoop': {
         'entities': {
@@ -341,6 +341,8 @@ DEFORM_INFO = {
         'deform_init_pos': [0, 5, 5.5],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 3,
+        'deform_elastic_stiffness':50,
+        'deform_bending_stiffness':50,
         'deform_anchor_vertices': [
             [15],  # 10, 12, 13, 14, 15],
             [170],  # 163, 165, 167, 168, 170],
@@ -423,12 +425,13 @@ DEFORM_INFO = {
         'deform_init_pos': [0, -0.2, 8],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 3,
+        'deform_elastic_stiffness': 80,
+        'cam_viewmat': [11.3,-28,193.4,-0.08,0.29,1.80],
         'deform_anchor_vertices': [
             [110],
             [383],
 
         ],
-
         'deform_true_loop_vertices': [
             [0, 3, 4, 5, 6, 7, 9, 13, 14, 17, 19, 21, 249, 305, 306, 307, 308, 309, 310, 312, 314, 317, 319, 321, 323,
              325, 326, 533],
@@ -495,7 +498,6 @@ DEFORM_INFO = {
             [0],
             [192],
         ],
-
         'deform_true_loop_vertices': [
             [200, 201, 203, 247, 248, 285, 288, 293, 296, 299, 358, 359, 360, 361, 366, 368, 369],
             [6, 8, 9, 10, 57, 59, 93, 95, 96, 99, 102, 104, 172, 173, 174, 179, 180, 182, 183],
@@ -654,11 +656,13 @@ DEFORM_INFO = {
         ],
     },
     'cloth/button_cloth.obj': {
-        'deform_init_pos': [-1, 1.95, 2.3],  # [-0.13, 0.16, 0.21],
+        'deform_init_pos': [-0.0, 1.95, 2.3],  # [-0.13, 0.16, 0.21],
         'anchor_init_pos': [-0.6, 3, 4],
         'other_anchor_init_pos': [-0.6, 3, 0.4],
         'deform_init_ori': [0, 0, 0],
         'deform_scale': 8,  # 0.5
+        'deform_elastic_stiffness': 10,
+        'deform_bending_stiffness': 10,
         'deform_fixed_anchor_vertex_ids':
             [0, 1, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54,
              56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78],
@@ -667,6 +671,7 @@ DEFORM_INFO = {
             [647, 648, 649, 650, 687, 688, 723, 724, 760, 762],
             [667, 668, 669, 670, 705, 706, 741, 742, 782, 784],
         ],
+        'cam_viewmat': [6, -16, 176.2, -0.08, 0.29, 1.80],
     },
     'ts/ts_lasso_sparser.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL
         'anchor_init_pos': [-0.1206, 0.4875, 0.4857],
