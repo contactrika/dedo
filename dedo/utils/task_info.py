@@ -41,7 +41,7 @@ TASK_INFO = {
         'bags/backpack_0_dense.obj',
         'bags/backpack_0_thick.obj',  # Failure case
     ], # TODO Backpack preset traj
-    'Hoop': ['ts/ts_hoop.obj'], # TODO Hoop preset traj
+    'Hoop': ['ropes/hoop3d_0.obj'], # TODO Hoop preset traj
     'Lasso': [
         'ropes/lasso3d_0.obj',
     ],
@@ -669,6 +669,28 @@ DEFORM_INFO = {
         ],
         'deform_elastic_stiffness': 100,
         'deform_bending_stiffness': 10,
+        'deform_true_loop_vertices': [
+            [356, 358, 359, 381, 400, 401, 402, 403, 405, 406, 407, 409, 413,
+             419, 424, 427, 428, 431, 436, 440, 453, 455, 458, 460, 468, 473,
+             474, 475, 476, 480, 484, 487, 489, 495, 500, 506, 508, 511, 516,
+             517, 520, 522, 524, 528, 533, 535, 536, 538, 549, 551, 560, 720,
+             721, 724, 733, 736, 737, 738, 740, 749, 751, 753, 755, 756, 764,
+             766, 771, 772, 774, 785, 787, 791, 799, 800, 802, 807, 813, 817,
+             818, 820, 823, 824, 833, 835, 844, 852, 856, 861, 863, 864, 867,
+             868, 871, 877, 878, 880, 881, 886, 892, 897],
+        ],
+        'cam_viewmat': [7, -45, 267, -0.08, 0.32, 2.7],
+    },
+    'ropes/hoop3d_0.obj': {
+        'deform_init_pos': [-0.2, 3, 6],
+        'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
+        'deform_scale': 5,
+        'deform_anchor_vertices': [
+            [378, ],
+            [131, ],
+        ],
+        'deform_elastic_stiffness': 1,
+        'deform_bending_stiffness': 1,
         'deform_true_loop_vertices': [
             [356, 358, 359, 381, 400, 401, 402, 403, 405, 406, 407, 409, 413,
              419, 424, 427, 428, 431, 436, 440, 453, 455, 458, 460, 468, 473,

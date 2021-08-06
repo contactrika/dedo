@@ -122,3 +122,24 @@ observations we get:
 
 ![misc/imgs/apron_ppo_play.gif](misc/imgs/apron_ppo_play.gif)
 
+### More RL examples
+
+### Buttoning
+```
+python -m dedo.rl_demo --env=ButtonSimple-v0 --logdir=/tmp/dedo --num_play_runs=1 --max_episode_len=800
+```
+
+### HangBag
+```
+python -m dedo.rl_demo --env=HangBag-v0  --logdir=/tmp/dedo --num_play_runs=1 ---max_episode_len=1500
+```
+
+### HangCloth - TShirt
+```
+python -m dedo.rl_demo --env=HangCloth-v5  --logdir=/tmp/dedo --num_play_runs=1 ---max_episode_len=1500
+```
+
+### Lasso
+```
+python -m dedo.rl_demo --env=Lasso-v0  --logdir=/tmp/dedo --num_play_runs=1 ---max_episode_len=1500
+```

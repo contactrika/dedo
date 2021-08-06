@@ -188,8 +188,9 @@ def play(env, num_episodes, args):
     for epsd in range(num_episodes):
         print('------------ Play episode ', epsd, '------------------')
         obs = env.reset()
-        viz_waypoints(env.sim, preset_wp['a'], (1, 0, 0, 1))
-        viz_waypoints(env.sim, preset_wp['b'], (1, 0, 0, 0.5))
+        if args.debug:
+            viz_waypoints(env.sim, preset_wp['a'], (1, 0, 0, 1))
+            viz_waypoints(env.sim, preset_wp['b'], (1, 0, 0, 0.5))
         # Need to step to get low-dim state from info.
         step = 0
 

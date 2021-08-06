@@ -109,7 +109,7 @@ class DeformEnv(gym.Env):
                 setattr(args, arg_nm, arg_val)
 
         texture_path = os.path.join(
-            data_path, 'textures', 'blue_bright.png')
+            data_path, 'textures', 'red_metal.png')
         deform_id = load_deform_object(
             sim, deform_obj, texture_path, args.deform_scale,
             args.deform_init_pos, args.deform_init_ori,
