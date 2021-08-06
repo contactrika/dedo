@@ -103,7 +103,7 @@ def calculate_min_jerk_step(y_curr, yd_curr, ydd_curr, goal, rem_dur, dt):
     return y, yd, ydd
 
 def plan_min_jerk_trajectory(y0, goal, dur, dt):
-    N = int(dur / dt)
+    N = round(dur / dt)
     nDim = np.shape(y0)[0]
     Y = np.zeros((N, nDim))
     Yd = np.zeros((N, nDim))

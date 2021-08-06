@@ -429,10 +429,14 @@ DEFORM_INFO = {
         ],
     },
     'cloth/tshirt_0.obj': {
-        'deform_init_pos': [0, -0.2, 8],
-        'deform_init_ori': [np.pi / 2, 0, np.pi],
-        'deform_scale': 3,
-        'deform_elastic_stiffness': 80,
+        'deform_init_pos': [0, 2, 3],
+        'deform_init_ori': [-np.pi / 2, 0, np.pi],
+        'deform_scale': 5,
+        'deform_elastic_stiffness': 90,
+        'deform_bending_stiffness': 0.1,
+        'deform_damping_stiffness':0.01,
+        'deform_friction_coeff':0.5,
+
         'cam_viewmat': [11.3, -28, 193.4, -0.08, 0.29, 1.80],
         'deform_anchor_vertices': [
             [110],

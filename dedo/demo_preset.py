@@ -24,36 +24,37 @@ preset_traj = {
     'cloth/apron_0.obj': {  # HangCloth-v0, 600 steps
         'waypoints': {
             'a': [
-                # [ x, y, z, timesteps]
-                [2, 3.5, 7.5, 24],  # waypoint 0
-                [2, 2, 7, 24],  # waypoint 0
-                [2, 1, 7, 24],
-                [2, -1, 6, 48],
+                # [ x, y, z, seconds(time)]
+                [2, 3.5, 7.5, 1],  # waypoint 0
+                [2, 2, 7, 1],  # waypoint 0
+                [2, 1, 7, 1],
+                [2, -1, 6.3, 2],
             ],
             'b': [
-                # [ x, y, z, timesteps]
-                [-2, 3.5, 7.5, 24],  # waypoint 0
-                [-2, 2, 7, 24],  # waypoint 0
-                [-2, 1, 7, 24],
-                [-2, -1, 6, 48],
+                # [ x, y, z, seconds(time)]
+                [-2, 3.5, 7.5, 1],  # waypoint 0
+                [-2, 2, 7, 1],  # waypoint 0
+                [-2, 1, 7, 1],
+                [-2, -1, 6.3, 2],
             ],
         },
     },
-    'cloth/tshirt_0.obj': {  # HangCloth-v5, 1500 steps
+    'cloth/tshirt_0.obj': {  # HangCloth-v5, 1500 steps # TODO flip it
         'waypoints': {
             'a': [
-                # [ x, y, z, timesteps]
-                [1.3356, 0.0892, 6, 100],
-                [1.9356, 0.0892, 5, 100],
-                [1.9356, 0.0892, 1, 500],
-                [1.9356, 0.0892, 1, 200],
+                # [ x, y, z, seconds(time)]
+                # [1.5594, 1.5181, 6.6771, 1],
+
+                [1.5594, 0.0, 20, 4],
+                [1.5594, 0.0, 4, 4],
+                [1.9356, 0.0892, 1, 2],
             ],
             'b': [
-                # [ x, y, z, timesteps]
-                [-1.3095, - 0.1382, 6, 100],
-                [-1.9095, - 0.1382, 5, 100],
-                [-1.9095, - 0.1382, 1, 500],
-                [-1.9095, - 0.1382, 1, 200],
+                # [ x, y, z, seconds(time)]
+                # [-1.5158 , 1.897,  6.7119, 1]
+                [-1.5158 , 0.0,  20, 4],
+                [-1.5158 , 0.0,  4, 4],
+                [-1.9095, - 0.1382, 1, 2],
             ]
         },
     },
@@ -61,26 +62,26 @@ preset_traj = {
         'waypoints': {
             'a': [
                 # [ x, y, z, timesteps]
-                [1.0, 2, 4.5, 100],
-                [2.0, 1.8, 4.5, 50],
-                [2, -3, 5, 50],
-                [2, -10, 5, 50],
-                [2, -10, 5, 100],
-                [2, -10, 3.9, 50],
+                [1.0, 2, 4.5, 1],
+                [2.0, 1.8, 4.5, 0.5],
+                [2, -3, 5, 0.5],
+                [2, -10, 5, 0.5],
+                [2, -10, 5, 1],
+                [2, -10, 3.9, 0.5],
             ],
             'b': [
                 # [ x, y, z, timesteps]
-                [2, 2, 0.7, 100],
-                [3, 1.8, 0.7, 50],
-                [3, -3, 0, 50],
-                [3, -10, 0.0, 50],
-                [3, -10, 0.0, 100],
-                [3, -10, 0.0, 50],
+                [2, 2, 0.7, 1],
+                [3, 1.8, 0.7, 0.5],
+                [3, -3, 0, 0.5],
+                [3, -10, 0.0, 0.5],
+                [3, -10, 0.0, 1],
+                [3, -10, 0.0, 0.5],
 
             ]
         },
     },
-    'bags/bags_zehang/bag1_0.obj': {  # HangBag-v0, 1500 steps
+    'bags/bags_zehang/bag1_0.obj': {  # HangBag-v0, 1500 steps # TODO make it larger
         'waypoints': {
             'a': [
                 [0.2, 2, 20, 500],
@@ -94,43 +95,43 @@ preset_traj = {
             ]
         },
     },
-    'cloth/cardigan_0.obj':{ # Dress-v5
+    'cloth/cardigan_0.obj':{ # Dress-v5 # TODO remove the arm / shorten the arm on the torso
         'waypoints': {
             'a': [
                 # [-0.278 ,  1.7888,  6.245 ],
-                [0.6 ,  1.7888,  6.245, 300 ],
+                [0.6 ,  1.7888,  6.245, 0.6 ],
                 # [0.6 ,  1.1,  6.245, 100 ],
                 # [0.6 ,  0.8,  6.245, 100 ],
-                [0.6 ,  0.0,  6.245, 400 ],
-                [0 ,  0,  6.445, 600 ],
+                [0.6 ,  0.0,  6.245, 0.8 ],
+                [0 ,  0,  6.445, 1.2 ],
 
             ],
             'b': [
                 # [0.3004, 1.7888, 6.245 ]
-                [2.3, 1.7888, 6.245, 300 ],
+                [2.3, 1.7888, 6.245, 0.6 ],
                 # [2.3, 0.5, 6.245, 100 ],
                 # [2.3, -0.3, 6.245, 100 ],
-                [2.8, -1, 6.245, 400 ],
-                [0, -3, 6.245, 450 ],
-                [-2, 0, 6.245, 300 ],
-                [-2, 2, 6.245, 400 ],
-                [-1, 5, 6.245, 600 ],
-                [-1, 5, 6.245, 300 ],
-                [-1, 3, 6.245, 300 ],
+                [2.8, -1, 6.245, 0.8 ],
+                [0, -4, 6.245, 1.2 ],
+                [-2, 0, 6.245, 0.6 ],
+                [-2, 2, 6.245, 0.8 ],
+                [-1, 5, 6.245, 1.2 ],
+                [-1, 5, 6.245, 0.6 ],
+                [-1, 3, 6.245, 0.6 ],
 
             ]
         },
     },
-    'cloth/mask_1.obj':{ # Mask-v0
+    'cloth/mask_1.obj':{ # Mask-v0 # TODO fix models and the creepy head
         'waypoints': {
             'a': [
                 # [0.4332, 1.9885, 6.1941],
-                [0.6332, 1.3885, 6.1941, 100]
+                [0.6332, 1.3885, 6.1941, 1]
 
             ],
             'b': [
                 # [-0.8332 , 1.9885 , 6.1941]
-                [-1 , 1.3885 , 6.1941, 100]
+                [-1 , 1.3885 , 6.1941, 1]
 
             ]
         },
@@ -139,17 +140,17 @@ preset_traj = {
         'waypoints': {
             'a': [
                 # [1.1346, 3.3335, 6.1546],
-                [1.1346, 3.3335, 6.1546, 600],
-                [1, 1.5,6, 300],
-                [-0.5, -0.6, 4.7, 600],
-                [-0.5, -0.6, 1, 300],
+                [1.1346, 3.3335, 6.1546, 1.1],
+                [1, 1.5,6, 0.5],
+                [-0.5, -0.6, 4.7, 1.1],
+                [-0.5, -0.6, 1, 0.5],
 
             ],
             'b': [
                 # [-0.8025 , 1.6467 , 5.9768]
-                [-0.8025 , 1.6467 , 5.9768, 600],
-                [-1 , -1 , 4.9768, 800],
-                [-1 , -1 , 1, 300],
+                [-0.8025 , 1.6467 , 5.9768, 1.1],
+                [-1 , -1 , 4.9768, 1.5],
+                [-1 , -1 , 1, 0.5],
 
             ]
         },
@@ -194,8 +195,8 @@ def play(env, num_episodes, args):
         # Need to step to get low-dim state from info.
         step = 0
 
-        traj_a = build_traj(env, preset_wp, 'a', anchor_idx=0, sim_freq=args.ctrl_freq)
-        traj_b = build_traj(env, preset_wp, 'b', anchor_idx=1, sim_freq=args.ctrl_freq)
+        traj_a = build_traj(env, preset_wp, 'a', anchor_idx=0, ctrl_freq=args.ctrl_freq)
+        traj_b = build_traj(env, preset_wp, 'b', anchor_idx=1, ctrl_freq=args.ctrl_freq)
         # traj_b = np.zeros_like(traj_b)
         traj = merge_traj(traj_a, traj_b)
 
@@ -224,13 +225,14 @@ def merge_traj(traj_a, traj_b):
 
     traj = np.concatenate([traj_a, traj_b, ], axis=-1)
     return traj
-def build_traj(env, preset_wp, left_or_right, anchor_idx, sim_freq):
+def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq):
     anc_id = list(env.anchors.keys())[anchor_idx]
     init_anc_pos = env.anchors[anc_id]['pos']
     print(f'init_anc_pos {left_or_right}', init_anc_pos)
     wp = np.array(preset_wp[left_or_right])
     # Traditional wp
-    pos = create_trajectory(init_anc_pos, wp[:, :3], wp[:, -1].astype('int32'), sim_freq)  # [:,3:]
+    steps = (wp[:, -1] * ctrl_freq).round().astype(np.int32)  # seconds -> ctrl steps
+    pos = create_trajectory(init_anc_pos, wp[:, :3], steps, ctrl_freq)  # [:,3:]
     # traj = pos[:, :3]
     # traj = pos[1:, :3] - pos[:-1, :3]
     traj = pos[:, 3:]
