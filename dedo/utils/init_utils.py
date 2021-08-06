@@ -175,7 +175,7 @@ def reset_bullet(args, sim, cam_on=False, cam_args={}, debug=False):
     # sim.resetSimulation()
     sim.resetSimulation(pybullet.RESET_USE_DEFORMABLE_WORLD)
     sim.setGravity(0, 0, args.sim_gravity)
-    sim.setTimeStep(1.0/args.sim_frequency)
+    sim.setTimeStep(1.0/args.sim_freq)
     sim.setPhysicsEngineParameter(
         # numSubSteps=10,
         # allowedCcdPenetration=0.01,

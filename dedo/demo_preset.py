@@ -25,17 +25,17 @@ preset_traj = {
         'waypoints': {
             'a': [
                 # [ x, y, z, timesteps]
-                [2, 3.5, 7.5, 100],  # waypoint 0
-                [2, 2, 7, 100],  # waypoint 0
-                [2, 1, 7, 100],
-                [2, -1, 6, 200],
+                [2, 3.5, 7.5, 24],  # waypoint 0
+                [2, 2, 7, 24],  # waypoint 0
+                [2, 1, 7, 24],
+                [2, -1, 6, 48],
             ],
             'b': [
                 # [ x, y, z, timesteps]
-                [-2, 3.5, 7.5, 100],  # waypoint 0
-                [-2, 2, 7, 100],  # waypoint 0
-                [-2, 1, 7, 100],
-                [-2, -1, 6, 200],
+                [-2, 3.5, 7.5, 24],  # waypoint 0
+                [-2, 2, 7, 24],  # waypoint 0
+                [-2, 1, 7, 24],
+                [-2, -1, 6, 48],
             ],
         },
     },
@@ -194,8 +194,8 @@ def play(env, num_episodes, args):
         # Need to step to get low-dim state from info.
         step = 0
 
-        traj_a = build_traj(env, preset_wp, 'a', anchor_idx=0, sim_freq=args.sim_frequency)
-        traj_b = build_traj(env, preset_wp, 'b', anchor_idx=1, sim_freq=args.sim_frequency)
+        traj_a = build_traj(env, preset_wp, 'a', anchor_idx=0, sim_freq=args.ctrl_freq)
+        traj_b = build_traj(env, preset_wp, 'b', anchor_idx=1, sim_freq=args.ctrl_freq)
         # traj_b = np.zeros_like(traj_b)
         traj = merge_traj(traj_a, traj_b)
 

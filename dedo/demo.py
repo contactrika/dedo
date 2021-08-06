@@ -33,14 +33,14 @@ def policy_simple(obs, act, task, step):
             act[:, 0] = 0.10  # increase x
     elif task in ['HangCloth']:
         # Dragging T Shirt
-        if step < 800:
+        if step < 200:
             act[0, 0] = 1
             act[1, 0] = -1
             act[:, 2] = -1
     elif task in ['HangBag']:
         # Dragging T Shirt
         act[:, 1] = -0.5
-        act[:, 2] = -0.6
+        act[:, 2] = 0.6
     elif task in ['Dress']:
         act[:, 1] = -0.2
         act[:, 2] = 0.1
@@ -49,7 +49,7 @@ def policy_simple(obs, act, task, step):
             act[:, 1] = -0.25  # decrease y
             act[:, 2] = -0.25  # decrease z
     elif obs[0, 2] > 0.50:
-        act[:, 1] = -0.10  # decrease y
+        # act[:, 1] = -0.10  # decrease y
         act[:, 2] = -0.06  # decrease z
     return act.reshape(-1)
 
@@ -60,10 +60,10 @@ def play(env, num_episodes, args):
         obs = env.reset()
         # Need to step to get low-dim state from info.
         step = 0
-        input('Reset done; press enter to start episode')
+        # input('Reset done; press enter to start episode')
         while True:
             assert(not isinstance(env.action_space, gym.spaces.Discrete))
-            print(step)
+            print('step', step)
             act = env.action_space.sample()  # in [-1,1]
             noise_act = 0.1*act
             act = policy_simple(obs, noise_act, args.task, step)

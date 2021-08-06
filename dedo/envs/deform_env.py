@@ -109,7 +109,7 @@ class DeformEnv(gym.Env):
                 setattr(args, arg_nm, arg_val)
 
         texture_path = os.path.join(
-            data_path, 'textures', 'red_metal.png')
+            data_path, 'textures', 'blue_bright.png')
         deform_id = load_deform_object(
             sim, deform_obj, texture_path, args.deform_scale,
             args.deform_init_pos, args.deform_init_ori,
@@ -173,7 +173,7 @@ class DeformEnv(gym.Env):
         return obs
 
     def debug_viz_cent_loop(self):
-        # DEBUG True loop center
+        # DEBUG visualize true loop center
         if not hasattr(self.args, "deform_true_loop_vertices"): return
         _, vertex_positions = get_mesh_data(self.sim, self.deform_id)
         vv = np.array(vertex_positions)
@@ -194,9 +194,14 @@ class DeformEnv(gym.Env):
             assert ((np.abs(action) <= 1.0).all()), 'action must be in [-1, 1]'
             action *= DeformEnv.MAX_ACT_VEL
         action = action.reshape(DeformEnv.NUM_ANCHORS, 3)
-        for i in range(DeformEnv.NUM_ANCHORS):
-            command_anchor_velocity(self.sim, self.anchor_ids[i], action[i])
-        self.sim.stepSimulation()
+
+        # Convert from control frequency to internal simulation frequency
+        n_sim_steps_per_ctrl_step = int(self.args.sim_freq / self.args.ctrl_freq)
+        for sim_step in range(n_sim_steps_per_ctrl_step):
+            for i in range(DeformEnv.NUM_ANCHORS):
+                command_anchor_velocity(self.sim, self.anchor_ids[i], action[i])
+            self.sim.stepSimulation()
+
         next_obs, done = self.get_obs()
         reward = self.get_reward()
         if done:  # if terminating early use reward from current step for rest

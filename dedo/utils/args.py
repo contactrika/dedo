@@ -36,8 +36,10 @@ def get_args():
     parser.add_argument('--debug', action='store_true',
                         help='Whether to print debug info')
     # Simulation args. Note: turn up frequency when deform stiffness is high.
-    parser.add_argument('--sim_frequency', type=int, default=500,
-                        help='Number of simulation steps per second')  # 250-1K
+    parser.add_argument('--ctrl_freq', type=int, default=24,
+                        help='Number of actions performed per second')  # 250-1K
+    parser.add_argument('--sim_freq', type=int, default=500,
+                        help='Internal steps taken in PyBullet each second')  # 250-1K
     parser.add_argument('--sim_gravity', type=float, default=-9.8, help='Gravity')
     # Anchor/grasping args.
     parser.add_argument('--anchor_init_pos', type=float, nargs=3,
