@@ -125,21 +125,25 @@ observations we get:
 ### More RL examples
 
 ### Buttoning
+Envs that are ready: `ButtonSimple-v0` 
 ```
 python -m dedo.rl_demo --env=ButtonSimple-v0 --logdir=/tmp/dedo --num_play_runs=1 --max_episode_len=800
 ```
 
 ### HangBag
+Envs that are ready: `HangBag-v0`, `HangBag-v1`,`HangBag-v2`,`HangBag-v3`,`HangBag-v4`
 ```
 python -m dedo.rl_demo --env=HangBag-v0  --logdir=/tmp/dedo --num_play_runs=1 ---max_episode_len=1500
 ```
 
-### HangCloth - TShirt
+### HangCloth
+Envs that are ready: `HangCloth-v0`, `HangCloth-v1`,`HangCloth-v2`,`HangCloth-v3`,`HangCloth-v4`
 ```
 python -m dedo.rl_demo --env=HangCloth-v5  --logdir=/tmp/dedo --num_play_runs=1 ---max_episode_len=1500
 ```
 
 ### Lasso
+Envs that are ready: `Lasso-v0`
 ```
 python -m dedo.rl_demo --env=Lasso-v0  --logdir=/tmp/dedo --num_play_runs=1 ---max_episode_len=1500
 ```
