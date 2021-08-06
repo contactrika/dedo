@@ -51,8 +51,8 @@ def main(args):
           vec_env.action_space.shape)
     rl_agent = eval(args.rl_algo)('MlpPolicy', vec_env, device=args.device,
                                   tensorboard_log=logdir, verbose=1)
-    cb = CustomCallback(eval_env, args.num_play_runs, logdir, n_envs,
-                        num_steps_between_play=20000,
+    cb = CustomCallback(eval_env, args.num_play_runs, logdir, n_envs, args,
+                        num_steps_between_play=10000,
                         viz=args.viz, debug=args.debug)
     rl_agent.learn(total_timesteps=rl_tot_steps, callback=cb)
     vec_env.close()

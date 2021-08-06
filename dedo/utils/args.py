@@ -36,11 +36,12 @@ def get_args():
     parser.add_argument('--debug', action='store_true',
                         help='Whether to print debug info')
     # Simulation args. Note: turn up frequency when deform stiffness is high.
-    parser.add_argument('--ctrl_freq', type=int, default=24,
-                        help='Number of actions performed per second')  # 250-1K
-    parser.add_argument('--sim_freq', type=int, default=500,
-                        help='Internal steps taken in PyBullet each second')  # 250-1K
-    parser.add_argument('--sim_gravity', type=float, default=-9.8, help='Gravity')
+    parser.add_argument('--sim_gravity', type=float, default=-9.8,
+                        help='Gravity constant for PyBullet simulation.')
+    parser.add_argument('--sim_freq', type=int, default=500,  # 250-1K
+                        help='PyBullet simulation frequency.')
+    parser.add_argument('--sim_steps_per_action', type=int, default=4,
+                        help='Number of sim steps per action.')
     # Anchor/grasping args.
     parser.add_argument('--anchor_init_pos', type=float, nargs=3,
                         default=[-0.04, 0.40, 0.70],
@@ -58,8 +59,6 @@ def get_args():
     parser.add_argument('--deform_init_ori', type=float, nargs=3,
                         default=[0,0,0],
                         help='Initial orientation for deform (in Euler angles)')
-
-
     parser.add_argument('--deform_scale', type=float, default=1.0,
                         help='Scaling for the deform object')
     parser.add_argument('--deform_bending_stiffness', type=float, default=1.0,
@@ -74,9 +73,12 @@ def get_args():
     parser.add_argument('--cam_resolution', type=int, default=None,
                         help='RGB camera resolution in pixels (both with and '
                              'height). Use none to get only anchor poses.')
+    # TODO: move this flag to a separate utlity.
     parser.add_argument('--cam_viewmat', type=float, nargs=6,
                         default=None,
-                        help='Generate the view matrix for rendering camera (Not the debug camera!). [distance, pitch, yaw, positionX, positionY, positionZ')
+                        help='Generate the view matrix for rendering camera'
+                             '(not the debug camera). '
+                             '[distance, pitch, yaw, posX, posY, posZ')
     # Parse args and do sanity checks.
     args = parser.parse_args()
     env_parts = args.env.split('-v')
