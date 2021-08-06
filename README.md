@@ -122,28 +122,44 @@ observations we get:
 
 ![misc/imgs/apron_ppo_play.gif](misc/imgs/apron_ppo_play.gif)
 
-### More RL examples
+The above illustration is mainly for debugging purposes, since anchor positions
+are reported as the environment state, so RL would learn only based on this
+low-dimensional input.
 
-### Buttoning
-Envs that are ready: `ButtonSimple-v0` 
-```
-python -m dedo.rl_demo --env=ButtonSimple-v0 --logdir=/tmp/dedo --num_play_runs=1 --max_episode_len=800
-```
+Adding `--cam_resolutioni=200` would change the state representation to
+200x200 images, and this is the intended use for actual RL training.
 
-### HangBag
-Envs that are ready: `HangBag-v0`, `HangBag-v1`,`HangBag-v2`,`HangBag-v3`,`HangBag-v4`
-```
-python -m dedo.rl_demo --env=HangBag-v0  --logdir=/tmp/dedo --num_play_runs=1 ---max_episode_len=1500
-```
 
-### HangCloth
-Envs that are ready: `HangCloth-v0`, `HangCloth-v1`,`HangCloth-v2`,`HangCloth-v3`,`HangCloth-v4`
+### RL envs/tasks that are currently ready:
+
+#### Buttoning
+
+Versions that are ready: `ButtonSimple-v0` 
+
 ```
-python -m dedo.rl_demo --env=HangCloth-v5  --logdir=/tmp/dedo --num_play_runs=1 ---max_episode_len=1500
+python -m dedo.rl_demo --env=ButtonSimple-v0 --logdir=/tmp/dedo --max_episode_len=800
 ```
 
-### Lasso
-Envs that are ready: `Lasso-v0`
+#### HangBag
+
+Versions that are ready: `HangBag-v0`, `HangBag-v1`,`HangBag-v2`,`HangBag-v3`,
+`HangBag-v4`
+
 ```
-python -m dedo.rl_demo --env=Lasso-v0  --logdir=/tmp/dedo --num_play_runs=1 ---max_episode_len=1500
+python -m dedo.rl_demo --env=HangBag-v0  --logdir=/tmp/dedo ---max_episode_len=1500
+```
+
+#### HangCloth
+Versions that are ready: `HangCloth-v0`, `HangCloth-v1`,`HangCloth-v2`,
+`HangCloth-v3`,`HangCloth-v4`
+
+```
+python -m dedo.rl_demo --env=HangCloth-v5  --logdir=/tmp/dedo ---max_episode_len=1500
+```
+
+#### Lasso
+Versions that are ready: `Lasso-v0`
+
+```
+python -m dedo.rl_demo --env=Lasso-v0  --logdir=/tmp/dedo ---max_episode_len=1500
 ```
