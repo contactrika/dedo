@@ -1,10 +1,10 @@
 """
-A simple demo for envs (with random actions).
+A simple demo with preset trajectories.
 
-python -m dedo.demo --env=HangCloth-v0 --viz --debug
-python -m dedo.demo --env=HangBag-v1 --viz --debug
+TODO(Yonk): clean up this file when trajectories are finalized.
+tODO(Yonk): remove old control code, use simple trajectory interpolation.
 
-@contactrika
+@pyshi
 
 """
 import matplotlib.pyplot as plt
@@ -16,8 +16,9 @@ import numpy as np
 import gym
 
 from dedo.utils.args import get_args
-from dedo.utils.anchor_utils import create_anchor_geom, target_pos_to_velocity_controller
+from dedo.utils.anchor_utils import create_anchor_geom
 from dedo.utils.waypoint_utils import create_trajectory, interpolate_waypts
+
 
 preset_traj = {
     # TODO add constraint to scene name
@@ -207,8 +208,9 @@ def viz_waypoints(sim, waypoints, rgba):
 
 def play(env, num_episodes, args):
     deform_obj = env.deform_obj
-    assert deform_obj in preset_traj, f'The e environment name / deform obj "{deform_obj}" does not exist in presets. ' \
-                                      f'Available keys: {preset_traj.keys()}'
+    assert deform_obj in preset_traj, \
+        f'The environment name / deform obj "{deform_obj}" does not exist  ' \
+        f'in presets. Available keys: {preset_traj.keys()}'
     preset_wp = preset_traj[deform_obj]['waypoints']
 
     for epsd in range(num_episodes):
@@ -239,7 +241,6 @@ def play(env, num_episodes, args):
 
 
 def merge_traj(traj_a, traj_b):
-
     if traj_a.shape[0] != traj_b.shape[0]:      # padding is required
         n_pad = np.abs(traj_a.shape[0] - traj_b.shape[0])
         zero_pad = np.zeros((n_pad, traj_a.shape[1]))
@@ -247,9 +248,10 @@ def merge_traj(traj_a, traj_b):
             traj_b = np.concatenate([traj_b, zero_pad, ], axis=0)
         else:                                   # pad a
             traj_a = np.concatenate([traj_a, zero_pad, ], axis=0)
-
     traj = np.concatenate([traj_a, traj_b, ], axis=-1)
     return traj
+
+
 def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq):
     anc_id = list(env.anchors.keys())[anchor_idx]
     init_anc_pos = env.anchors[anc_id]['pos']

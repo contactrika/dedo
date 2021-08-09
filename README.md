@@ -15,9 +15,13 @@ Workshop page with paper+poster: https://sites.google.com/nvidia.com/do-sim/post
 
 Optional initial step: create a new conda environment with
 `conda create --name dedo python=3.7` and activate it with
-`conda activate dedo`. Conda is not strictly needed, _but python 3.7 is required_ as pybullet does not compile with numpy in python3.8.
-alternatives like virtualenv can be used;
+`conda activate dedo`. 
+Conda is not strictly needed, alternatives like virtualenv can be used;
 a direct install without using virtual environments is ok as well.
+
+Python 3.8 or 3.7 should work, though on some cluster/remote machines we saw
+that pybullet installs successfully with python3.7, but has trouble with 3.8.
+
 
 ```
 git clone https://github.com/contactrika/dedo
@@ -146,7 +150,7 @@ Versions that are ready: `HangBag-v0`, `HangBag-v1`,`HangBag-v2`,`HangBag-v3`,
 `HangBag-v4`
 
 ```
-python -m dedo.rl_demo --env=HangBag-v0  --logdir=/tmp/dedo ---max_episode_len=1500
+python -m dedo.rl_demo --env=HangBag-v0  --logdir=/tmp/dedo --max_episode_len=1500
 ```
 
 #### HangCloth
@@ -154,12 +158,12 @@ Versions that are ready: `HangCloth-v0`, `HangCloth-v1`,`HangCloth-v2`,
 `HangCloth-v3`,`HangCloth-v4`
 
 ```
-python -m dedo.rl_demo --env=HangCloth-v5  --logdir=/tmp/dedo ---max_episode_len=1500
+python -m dedo.rl_demo --env=HangCloth-v5  --logdir=/tmp/dedo --max_episode_len=1500
 ```
 
 #### Lasso
 Versions that are ready: `Lasso-v0`
 
 ```
-python -m dedo.rl_demo --env=Lasso-v0  --logdir=/tmp/dedo ---max_episode_len=1500
+python -m dedo.rl_demo --env=Lasso-v0  --logdir=/tmp/dedo --max_episode_len=1500
 ```

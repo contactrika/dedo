@@ -8,7 +8,7 @@ import torch
 
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.evaluation import evaluate_policy
-from stable_baselines3.common.logger import Video
+from stable_baselines3.common.logger import TensorBoardOutputFormat, Video
 
 
 def play(env, num_episodes, rl_agent, debug=False):
@@ -28,12 +28,22 @@ def play(env, num_episodes, rl_agent, debug=False):
         # input('Episode ended; press enter to go on')
 
 
+def object_to_str(obj):
+    # Print all fields of the given object as text in tensorboard.
+    text_str = ''
+    for member in vars(obj):
+        # Tensorboard uses markdown-like formatting, hence '  \n'.
+        text_str += '  \n{:s}={:s}'.format(
+            str(member), str(getattr(obj, member)))
+    return text_str
+
+
 class CustomCallback(BaseCallback):
     """
     A custom callback that runs eval and adds videos to Tensorboard.
     """
     def __init__(self, eval_env, num_play_episodes, logdir, num_train_envs,
-                 num_steps_between_play=20000, viz=False, debug=False):
+                 args, num_steps_between_play=20000, viz=False, debug=False):
         super(CustomCallback, self).__init__(debug)
         # Those variables will be accessible in the callback
         # (they are defined in the base class)
@@ -56,16 +66,18 @@ class CustomCallback(BaseCallback):
         self._num_play_episodes = num_play_episodes
         self._logdir = logdir
         self._num_train_envs = num_train_envs
+        self._my_args = args
+        self._num_steps_between_play = num_steps_between_play
         self._viz = viz
         self._debug = debug
-        self._num_steps_between_play = num_steps_between_play
         self._steps_since_play = num_steps_between_play  # play right away
 
     def _on_training_start(self) -> None:
         """
         This method is called before the first rollout starts.
         """
-        pass
+        # Log args to tensorboard.
+        self.logger.record('args', object_to_str(self._my_args))
 
     def _on_rollout_start(self) -> None:
         """

@@ -8,6 +8,43 @@ import numpy as np
 from scipy.signal import savgol_filter
 
 
+def interpolate_waypts(waypts, steps_per_waypt):
+    """A scratch function to smooth trajectory. Not tested."""
+    waypts = waypts.reshape(-1, 3)
+    n_waypts = waypts.shape[0]
+    dists = []
+    for i in range(n_waypts-1):
+        dists.append(np.linalg.norm(waypts[i]-waypts[i+1]))
+    tot_dist = sum(dists)
+    t_max = n_waypts*steps_per_waypt
+    dense_waypts = np.zeros((t_max, 3))
+    t = 0
+    for i in range(n_waypts-1):
+        steps_per_waypt_weighted = int((dists[i]/tot_dist)*t_max)
+        for k in range(steps_per_waypt_weighted):
+            dense_waypts[t] = waypts[i]
+            t += 1
+    if t < t_max:
+        dense_waypts[t:,:] = dense_waypts[t-1,:]  # set rest to last entry
+    # dense_waypts = np.repeat(waypts, steps_per_waypt, axis=0)  # simple repeat
+    dense_waypts = savgol_filter(dense_waypts,
+                                 window_length=int(steps_per_waypt*2+1),
+                                 polyorder=4, axis=0)
+    print('dense_waypts', dense_waypts.shape)
+    return dense_waypts
+
+
+def target_pos_to_velocity(sim, anchor_bullet_id, tgt_pos, t):
+    anc_pos, anc_or = sim.getBasePositionAndOrientation(anchor_bullet_id)
+    print('t=', t)
+    pos_diff = np.array(tgt_pos) - np.array(anc_pos)
+    print('d_pos', pos_diff)
+    tgt_vel = (pos_diff) / t
+    return tgt_vel
+
+#
+# TODO(Yonk): please remove all the code below and use interpolate_waypts instead.
+#
 def create_trajectory(init_pos, waypoints, steps_per_waypoint, frequency):
     # Create a smoothed trajectory through the given waypoints.
     assert(len(waypoints)== len(steps_per_waypoint))
@@ -34,32 +71,6 @@ def create_trajectory(init_pos, waypoints, steps_per_waypoint, frequency):
     if t<tot_steps: traj[t:,:] = traj[t-1,:]  # set rest to last entry
     #print('create_trajectory(): traj', traj)
     return traj
-
-def interpolate_waypts(waypts, steps_per_waypt):
-    """A scratch function to smooth trajectory. Not tested."""
-    waypts = waypts.reshape(-1, 3)
-    n_waypts = waypts.shape[0]
-    dists = []
-    for i in range(n_waypts-1):
-        dists.append(np.linalg.norm(waypts[i]-waypts[i+1]))
-    tot_dist = sum(dists)
-    t_max = n_waypts*steps_per_waypt
-    dense_waypts = np.zeros((t_max, 3))
-    t = 0
-    for i in range(n_waypts-1):
-        steps_per_waypt_weighted = int((dists[i]/tot_dist)*t_max)
-        for k in range(steps_per_waypt_weighted):
-            dense_waypts[t] = waypts[i]
-            t += 1
-    if t < t_max:
-        dense_waypts[t:,:] = dense_waypts[t-1,:]  # set rest to last entry
-    # dense_waypts = np.repeat(waypts, steps_per_waypt, axis=0)  # simple repeat
-    dense_waypts = savgol_filter(dense_waypts,
-                                 window_length=int(steps_per_waypt*2+1),
-                                 polyorder=4, axis=0)
-    print('dense_waypts', dense_waypts.shape)
-    return dense_waypts
-
 
 def calculate_min_jerk_step(y_curr, yd_curr, ydd_curr, goal, rem_dur, dt):
 

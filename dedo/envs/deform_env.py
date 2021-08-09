@@ -14,11 +14,12 @@ import pybullet_utils.bullet_client as bclient
 
 from ..utils.anchor_utils import (
     create_anchor, attach_anchor, create_anchor_geom, command_anchor_velocity,
-    pin_fixed, CTRL_MAX_FORCE)
+    pin_fixed)
 from ..utils.init_utils import (
     load_deform_object, load_rigid_object, reset_bullet, get_preset_properties)
 from ..utils.mesh_utils import get_mesh_data
 from ..utils.task_info import CAM_INFO, DEFORM_INFO, SCENE_INFO, TASK_INFO
+
 
 class DeformEnv(gym.Env):
     MAX_OBS_VEL = 20.0  # max vel (in m/s) for the anchor observations
@@ -51,11 +52,10 @@ class DeformEnv(gym.Env):
                 'cameraYaw': yaw,
                 'cameraTargetPosition': np.array([pos_x, pos_y, pos_z])
             }
-
         # Define sizes of observation and action spaces.
-        self.anchor_lims = np.tile(np.concatenate(  # 3D pos and 3D linvel/MAX_OBS_VEL
-            [DeformEnv.WORKSPACE_BOX_SIZE * np.ones(3),
-             np.ones(3)]), DeformEnv.NUM_ANCHORS)
+        self.anchor_lims = np.tile(np.concatenate(
+            [DeformEnv.WORKSPACE_BOX_SIZE * np.ones(3),  # 3D pos
+             np.ones(3)]), DeformEnv.NUM_ANCHORS)        # 3D linvel/MAX_OBS_VEL
         if args.cam_resolution is None:
             self.observation_space = gym.spaces.Box(
                 -1.0 * self.anchor_lims, self.anchor_lims)
@@ -82,7 +82,6 @@ class DeformEnv(gym.Env):
             scene_name = 'button'  # same human figure for dress and mask tasks
         data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
         sim.setAdditionalSearchPath(data_path)
-
         #
         # Load rigid objects.
         #
@@ -118,14 +117,13 @@ class DeformEnv(gym.Env):
             assert ('deform_fixed_anchor_vertex_ids' in DEFORM_INFO[deform_obj])
             pin_fixed(sim, deform_id,
                       DEFORM_INFO[deform_obj]['deform_fixed_anchor_vertex_ids'])
-
         #
         # Mark the goal.
         #
         goal_poses = SCENE_INFO[scene_name]['goal_pos']
         if args.viz:
             for i, goal_pos in enumerate(goal_poses):
-                alpha = 1 if i == 0 else 0.3  # alpha indicate primary and secondary goals
+                alpha = 1 if i == 0 else 0.3  # primary vs secondary goal
                 create_anchor_geom(sim, goal_pos, mass=0.0,
                                    rgba=(0, 1, 0, alpha), use_collision=False)
         return rigid_ids, deform_id, deform_obj, np.array(goal_poses)
@@ -146,7 +144,6 @@ class DeformEnv(gym.Env):
 
         if self.args.debug and self.args.viz:
             self.debug_viz_cent_loop()
-
         #
         # Setup dynamic anchors.
         for i in range(DeformEnv.NUM_ANCHORS):  # make anchors
@@ -184,22 +181,18 @@ class DeformEnv(gym.Env):
     def step(self, action, unscaled_velocity=False):
         # action is num_anchors x 3 for 3D velocity for anchors/grippers;
         # assume action in [-1,1], we convert to [-MAX_ACT_VEL, MAX_ACT_VEL].
-
         if self.args.debug:
             print('action', action)
-            pass
         if not unscaled_velocity:
             assert ((np.abs(action) <= 1.0).all()), 'action must be in [-1, 1]'
             action *= DeformEnv.MAX_ACT_VEL
         action = action.reshape(DeformEnv.NUM_ANCHORS, 3)
-
-        # Convert from control frequency to internal simulation frequency
-        n_sim_steps_per_ctrl_step = int(self.args.sim_freq / self.args.ctrl_freq)
-        for sim_step in range(n_sim_steps_per_ctrl_step):
+        # Step through physics simulation.
+        for sim_step in range(self.args.sim_steps_per_action):
             for i in range(DeformEnv.NUM_ANCHORS):
                 command_anchor_velocity(self.sim, self.anchor_ids[i], action[i])
             self.sim.stepSimulation()
-
+        # Get next obs, reward, done.
         next_obs, done = self.get_obs()
         reward = self.get_reward()
         if done:  # if terminating early use reward from current step for rest
@@ -243,9 +236,10 @@ class DeformEnv(gym.Env):
             return 0.0  # not reward info without info about true loops
         _, vertex_positions = get_mesh_data(self.sim, self.deform_id)
         dist = 0
-
-        # Simple solution for cases when there's a mismatch between number of goals and number of ground truth loops
-        num_holes_to_track = min(len(self.args.deform_true_loop_vertices), len(self.goal_pos))
+        # A simple solution for cases when there is a mismatch between
+        # the number of goals and number of ground truth loops.
+        num_holes_to_track = min(
+            len(self.args.deform_true_loop_vertices), len(self.goal_pos))
         for i in range(num_holes_to_track):  # loop through goal vertices
             true_loop_vertices = self.args.deform_true_loop_vertices[i]
             goal_pos = self.goal_pos[i]
@@ -255,10 +249,14 @@ class DeformEnv(gym.Env):
         rwd = -1.0 * dist / DeformEnv.WORKSPACE_BOX_SIZE
         return rwd
 
-    def render(self, mode='rgb_array', width=300, height=300, dist=11.4, pitch=-22.4, yaw=257, tgt_pos=[-0.08, -0.29, 1.8]):
+    def render(self, mode='rgb_array', width=300, height=300,
+               dist=11.4, pitch=-22.4, yaw=257, tgt_pos=[-0.08, -0.29, 1.8]):
+        #
+        # TODO(Yonk): remove hard-coded numbers.
+        #
         assert (mode == 'rgb_array')
         if self.args.cam_viewmat is None:
-            dist, pitch, yaw, pos_x, pos_y, pos_z = [11.4,-22.4, 257, -0.08, -0.29, 1.8,]
+            dist, pitch, yaw, pos_x, pos_y, pos_z = [11.4, -22.4, 257, -0.08, -0.29, 1.8,]
         else:
             dist, pitch, yaw, pos_x, pos_y, pos_z = self.args.cam_viewmat
         cam = {
@@ -273,15 +271,10 @@ class DeformEnv(gym.Env):
         w, h, rgba_px, _, _ = self.sim.getCameraImage(
             width=width, height=height,
             renderer=pybullet.ER_BULLET_HARDWARE_OPENGL,
-            viewMatrix=view_mat,
-            **CAM_INFO,
-            # TODO: figure out why passing viewMatrix and projectionMatrix
-            #   does not seem to work any more when --viz=False
-        )
+            viewMatrix=view_mat, **CAM_INFO)
         # If getCameraImage() returns a tuple instead of numpy array that
         # means that pybullet was installed without numpy being present.
         # Uninstall pybullet, then install numpy, then install pybullet.
-
-        assert (isinstance(rgba_px, np.ndarray)), 'Install numpy before pybullet'
+        assert (isinstance(rgba_px, np.ndarray)), 'Install numpy, then pybullet'
         img = rgba_px[:, :, 0:3]
         return img

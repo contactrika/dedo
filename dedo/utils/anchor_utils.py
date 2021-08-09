@@ -21,7 +21,6 @@ CTRL_PD_KD = 50.0  # 50
 
 def get_closest(init_pos, mesh, max_dist=None):
     """Find mesh points closest to the given point."""
-
     init_pos = np.array(init_pos).reshape(1, -1)
     mesh = np.array(mesh)
     # num_pins_per_pt = max(1, mesh.shape[0] // 50)
@@ -86,30 +85,17 @@ def create_anchor(sim, anchor_pos, anchor_idx, preset_vertices, mesh,
         anchor_pos = mesh[anchor_vertices].mean(axis=0)
     elif use_closest:
         anchor_pos, anchor_vertices = get_closest(anchor_pos, mesh)
-
     anchor_geom_id = create_anchor_geom(sim, anchor_pos, mass, radius, rgba)
     return anchor_geom_id, anchor_pos, anchor_vertices
-
-
-def target_pos_to_velocity_controller(sim, anchor_bullet_id, tgt_pos, t):
-    anc_pos, anc_or = sim.getBasePositionAndOrientation(anchor_bullet_id) # getting position
-    anc_linvel, anc_angvel = sim.getBaseVelocity(anchor_bullet_id) # getting velocity
-    print('t=',t )
-    pos_diff = np.array(tgt_pos) - np.array(anc_pos)
-    print('d_pos', pos_diff)
-    tgt_vel = (pos_diff) / t
-    return tgt_vel
 
 
 def command_anchor_velocity(sim, anchor_bullet_id, tgt_vel,  debug=False):
     anc_linvel, _ = sim.getBaseVelocity(anchor_bullet_id)
     vel_diff = tgt_vel - np.array(anc_linvel)
-
     force = CTRL_PD_KD * vel_diff
     force = np.clip(force, -1.0 * CTRL_MAX_FORCE, CTRL_MAX_FORCE)
     sim.applyExternalForce(
         anchor_bullet_id, -1, force.tolist(), [0, 0, 0], pybullet.LINK_FRAME)
-
     # If we were using a robot (e.g. Yumi or other robot with precise
     # non-compliant velocity control interface) - then we could simply command
     # that velocity to the robot. For a free-floating anchor - one option would
@@ -122,13 +108,11 @@ def command_anchor_velocity(sim, anchor_bullet_id, tgt_vel,  debug=False):
     # other control methods would be more appropriate.
     # sim.resetBaseVelocity(anchor_bullet_id, linearVelocity=tgt_vel.tolist(),
     #                       angularVelocity=[0, 0, 0])
-
     # _, ori = sim.getBasePositionAndOrientation(anchor_bullet_id)
     # sim.resetBasePositionAndOrientation(anchor_bullet_id, tgt_vel, ori)
 
 
 def attach_anchor(sim, anchor_id, anchor_vertices, deform_id, change_color=False):
-
     if change_color:
         sim.changeVisualShape(
             anchor_id, -1, rgbaColor=ANCHOR_RGBA_ACTIVE)
