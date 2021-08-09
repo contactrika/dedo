@@ -69,6 +69,9 @@ class DeformEnv(gym.Env):
         # Loading done, turn on visualizer if needed
         if self.args.viz:
             self.sim.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 1)
+        if self.args.debug:
+            print('Created DeformEnv with obs', self.observation_space, 'act',
+                  self.action_space)
 
     @property
     def anchor_ids(self):
@@ -136,14 +139,12 @@ class DeformEnv(gym.Env):
         self.episode_reward = 0.0
         self.anchors = {}
         reset_bullet(self.args, self.sim, self.cam_on, self.cam_args)
-
         self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos = \
             self.load_objects(self.sim, self.args)
-
         self.sim.stepSimulation()  # step once to get initial state
-
-        if self.args.debug and self.args.viz:
-            self.debug_viz_cent_loop()
+        #
+        # if self.args.debug and self.args.viz:
+        #     self.debug_viz_cent_loop()
         #
         # Setup dynamic anchors.
         for i in range(DeformEnv.NUM_ANCHORS):  # make anchors

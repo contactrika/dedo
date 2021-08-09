@@ -136,21 +136,13 @@ Adding `--cam_resolutioni=200` would change the state representation to
 
 ### RL envs/tasks that are currently ready:
 
-#### Buttoning
-
-Versions that are ready: `ButtonSimple-v0` 
-
-```
-python -m dedo.rl_demo --env=ButtonSimple-v0 --logdir=/tmp/dedo --max_episode_len=800
-```
-
 #### HangBag
 
 Versions that are ready: `HangBag-v0`, `HangBag-v1`,`HangBag-v2`,`HangBag-v3`,
 `HangBag-v4`
 
 ```
-python -m dedo.rl_demo --env=HangBag-v0  --logdir=/tmp/dedo --max_episode_len=1500
+python -m dedo.rl_demo --env=HangBag-v0  --logdir=/tmp/dedo --max_episode_len=400
 ```
 
 #### HangCloth
@@ -158,12 +150,35 @@ Versions that are ready: `HangCloth-v0`, `HangCloth-v1`,`HangCloth-v2`,
 `HangCloth-v3`,`HangCloth-v4`
 
 ```
-python -m dedo.rl_demo --env=HangCloth-v5  --logdir=/tmp/dedo --max_episode_len=1500
+python -m dedo.rl_demo --env=HangCloth-v5  --logdir=/tmp/dedo --max_episode_len=400
 ```
 
 #### Lasso
 Versions that are ready: `Lasso-v0`
 
 ```
-python -m dedo.rl_demo --env=Lasso-v0  --logdir=/tmp/dedo --max_episode_len=1500
+python -m dedo.rl_demo --env=Lasso-v0  --logdir=/tmp/dedo --max_episode_len=400
 ```
+
+#### Dress
+Versions that are ready: `Dress-v0`, `Dress-v1`, `Dress-v5`
+
+```
+python -m dedo.rl_demo --env=Dress-v5  --logdir=/tmp/dedo --max_episode_len=800
+```
+
+#### Mask
+Versions that are ready: `Mask-v0`
+
+```
+python -m dedo.rl_demo --env=Mask-v0  --logdir=/tmp/dedo --max_episode_len=800
+```
+
+#### Buttoning
+
+Versions that are ready: `ButtonSimple-v0`
+
+```
+python -m dedo.rl_demo --env=ButtonSimple-v0 --logdir=/tmp/dedo --max_episode_len=800
+```
+
