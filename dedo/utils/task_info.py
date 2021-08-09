@@ -384,7 +384,7 @@ DEFORM_INFO = {
              583, 584, 586],
         ],
     },
-    'bags/backpack_4.obj': {
+    'bags/backpack_4.obj': {  # TODO Broken still
         'deform_init_pos': [-0.2, 2, 4],
         'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
         'deform_scale': 3,
@@ -393,8 +393,8 @@ DEFORM_INFO = {
         'deform_bending_stiffness': 10,
         'deform_damping_stiffness': 0.01,
         'deform_anchor_vertices': [
-            [522, ],
-            [262, ],
+            [524, ],
+            [247, ],
         ],
         'deform_true_loop_vertices': [
             [19, 116, 151, 243, 246, 247, 253, 255, 257, 258, 259, 261, 262,
