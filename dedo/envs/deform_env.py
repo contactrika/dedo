@@ -124,7 +124,7 @@ class DeformEnv(gym.Env):
         # Mark the goal.
         #
         goal_poses = SCENE_INFO[scene_name]['goal_pos']
-        if args.viz:
+        if args.viz and args.debug:
             for i, goal_pos in enumerate(goal_poses):
                 alpha = 1 if i == 0 else 0.3  # primary vs secondary goal
                 create_anchor_geom(sim, goal_pos, mass=0.0,
