@@ -32,7 +32,7 @@ TASK_INFO = {
         'bags/backpack_1.obj',
         'bags/backpack_2.obj',
         'bags/backpack_3.obj',
-        'bags/backpack_4.obj',
+        'bags/backpack_4.obj',  # TODO object issue
         'cloth/cardigan_0.obj',
         'cloth/cardigan_1.obj',
         'cloth/cardigan_2.obj',
@@ -40,7 +40,7 @@ TASK_INFO = {
         'cloth/cardigan_4.obj',
         'bags/backpack_0_dense.obj',
         'bags/backpack_0_thick.obj',  # Failure case
-    ], # TODO Backpack preset traj
+    ],
     'Hoop': ['ropes/hoop3d_0.obj'], # TODO Hoop preset traj
     'Lasso': [
         'ropes/lasso3d_0.obj',
@@ -198,11 +198,12 @@ SCENE_INFO = {
 # Information about deformable objects.
 DEFORM_INFO = {
     'bags/bags_zehang/bag1_0.obj': {
-        'deform_init_pos': [0, 8, 1],
+        'deform_init_pos': [0, 8, 2],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 1,
         'deform_elastic_stiffness': 50,
-        'deform_bending_stiffness': 10,
+        'deform_bending_stiffness': 1,
+        'deform_damping_stiffness': 0.01,
         'deform_anchor_vertices': [
             [808],
             [1238],
@@ -214,12 +215,15 @@ DEFORM_INFO = {
             [687, 689, 691, 693, 695, 732, 734, 736, 744, 747, 750, 1271, 1272,
              1273],
         ],
-        'cam_viewmat': [12, -8.0, 211, 1.2, 0.74, 2.5],
+        'cam_viewmat': [12, -3.0, 269, 1.2, 0.74, 2.5],
     },
     'bags/bags_zehang/bag2_0.obj': {
-        'deform_init_pos': [0, 8, 1],
+        'deform_init_pos': [0, 8, 2],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
-        'deform_scale': 0.5,
+        'deform_scale': 1,
+        'deform_elastic_stiffness': 50,
+        'deform_bending_stiffness': 1,
+        'deform_damping_stiffness': 0.01,
         'deform_anchor_vertices': [
             [306],
             [626],
@@ -230,14 +234,15 @@ DEFORM_INFO = {
             [442, 444, 446, 448, 450, 470, 472, 568, 570, 572, 574, 576, 598,
              600, 748, 750, 785, 787, 789, 793, 796, 799],
         ],
-        'cam_viewmat': [12, -8.0, 211, 1.2, 0.74, 2.5],
+        'cam_viewmat': [12, -3.0, 269, 1.2, 0.74, 2.5],
     },
     'bags/bags_zehang/bag3_0.obj': {
-        'deform_init_pos': [0, 8, 1],
+        'deform_init_pos': [0, 8, 2],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
-        'deform_scale': 0.5,
-        'anchor_init_pos': [-0.5, 2, 8],
-        'other_anchor_init_pos': [0.5, 2, 8],
+        'deform_scale': 1,
+        'deform_elastic_stiffness': 50,
+        'deform_bending_stiffness': 1,
+        'deform_damping_stiffness': 0.01,
         'deform_anchor_vertices': [
             [610],
             [1112],
@@ -251,7 +256,7 @@ DEFORM_INFO = {
              506, 508, 510, 512, 514, 530, 532, 547, 549, 670, 672, 701, 703,
              705, 709, 712, 715],
         ],
-        'cam_viewmat': [12, -8.0, 211, 1.2, 0.74, 2.5],
+        'cam_viewmat': [12, -3.0, 269, 1.2, 0.74, 2.5],
     },
     'bags/backpack_0.obj': {
         'deform_init_pos': [-0.2, 2, 4],
@@ -410,7 +415,8 @@ DEFORM_INFO = {
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 3,
         'deform_elastic_stiffness': 50,
-        'deform_bending_stiffness': 50,
+        'deform_bending_stiffness': 1,
+        'deform_damping_stiffness': 0.01,
         'deform_anchor_vertices': [
             [15],  # 10, 12, 13, 14, 15],
             [170],  # 163, 165, 167, 168, 170],
@@ -428,6 +434,9 @@ DEFORM_INFO = {
         'deform_init_pos': [0, 5, 5.5],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 3,
+        'deform_elastic_stiffness': 50,
+        'deform_bending_stiffness': 1,
+        'deform_damping_stiffness': 0.01,
         'deform_anchor_vertices': [
             [15],  # 10, 12, 13, 14, 15],
             [174],  # 167, 169, 171, 172, 174],
@@ -447,6 +456,9 @@ DEFORM_INFO = {
         'deform_init_pos': [0, 5, 5.5],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 3,
+        'deform_elastic_stiffness': 50,
+        'deform_bending_stiffness': 1,
+        'deform_damping_stiffness': 0.01,
         'deform_anchor_vertices': [
             [172, ],  # , 72, 73, 76, 77, 78, 79, 227, 230, 602, 604, 721, 722],
             [16, ],  # 159, 161, 162, 163, 285, 288, 520, 522, 680, 681, 763],
@@ -465,6 +477,9 @@ DEFORM_INFO = {
         'deform_init_pos': [0, 5, 5.5],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 3,
+        'deform_elastic_stiffness': 50,
+        'deform_bending_stiffness': 1,
+        'deform_damping_stiffness': 0.01,
         'deform_anchor_vertices': [
             [128],  # 10, 12, 13, 14, 15],
             [79],  # 167, 169, 171, 172, 174],
@@ -485,10 +500,13 @@ DEFORM_INFO = {
              583, 589, 590, 602, 603],
         ],
     },
-    'cloth/apron_4.obj': {  # This used to be apron_zehang
+    'cloth/apron_4.obj': {
         'deform_init_pos': [0, 5, 5.5],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 3,
+        'deform_elastic_stiffness': 50,
+        'deform_bending_stiffness': 1,
+        'deform_damping_stiffness': 0.01,
         'deform_anchor_vertices': [
             [15],  # 10, 12, 13, 14, 15],
             [173],  # 166, 168, 170, 171, 173],
@@ -608,8 +626,10 @@ DEFORM_INFO = {
         'deform_init_pos': [0, 2, 5],
         'deform_init_ori': [np.pi / 2, 0, 0],
         'deform_scale': 3,
-        'deform_elastic_stiffness': 1,
-        'deform_bending_stiffness': 5,
+        'deform_elastic_stiffness': 80,
+        # 'deform_bending_stiffness': 5,
+        'deform_bending_stiffness': 0.1,
+        'deform_damping_stiffness': 0.01,
         'deform_anchor_vertices': [
             [0],
             [195],
@@ -628,8 +648,10 @@ DEFORM_INFO = {
         'deform_init_pos': [0, 2, 5],
         'deform_init_ori': [np.pi / 2, 0, 0],
         'deform_scale': 3,
-        'deform_elastic_stiffness': 1,
-        'deform_bending_stiffness': 5,
+        'deform_elastic_stiffness': 80,
+        # 'deform_bending_stiffness': 5,
+        'deform_bending_stiffness': 0.1,
+        'deform_damping_stiffness': 0.01,
         'deform_anchor_vertices': [
             [0],
             [214],
@@ -647,8 +669,10 @@ DEFORM_INFO = {
         'deform_init_pos': [0, 2, 5],
         'deform_init_ori': [np.pi / 2, 0, 0],
         'deform_scale': 3,
-        'deform_elastic_stiffness': 1,
-        'deform_bending_stiffness': 5,
+        'deform_elastic_stiffness': 80,
+        # 'deform_bending_stiffness': 5,
+        'deform_bending_stiffness': 0.1,
+        'deform_damping_stiffness': 0.01,
         'deform_anchor_vertices': [
             [0],
             [198],
@@ -666,8 +690,10 @@ DEFORM_INFO = {
         'deform_init_pos': [0, 2, 5],
         'deform_init_ori': [np.pi / 2, 0, 0],
         'deform_scale': 3,
-        'deform_elastic_stiffness': 1,
-        'deform_bending_stiffness': 5,
+        'deform_elastic_stiffness': 80,
+        # 'deform_bending_stiffness': 5,
+        'deform_bending_stiffness': 0.1,
+        'deform_damping_stiffness': 0.01,
         'deform_anchor_vertices': [
             [0],
             [200],
@@ -780,12 +806,14 @@ DEFORM_INFO = {
         'deform_init_pos': [-0.2, 3, 6],
         'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
         'deform_scale': 5,
-        'deform_anchor_vertices': [
-            [378, ],
-            [131, ],
-        ],
         'deform_elastic_stiffness': 100,
         'deform_bending_stiffness': 10,
+        'deform_damping_stiffness': 0.1,
+        'deform_anchor_vertices': [
+            [221, ],
+            [131, ],
+        ],
+
         'deform_true_loop_vertices': [
             [356, 358, 359, 381, 400, 401, 402, 403, 405, 406, 407, 409, 413,
              419, 424, 427, 428, 431, 436, 440, 453, 455, 458, 460, 468, 473,

@@ -32,11 +32,8 @@ def policy_simple(obs, act, task, step):
         if obs[0, 0] < 0.10:
             act[:, 0] = 0.10  # increase x
     elif task in ['HangCloth']:
-        # Dragging T Shirt
-        if step < 200:
-            act[0, 0] = 1
-            act[1, 0] = -1
-            act[:, 2] = -1
+        act[:, 1] = -0.2
+
     elif task in ['HangBag']:
         # Dragging T Shirt
         act[:, 1] = -0.5
