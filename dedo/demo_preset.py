@@ -124,8 +124,8 @@ preset_traj = {
     'bags/backpack_0.obj':{ # Dress-v0
         'waypoints': {
             'a': [
-                [-0.8019, 0.9734, 4.4249, 1],
-                [0.3 ,  1.7888,  6.9245, 2],
+                [-0.8019, 0.9734, 4.0249, 1],
+                [0.3 ,  1.7888,  6.5245, 2],
                 [0.3 ,  0.0,    6.9245, 3 ],
                 [0.8 ,  -0.5,  6.945, 1.2 ],
 
@@ -221,9 +221,9 @@ def play(env, num_episodes, args):
             viz_waypoints(env.sim, preset_wp['b'], (1, 0, 0, 0.5))
         # Need to step to get low-dim state from info.
         step = 0
-
-        traj_a = build_traj(env, preset_wp, 'a', anchor_idx=0, ctrl_freq=args.ctrl_freq)
-        traj_b = build_traj(env, preset_wp, 'b', anchor_idx=1, ctrl_freq=args.ctrl_freq)
+        ctrl_freq = args.sim_freq / args.sim_steps_per_action
+        traj_a = build_traj(env, preset_wp, 'a', anchor_idx=0, ctrl_freq=ctrl_freq)
+        traj_b = build_traj(env, preset_wp, 'b', anchor_idx=1, ctrl_freq=ctrl_freq)
         # traj_b = np.zeros_like(traj_b)
         traj = merge_traj(traj_a, traj_b)
 

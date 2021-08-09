@@ -143,9 +143,9 @@ class DeformEnv(gym.Env):
             self.load_objects(self.sim, self.args)
         self.sim.stepSimulation()  # step once to get initial state
         #
-        # if self.args.debug and self.args.viz:
-        #     self.debug_viz_cent_loop()
-        #
+        if self.args.debug and self.args.viz:
+            self.debug_viz_cent_loop()
+
         # Setup dynamic anchors.
         for i in range(DeformEnv.NUM_ANCHORS):  # make anchors
             anchor_init_pos = self.args.anchor_init_pos if (i % 2) == 0 else \
