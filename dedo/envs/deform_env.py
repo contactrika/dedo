@@ -28,7 +28,7 @@ class DeformEnv(gym.Env):
 
     def __init__(self, args):
         self.args = args
-        self.max_episode_len = args.max_episode_len
+        self.n_max_episode_steps = int(args.max_episode_len * args.ctrl_freq)
         self.cam_on = args.cam_resolution is not None
         self.cam_args = {
             'cameraDistance': 11.4,
@@ -78,9 +78,7 @@ class DeformEnv(gym.Env):
         scene_name = self.args.task.lower()
         # if scene_name.startswith('hang'):
         #     scene_name = 'hang'  # same scene for 'HangBag', 'HangCloth'
-        if scene_name.startswith('mask'):
-            scene_name = 'dress'  # same human figure for dress and mask tasks
-        elif scene_name.startswith('button'):
+        if scene_name.startswith('button'):
             scene_name = 'button'  # same human figure for dress and mask tasks
         data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
         sim.setAdditionalSearchPath(data_path)
@@ -205,9 +203,9 @@ class DeformEnv(gym.Env):
         next_obs, done = self.get_obs()
         reward = self.get_reward()
         if done:  # if terminating early use reward from current step for rest
-            reward *= (self.max_episode_len - self.stepnum)
+            reward *= (self.n_max_episode_steps - self.stepnum)
         self.episode_reward += reward
-        done = (done or self.stepnum >= self.max_episode_len)
+        done = (done or self.stepnum >= self.n_max_episode_steps)
         info = {}
         if self.args.debug and self.stepnum % 10 == 0:
             print(f'step {self.stepnum:d} reward {reward:0.4f}')

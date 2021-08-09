@@ -18,8 +18,8 @@ def get_args():
     # Main/demo args.
     parser.add_argument('--env', type=str,
                         default='HangBag-v0', help='Env name')
-    parser.add_argument('--max_episode_len', type=int,
-                        default=400, help='Number of simulation steps per task')
+    parser.add_argument('--max_episode_len', type=float,
+                        default=5.0, help='Maximum time per episode (in seconds)')
     parser.add_argument('--seed', type=int, default=0, help='Random seed')
     parser.add_argument('--logdir', type=str, default=None,
                         help='Path for logs')

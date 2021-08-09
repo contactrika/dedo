@@ -112,7 +112,7 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
         print('Loading filename', obj_file_name)
     # Note: do not set very small mass (e.g. 0.01 causes instabilities).
     deform_id = sim.loadSoftBody(
-        mass=1.0,  # 1kg is default; bad sim with lower mass
+        mass=1,  # 1kg is default; bad sim with lower mass
         fileName=obj_file_name,
         scale=scale,
         basePosition=init_pos,
@@ -121,7 +121,7 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
         springDampingStiffness=damping_stiffness,
         springBendingStiffness=bending_stiffness,
         frictionCoeff=friction_coeff,
-        collisionMargin=0.05,  # how far apart do two objects begin interacting
+        # collisionMargin=0.003,  # how far apart do two objects begin interacting
         useSelfCollision=0,
         springDampingAllDirections=1,
         useFaceContact=True,
