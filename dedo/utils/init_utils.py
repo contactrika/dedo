@@ -138,7 +138,7 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
     if hasattr(pybullet, 'VISUAL_SHAPE_DOUBLE_SIDED'):
         kwargs['flags'] = pybullet.VISUAL_SHAPE_DOUBLE_SIDED
     sim.changeVisualShape(
-        deform_id, -1, textureUniqueId=texture_id, **kwargs)
+        deform_id, -1, rgbaColor=[1,1,1,1], textureUniqueId=texture_id, **kwargs)
     num_mesh_vertices = get_mesh_data(sim, deform_id)[0]
 
     if debug:

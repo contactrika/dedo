@@ -19,6 +19,7 @@ TASK_INFO = {
                   'cloth/apron_2.obj',
                   'cloth/apron_3.obj',
                   'cloth/apron_4.obj',
+
                   'cloth/tshirt_0.obj',
                   'cloth/tshirt_1.obj',
                   'cloth/tshirt_2.obj',
@@ -51,16 +52,8 @@ TASK_INFO = {
              'cloth/mask_3.obj',
              'cloth/mask_4.obj',
              ],
-    'Debug': ['ts/ts_backpack_resampled.obj',
-              'bags/backpack_0.obj',
-              'bags/backpack_0_dense.obj',
-              'bags/backpack_0_thick.obj',
-              'cloth/apron_2_dense.obj',
-              'ts/ts_apron_twoloops.obj',
-              'cloth/apron_1.obj',
-
-              'cloth/apron_2_dense.obj',
-              'cloth/apron_3_dense.obj',
+    'Debug': ['cloth/apron_0_large.obj',
+            'bags/backpack_0.obj',
               ]
 }
 
@@ -416,6 +409,26 @@ DEFORM_INFO = {
         ],
     },
     'cloth/apron_0.obj': {  # This used to be apron_zehang
+        'deform_init_pos': [0, 5, 5.5],
+        'deform_init_ori': [np.pi / 2, 0, np.pi],
+        'deform_scale': 3,
+        'deform_elastic_stiffness': 50,
+        'deform_bending_stiffness': 1,
+        'deform_damping_stiffness': 0.01,
+        'deform_anchor_vertices': [
+            [15],  # 10, 12, 13, 14, 15],
+            [170],  # 163, 165, 167, 168, 170],
+        ],
+        'deform_true_loop_vertices': [
+            [0, 1, 3, 4, 7, 8, 11, 12, 14, 16, 22, 24, 26, 30, 31, 32, 154, 155,
+             157, 158, 160, 161, 162, 165, 167, 169, 175, 177, 179, 183, 184,
+             284],
+            [65, 98, 99, 100, 101, 124, 134, 135, 136, 137, 138, 139, 140, 141,
+             148, 149, 152, 153, 235, 236, 237, 238, 258, 260, 266, 267, 268,
+             269, 270, 271, 272, 273, 276, 278, 280, 281, 282, 287, 288]
+        ],
+    },
+    'cloth/apron_0_large.obj': {  # This used to be apron_zehang
         'deform_init_pos': [0, 5, 5.5],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 3,

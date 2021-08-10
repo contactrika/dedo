@@ -45,9 +45,9 @@ def policy_simple(obs, act, task, step):
         if obs[0, 1] > 0.0:
             act[:, 1] = -0.25  # decrease y
             act[:, 2] = -0.25  # decrease z
-    elif obs[0, 2] > 0.50:
+    # elif obs[0, 2] > 0.50:
         # act[:, 1] = -0.10  # decrease y
-        act[:, 2] = -0.06  # decrease z
+        # act[:, 2] = -0.06  # decrease z
     return act.reshape(-1)
 
 

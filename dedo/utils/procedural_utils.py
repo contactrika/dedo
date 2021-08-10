@@ -1,10 +1,88 @@
+#
+# Utilities for the generating procedural cloth
+#
+# @jackson @yonkshi
+#
+
 import os
 import itertools
 
 import numpy as np
 
+import os
+import numpy as np
+from matplotlib import pyplot as plt
 
-def gen_procedural_cloth(args, prod_id):
+NODE_DENSITY = 25
+
+def gen_procedural_hang_cloth(args, deform_info_dict):
+    ''''''
+    # args.data_path = '/tmp/'
+    rand_id = np.random.uniform(1e7)
+    args.cloth_obj = f'/tmp/procedural_hole{rand_id}.obj'
+    datapath = os.path.join(args.data_path, args.cloth_obj)
+
+    def gen_random_hole():
+        '''Generates a hole. Taking existing hole into consideration so they don't collide'''
+        hole = {}
+        # Logic
+
+        # Define dimension constraints
+        max_hole = 1/args.num_holes - 0.1
+        hole_width_ratio_range = [0.05, max_hole]
+        hole_height_ratio_range = [0.05, max_hole]
+
+        # Sample dimension
+        hole_w = np.random.uniform(*hole_width_ratio_range)
+        hole_h = np.random.uniform(*hole_height_ratio_range)
+
+        # Define coordinate constraints
+        hole_x_range = (0.03, 0.95 - hole_w)
+        hole_y_range = (0.03, 0.95 - hole_h)
+
+        # Infer actual coordinates from constraints and dimensions
+        hole['x0'] = np.random.uniform(*hole_x_range)
+        hole['x1'] = hole['x0'] + hole_w
+
+        hole['y0'] = np.random.uniform(*hole_y_range)
+        hole['y1'] = hole['y0'] + hole_h
+
+        return hole
+
+
+    width_range = [0.1, 0.6]
+    height_range = [0.1, 0.7]
+    w = np.random.uniform(*width_range) / 2
+    h = np.random.uniform(*height_range) / 2
+    if args.gen_simple_hole:
+        w = 0.1
+        h = 0.2
+
+    # hole generation
+    holes = [gen_random_hole()]
+
+    # holes = [new_hole1] # [new_hole1, new_hole2]
+    __ptr__hole_boundary_nodes_idx = [[] for _ in range(args.num_holes)]
+
+    cloth_obj_path, cloth_anchor_indices = create_cloth_obj(
+        #min_point=[0.00, -0.3, -0.3], max_point=[0.00, 0.3, 0.3],
+        min_point=[0.00, -w, -h], max_point=[0.00, w, h],
+        # min_point=[0,0.42,0.48], max_point=[0.2,0.45,0.52],
+        node_density=args.node_density,
+        holes = holes,
+        data_path=datapath,
+        use_hanging_anchors =True,
+        __ptr__hole_boundary_nodes_idx = __ptr__hole_boundary_nodes_idx,
+
+    )
+    # TODO Update universal dict
+    if args.cloth_obj not in deform_info_dict.keys():
+        deform_info_dict[args.cloth_obj] = deform_info_dict['procedural_hole'].copy()
+
+    deform_info_dict[args.cloth_obj]['cloth_anchored_vertex_ids'] = list(cloth_anchor_indices)
+    deform_info_dict[args.cloth_obj]['cloth_true_loop_vertices'] = __ptr__hole_boundary_nodes_idx
+
+def gen_procedural_button_cloth(args, prod_id):
     # args.data_path = '/tmp/'
     args.cloth_obj = f'/tmp/procedural_hole{prod_id}.obj'
     datapath = os.path.join(args.data_path, args.cloth_obj)
@@ -106,6 +184,7 @@ def gen_procedural_cloth(args, prod_id):
         __ptr__hole_boundary_nodes_idx = __ptr__hole_boundary_nodes_idx,
         __ptr__hole_corners_idx = __ptr__hole_corners_idx
     )
+    # TODO Update universal dict
     if args.cloth_obj not in CLOTH_OBJECTS_DICT.keys():
         CLOTH_OBJECTS_DICT[args.cloth_obj] = CLOTH_OBJECTS_DICT['procedural_hole'].copy()
 
@@ -113,15 +192,6 @@ def gen_procedural_cloth(args, prod_id):
     CLOTH_OBJECTS_DICT[args.cloth_obj]['cloth_true_loop_vertices'] = __ptr__hole_boundary_nodes_idx
     CLOTH_OBJECTS_DICT[args.cloth_obj]['hole_corners_idx'] = __ptr__hole_corners_idx
 
-
-#
-# Utilities for the buttoning task
-#
-# @jackson
-#
-import os
-import numpy as np
-from matplotlib import pyplot as plt
 
 '''
 create_cloth_obj: creates a .obj file containing a button loop mesh with the
