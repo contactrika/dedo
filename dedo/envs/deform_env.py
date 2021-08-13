@@ -40,7 +40,7 @@ class DeformEnv(gym.Env):
         # Initialize sim and load objects.
         self.sim = bclient.BulletClient(
             connection_mode=pybullet.GUI if args.viz else pybullet.DIRECT)
-        reset_bullet(args, self.sim, self.cam_on, self.cam_args, args.debug)
+        reset_bullet(args, self.sim, self.cam_on, self.cam_args, debug=args.debug)
         self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos = \
             self.load_objects(self.sim, self.args)
         # setting cam_args again after loading preset data
@@ -84,6 +84,7 @@ class DeformEnv(gym.Env):
         if scene_name.startswith('button'):
             scene_name = 'button'  # same human figure for dress and mask tasks
         data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
+        args.data_path = data_path
         sim.setAdditionalSearchPath(data_path)
         #
         # Load rigid objects.
@@ -92,9 +93,10 @@ class DeformEnv(gym.Env):
         for name, kwargs in SCENE_INFO[scene_name]['entities'].items():
             pth = os.path.join(data_path, name)
             rgba_color = kwargs['rgbaColor'] if 'rgbaColor' in kwargs else None
+            texture_file = args.rigid_texture_file if 'useTexture' in kwargs and kwargs['useTexture'] else None
             id = load_rigid_object(
                 sim, pth, kwargs['globalScaling'],
-                kwargs['basePosition'], kwargs['baseOrientation'], rgba_color)
+                kwargs['basePosition'], kwargs['baseOrientation'], texture_file, rgba_color)
             rigid_ids.append(id)
         #
         # Load deformable object.
@@ -109,7 +111,7 @@ class DeformEnv(gym.Env):
                 setattr(args, arg_nm, arg_val)
 
         texture_path = os.path.join(
-            data_path, 'textures', 'uvmap.png')
+            data_path, args.deform_texture_file) # TODO Check for absolute path
         deform_id = load_deform_object(
             sim, deform_obj, texture_path, args.deform_scale,
             args.deform_init_pos, args.deform_init_ori,
@@ -138,7 +140,9 @@ class DeformEnv(gym.Env):
         self.stepnum = 0
         self.episode_reward = 0.0
         self.anchors = {}
-        reset_bullet(self.args, self.sim, self.cam_on, self.cam_args)
+        plane_texture_path = os.path.join(
+            self.args.data_path, self.args.plane_texture_file)
+        reset_bullet(self.args, self.sim, self.cam_on, self.cam_args, plane_texture=plane_texture_path)
         self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos = \
             self.load_objects(self.sim, self.args)
         self.sim.stepSimulation()  # step once to get initial state

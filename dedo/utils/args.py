@@ -69,6 +69,13 @@ def get_args():
                         help='deform spring elastic stiffness')  # 1.0-300.0
     parser.add_argument('--deform_friction_coeff', type=float, default=0.1,
                         help='deform friction coefficient')
+    # Texture args
+    parser.add_argument('--deform_texture_file', type=str, default="textures/deform/orange_pattern.png",
+                        help='Texture file for the deformable objects')
+    parser.add_argument('--rigid_texture_file', type=str, default="textures/rigid/red_marble.png",
+                        help='Texture file for the rigid objects')
+    parser.add_argument('--plane_texture_file', type=str, default="textures/plane/lightwood.jpg",
+                        help='Texture file for the plane (floor)')
     # Camera args.
     parser.add_argument('--cam_resolution', type=int, default=None,
                         help='RGB camera resolution in pixels (both with and '

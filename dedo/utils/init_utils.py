@@ -75,7 +75,7 @@ def load_objects(sim, scene_name, args):
     pass
 
 
-def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori,
+def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori, texture_file=None,
                       rgba_color=None):
     """Load a rigid object from file, create visual and collision shapes."""
     if obj_file_name.endswith('.obj'):  # mesh info
@@ -100,12 +100,16 @@ def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori,
     else:
         print('Unknown file extension', obj_file_name)
         assert(False), 'load_rigid_object supports only obj and URDF files'
-    texture_id = sim.loadTexture('/home/pyshi/code/dedo/dedo/data/textures/red_marble.png')
-    kwargs = {}
-    if hasattr(pybullet, 'VISUAL_SHAPE_DOUBLE_SIDED'):
-        kwargs['flags'] = pybullet.VISUAL_SHAPE_DOUBLE_SIDED
-    sim.changeVisualShape(
-        rigid_id, -1, rgbaColor=[1,1,1,1], textureUniqueId=texture_id, **kwargs)
+    n_jt = sim.getNumJoints(rigid_id)
+    print(n_jt)
+    if texture_file is not None:
+        texture_id = sim.loadTexture(texture_file)
+        kwargs = {}
+        if hasattr(pybullet, 'VISUAL_SHAPE_DOUBLE_SIDED'):
+            kwargs['flags'] = pybullet.VISUAL_SHAPE_DOUBLE_SIDED
+        for i in range(-1, n_jt):
+            sim.changeVisualShape(
+                rigid_id, i, rgbaColor=[1,1,1,1], textureUniqueId=texture_id, **kwargs)
     return rigid_id
 
 
@@ -160,7 +164,7 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
     return deform_id
 
 
-def reset_bullet(args, sim, cam_on=False, cam_args={}, debug=False):
+def reset_bullet(args, sim, cam_on=False, cam_args={}, plane_texture=None, debug=False):
     """Reset/initialize pybullet simulation."""
     if args.viz:  # toggle aux menus in the GUI.
         pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_GUI, cam_on)
@@ -190,11 +194,10 @@ def reset_bullet(args, sim, cam_on=False, cam_args={}, debug=False):
     # Load floor plane and rigid objects
     sim.setAdditionalSearchPath(pybullet_data.getDataPath())
     floor_id = sim.loadURDF('plane.urdf')
-    texture_id = sim.loadTexture('/home/pyshi/code/dedo/dedo/data/textures/birch.png')
-    kwargs = {}
-    if hasattr(pybullet, 'VISUAL_SHAPE_DOUBLE_SIDED'):
-        kwargs['flags'] = pybullet.VISUAL_SHAPE_DOUBLE_SIDED
-    sim.changeVisualShape(
-        floor_id, -1, rgbaColor=[1,1,1,1], textureUniqueId=texture_id, **kwargs)
+    if plane_texture is not None:
+        print('texture file', plane_texture)
+        texture_id = sim.loadTexture(plane_texture)
+        sim.changeVisualShape(
+            floor_id, -1, rgbaColor=[1,1,1,1], textureUniqueId=texture_id, )
     assert(floor_id == 0)  # camera assumes floor/ground is loaded first
     return sim
