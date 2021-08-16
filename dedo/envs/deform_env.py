@@ -248,8 +248,12 @@ class DeformEnv(gym.Env):
         for i in range(num_holes_to_track):  # loop through goal vertices
             true_loop_vertices = self.args.deform_true_loop_vertices[i]
             goal_pos = self.goal_pos[i]
-            vv = np.array(vertex_positions)
-            cent_pos = vv[true_loop_vertices].mean(axis=0)
+            pts = np.array(vertex_positions)
+            cent_pts = pts[true_loop_vertices]
+            cent_pts = cent_pts[~np.isnan(cent_pts).any(axis=1)] # Nan guard
+            assert len(cent_pts) > 0, 'no valid center points left after NaN clean up. '
+            assert not np.isnan(cent_pts).any(), 'There are still Nan inside cent pts'
+            cent_pos = cent_pts.mean(axis=0)
             dist += np.linalg.norm(cent_pos - goal_pos)
         rwd = -1.0 * dist / DeformEnv.WORKSPACE_BOX_SIZE
         return rwd

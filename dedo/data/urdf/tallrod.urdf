@@ -32,7 +32,7 @@
   <joint name="base_to_rod" type="fixed">
     <parent link="rod_base_link"/>
     <child link="rod_link"/>
-    <origin xyz="0 0 0.275" rpy="0 0 0"/>
+    <origin xyz="0 0 0.4" rpy="0 0 0"/>
   </joint>
   <link name="rod_link">
     <inertial>
@@ -43,7 +43,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <cylinder length="0.55" radius="0.03"/>
+        <cylinder length="0.8" radius="0.03"/>
       </geometry>
        <material name="yellow">
         <color rgba="1 1 0 1"/>
@@ -52,7 +52,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <cylinder length="0.55" radius="0.03"/>
+        <cylinder length="0.8" radius="0.03"/>
       </geometry>
     </collision>
   </link>

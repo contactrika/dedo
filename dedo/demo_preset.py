@@ -18,7 +18,8 @@ import gym
 from dedo.utils.args import get_args
 from dedo.utils.anchor_utils import create_anchor_geom
 from dedo.utils.waypoint_utils import create_trajectory, interpolate_waypts
-
+import imageio
+import os
 
 preset_traj = {
     # TODO add constraint to scene name
@@ -26,31 +27,35 @@ preset_traj = {
         'waypoints': {
             'a': [
                 # [ x, y, z, seconds(time)]
-                [2, 3.5, 7.5, 1],  # waypoint 0
-                [2, 2, 7, 1],  # waypoint 0
-                [2, 1, 7, 1],
-                [2, -1, 6.3, 2],
+                [2, 3.5, 11, 1],  # waypoint 0
+                [2, 2, 10.5, 1],  # waypoint 0
+                [2, 1, 10.5, 1],
+                [2, -1, 8, 2],
             ],
             'b': [
                 # [ x, y, z, seconds(time)]
-                [-2, 3.5, 7.5, 1],  # waypoint 0
-                [-2, 2, 7, 1],  # waypoint 0
-                [-2, 1, 7, 1],
-                [-2, -1, 6.3, 2],
+                [-2, 3.5, 11, 1],  # waypoint 0
+                [-2, 2, 10.5, 1],  # waypoint 0
+                [-2, 1, 10.5, 1],
+                [-2, -1, 8, 2],
             ],
         },
     },
-    'cloth/tshirt_0.obj': {  # HangCloth-v5, 1500 steps # TODO flip it
+    'cloth/tshirt_0.obj': {  # HangCloth-v5, 1500 steps
         'waypoints': {
             'a': [
                 # [ x, y, z, seconds(time)]
-                # [1.5594, 1.5181, 6.6771, 1],
-                [-0.0224 , 3.5444 , 5.5288, 4],
+                # [0.0224, 2.4556, 6.5288, 1],
+                [0.0224, 2.4556, 15, 3],
+                [0.0224, -0.7, 15.5, 2],
+                [0.0224, -0.7, 8.5, 4],
             ],
             'b': [
                 # [ x, y, z, seconds(time)]
-                # [-1.5158 , 1.897,  6.7119, 1]
-                [0.  ,   4.5557 ,0.1366, 4],
+                # [0. ,    1.4443, 1.1366, 1]
+                [0., 1.4443, 11, 3],
+                [0., -1, 10, 2],
+                [0., -1, -1, 4],
 
             ]
         },
@@ -78,7 +83,7 @@ preset_traj = {
             ]
         },
     },
-    'bags/bags_zehang/bag1_0.obj': {  # HangBag-v0, 1500 steps # TODO make it larger
+    'bags/bags_zehang/bag1_0.obj': {  # HangBag-v0, 1500 steps
         'waypoints': {
             'a': [
                 [0.2, 2, 10.4, 3],
@@ -90,55 +95,55 @@ preset_traj = {
             ]
         },
     },
-    'cloth/cardigan_0.obj':{ # Dress-v5 #
+    'cloth/cardigan_0.obj': {  # Dress-v5 #
         'waypoints': {
             'a': [
                 # [-0.278 ,  1.7888,  6.245 ],
-                [0.6 ,  1.7888,  6.245, 0.6 ],
+                [0.6, 1.7888, 6.245, 0.6],
                 # [0.6 ,  1.1,  6.245, 100 ],
                 # [0.6 ,  0.8,  6.245, 100 ],
-                [0.6 ,  0.0,  6.245, 0.8 ],
-                [0 ,  0,  6.445, 1.2 ],
+                [0.6, 0.0, 6.245, 0.8],
+                [0, 0, 6.445, 1.2],
 
             ],
             'b': [
                 # [0.3004, 1.7888, 6.245 ]
-                [2.3, 1.7888, 6.245, 0.6 ],
+                [2.3, 1.7888, 6.245, 0.6],
                 # [2.3, 0.5, 6.245, 100 ],
                 # [2.3, -0.3, 6.245, 100 ],
-                [2.8, -1, 6.245, 0.8 ],
-                [-0.5, -4, 6.245, 1.2 ],
-                [-3, -1, 6.245, 0.6 ],
-                [-2, 2, 6.245, 0.8 ],
-                [-1, 2, 6.245, 0.2 ],
+                [2.8, -1, 6.245, 0.8],
+                [-0.5, -4, 6.245, 1.2],
+                [-3, -1, 6.245, 0.6],
+                [-2, 2, 6.245, 0.8],
+                [-1, 2, 6.245, 0.2],
                 # [-1, 2, 6.245, 0.6 ],
-                [-1, 0, 6.245, 0.6 ],
+                [-1, 0, 6.245, 0.6],
 
             ]
         },
     },
-    'bags/backpack_0.obj':{ # Dress-v0
+    'bags/backpack_0.obj': {  # Dress-v0
         'waypoints': {
             'a': [
                 [-0.8019, 0.9734, 4.0249, 1],
-                [0.3 ,  1.7888,  6.5245, 2],
-                [0.3 ,  0.0,    6.9245, 3 ],
-                [0.8 ,  -0.5,  6.945, 1.2 ],
+                [0.3, 1.7888, 6.5245, 2],
+                [0.3, 0.0, 6.9245, 3],
+                [0.8, -0.5, 6.945, 1.2],
 
             ],
             'b': [
-                [0.1823, 0.9618, 4.4351,1],
-                [3.7, 1.7888, 6.945, 2 ],
-                [3.7, -1, 6.945, 3 ],
-                [0, -3, 7.245, 2 ],
-                [-3, -1, 6.845, 0.6 ],
-                [-2, 2, 6.845, 0.8 ],
-                [-2, 1, 6.845, 0.6 ],
+                [0.1823, 0.9618, 4.4351, 1],
+                [3.7, 1.7888, 6.945, 2],
+                [3.7, -1, 6.945, 3],
+                [0, -3, 7.245, 2],
+                [-3, -1, 6.845, 0.6],
+                [-2, 2, 6.845, 0.8],
+                [-2, 1, 6.845, 0.6],
 
             ]
         },
     },
-    'cloth/mask_0.obj':{ # Mask-v0 # TODO fix models and the creepy head
+    'cloth/mask_0.obj': {  # Mask-v0
         'waypoints': {
             'a': [
                 # [0.4332, 1.9885, 6.1941],
@@ -150,29 +155,30 @@ preset_traj = {
             ],
             'b': [
                 # [-0.8332 , 1.9885 , 6.1941]
-                [-0.9, 0, 7.3, 2 ],
-                [-1.3, -1, 7.1, 0.5 ],
-                [-0.6, -1.2, 7.1, 0.5 ],
-[-0.6, -1.2, 6.8, 0.5 ],
+                [-0.9, 0, 7.3, 2],
+                [-1.3, -1, 7.1, 0.5],
+                [-0.6, -1.2, 7.1, 0.5],
+                [-0.6, -1.2, 6.8, 0.5],
 
             ]
         },
     },
-    'ropes/lasso3d_0.obj':{
+    'ropes/lasso3d_0.obj': {
         'waypoints': {
             'a': [
-                # [1.1346, 3.3335, 6.1546],
-                [1.1346, 3.3335, 6.1546, 1.1],
-                [1, 1.5,6, 0.5],
-                [-0.5, -0.6, 4.7, 1.1],
-                [-0.5, -0.6, 1, 0.5],
+                # [ [-2.8518, -0.2436 , 5.9087]],
+                [-2.8518, -0.2436, 5.9087, 3],
+                [-0.3518, 0.1, 8, 3],
+                [2, 0, 8, 1],
+                [2, 0, 1, 1],
 
             ],
             'b': [
-                # [-0.8025 , 1.6467 , 5.9768]
-                [-0.8025 , 1.6467 , 5.9768, 1.1],
-                [-1 , -1 , 4.9768, 1.5],
-                [-1 , -1 , 1, 0.5],
+                # [-3.6025, -0.3533,  5.9768]
+                [-3.6025, -0.3533, 5.9768, 3],
+                [-1.1025, 0.1, 8, 3],
+                [1.3, 0, 8, 1],
+                [1.3, 0, 1, 1],
 
             ]
         },
@@ -180,14 +186,16 @@ preset_traj = {
     'ropes/hoop3d_0.obj': {
         'waypoints': {
             'a': [
-                # [1.1346, 3.3335, 6.1546],
-                [1.1346, 3.3335, 6.1546, 1.1],
-
+                # [1.5708, 1.9639, 1.1152],
+                [1.5708, 1.9639, 6, 1.1],
+                [-0.5, -0.3, 6, 1.1],
+                [-0.5, -0.3, 1, 1.1],
             ],
             'b': [
-                # [-0.8025 , 1.6467 , 5.9768]
-                [-0.8025, 1.6467, 5.9768, 1.1],
-
+                # [2.2903, 1.9168, 5.9768]
+                [2.2903, 1.9168, 6, 1.1],
+                [-0.2, -0.5, 6, 1.1],
+                [-0.2, -0.5, 1, 1.1],
 
             ]
         },
@@ -237,27 +245,30 @@ def play(env, num_episodes, args):
         traj_b = build_traj(env, preset_wp, 'b', anchor_idx=1, ctrl_freq=ctrl_freq)
         # traj_b = np.zeros_like(traj_b)
         traj = merge_traj(traj_a, traj_b)
-
+        gif_frames = []
         while True:
             assert (not isinstance(env.action_space, gym.spaces.Discrete))
 
-            act = traj[step] if step < len(traj) else np.zeros_like(traj[0
-                                                                    ])
-            next_obs, rwd, done, info = env.step(act, unscaled_velocity=True)
+            act = traj[step] if step < len(traj) else np.zeros_like(traj[0])
 
+            next_obs, rwd, done, info = env.step(act, unscaled_velocity=True)
+            obs = env.render(mode='rgb_array', width=1000, height=1000)
+            gif_frames.append(obs)
+            if step > len(traj) + 100: break;
             obs = next_obs
             step += 1
 
-        input('Episode ended; press enter to go on')
-
+        outfile = os.path.join(args.logdir, f"{args.env}.gif")
+        print('saving to ',outfile)
+        imageio.mimwrite(outfile, gif_frames, fps=24)
 
 def merge_traj(traj_a, traj_b):
-    if traj_a.shape[0] != traj_b.shape[0]:      # padding is required
+    if traj_a.shape[0] != traj_b.shape[0]:  # padding is required
         n_pad = np.abs(traj_a.shape[0] - traj_b.shape[0])
         zero_pad = np.zeros((n_pad, traj_a.shape[1]))
-        if traj_a.shape[0] > traj_b.shape[0]:   # pad b
+        if traj_a.shape[0] > traj_b.shape[0]:  # pad b
             traj_b = np.concatenate([traj_b, zero_pad, ], axis=0)
-        else:                                   # pad a
+        else:  # pad a
             traj_a = np.concatenate([traj_a, zero_pad, ], axis=0)
     traj = np.concatenate([traj_a, traj_b, ], axis=-1)
     return traj
