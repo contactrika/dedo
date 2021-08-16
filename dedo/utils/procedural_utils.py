@@ -15,12 +15,13 @@ from matplotlib import pyplot as plt
 
 NODE_DENSITY = 25
 
-def gen_procedural_hang_cloth(args, deform_info_dict):
+def gen_procedural_hang_cloth(args, preset_obj_name, deform_info_dict):
     ''''''
     # args.data_path = '/tmp/'
     rand_id = np.random.uniform(1e7)
-    args.cloth_obj = f'/tmp/procedural_hole{rand_id}.obj'
-    datapath = os.path.join(args.data_path, args.cloth_obj)
+    args.deform_obj = f'/tmp/procedural_hang{rand_id}.obj'
+    data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
+    savepath = os.path.join(data_path, args.deform_obj)
 
     def gen_random_hole():
         '''Generates a hole. Taking existing hole into consideration so they don't collide'''
@@ -37,8 +38,8 @@ def gen_procedural_hang_cloth(args, deform_info_dict):
         hole_h = np.random.uniform(*hole_height_ratio_range)
 
         # Define coordinate constraints
-        hole_x_range = (0.03, 0.95 - hole_w)
-        hole_y_range = (0.03, 0.95 - hole_h)
+        hole_x_range = (0.1, 0.9 - hole_w)
+        hole_y_range = (0.1, 0.9 - hole_h)
 
         # Infer actual coordinates from constraints and dimensions
         hole['x0'] = np.random.uniform(*hole_x_range)
@@ -50,13 +51,13 @@ def gen_procedural_hang_cloth(args, deform_info_dict):
         return hole
 
 
-    width_range = [0.1, 0.6]
-    height_range = [0.1, 0.7]
+    width_range = [0.5, 2.0]
+    height_range = [0.5, 2.0]
     w = np.random.uniform(*width_range) / 2
     h = np.random.uniform(*height_range) / 2
-    if args.gen_simple_hole:
-        w = 0.1
-        h = 0.2
+    # if args.gen_simple_hole:
+    #     w = 0.1
+    #     h = 0.2
 
     # hole generation
     holes = [gen_random_hole()]
@@ -70,17 +71,19 @@ def gen_procedural_hang_cloth(args, deform_info_dict):
         # min_point=[0,0.42,0.48], max_point=[0.2,0.45,0.52],
         node_density=args.node_density,
         holes = holes,
-        data_path=datapath,
+        data_path=savepath,
         use_hanging_anchors =True,
         __ptr__hole_boundary_nodes_idx = __ptr__hole_boundary_nodes_idx,
 
     )
     # TODO Update universal dict
-    if args.cloth_obj not in deform_info_dict.keys():
-        deform_info_dict[args.cloth_obj] = deform_info_dict['procedural_hole'].copy()
+    if args.deform_obj not in deform_info_dict.keys():
+        deform_info_dict[args.deform_obj] = deform_info_dict[preset_obj_name].copy()
 
-    deform_info_dict[args.cloth_obj]['cloth_anchored_vertex_ids'] = list(cloth_anchor_indices)
-    deform_info_dict[args.cloth_obj]['cloth_true_loop_vertices'] = __ptr__hole_boundary_nodes_idx
+    deform_info_dict[args.deform_obj]['deform_anchor_vertices'] = list(cloth_anchor_indices)
+    deform_info_dict[args.deform_obj]['deform_true_loop_vertices'] = __ptr__hole_boundary_nodes_idx
+
+    return args.deform_obj
 
 def gen_procedural_button_cloth(args, prod_id):
     # args.data_path = '/tmp/'
@@ -224,7 +227,6 @@ def create_cloth_obj(min_point, max_point, node_density,
                      holes, data_path,
                      use_hanging_anchors=False,
                      __ptr__hole_boundary_nodes_idx=None,
-                     corners_ptr=[],
                      __ptr__hole_corners_idx=[],
                      ):
     def validate_and_integerize(hole):
@@ -351,13 +353,15 @@ def create_cloth_obj(min_point, max_point, node_density,
 
     idx_right = (node_density - 1, node_density - 1)
     idx_left = (node_density - 1, 1)
+    idx_left = (1, node_density - 1)
+    idx_right = (node_density - 1, node_density - 1)
     anchor_index = nodes.index(idx_right)
     anchor_index2 = nodes.index(idx_left)
-    if use_hanging_anchors:
-        idx_left = (1, node_density - 1)
-        idx_right = (node_density - 1, node_density - 1)
-        anchor_index = get_neighbour_indices(idx_right, 3)
-        anchor_index2 = get_neighbour_indices(idx_left, 3)
+    # if use_hanging_anchors:
+    #     idx_left = (1, node_density - 1)
+    #     idx_right = (node_density - 1, node_density - 1)
+    #     anchor_index = get_neighbour_indices(idx_right, 3)
+    #     anchor_index2 = get_neighbour_indices(idx_left, 3)
 
     # Build hole corners label
     if type(__ptr__hole_corners_idx) is list:
@@ -382,7 +386,7 @@ def create_cloth_obj(min_point, max_point, node_density,
             f.write("f %d %d %d\n" % tri)
         f.close()
 
-    return obj_path, (anchor_index, anchor_index2)
+    return obj_path, ([anchor_index], [anchor_index2])
 
 
 def plotter(hole1, hole2, type):

@@ -51,6 +51,7 @@ TASK_INFO = {
              'cloth/mask_3.obj',
              'cloth/mask_4.obj',
              ],
+    'HangProcCloth':['procedural_hang_cloth',],
     'Debug': ['cloth/apron_0_large.obj',
             'bags/backpack_0.obj',
               ]
@@ -80,6 +81,7 @@ SCENE_INFO = {
                 'basePosition': [-0.22, 0, 3.00],
                 'baseOrientation': [0, 0, np.pi / 2],
                 'globalScaling': 10,
+                'useTexture':True,
             },
             'head_with_ears2.obj': {
                 'basePosition': [-0.22, 0.00, 6.54],  # 'basePosition': [-0.22, 0.00, 0.64],
@@ -188,6 +190,7 @@ SCENE_INFO = {
                 'basePosition': [-0.22, 0, 3.00],
                 'baseOrientation': [0, 0, np.pi / 2],
                 'globalScaling': 10,
+                'useTexture':True,
             },
             'head_with_ears2.obj': {
                 'basePosition': [-0.22, 0.00, 6.54],  # 'basePosition': [-0.22, 0.00, 0.64],
@@ -203,6 +206,15 @@ SCENE_INFO = {
 
 # Information about deformable objects.
 DEFORM_INFO = {
+    'procedural_hang_cloth': {  # This used to be apron_zehang
+        'deform_init_pos': [0, 5,8],
+        'deform_init_ori': [0, 0, np.pi/2],
+        'deform_scale': 3,
+        'deform_elastic_stiffness': 50,
+        'deform_bending_stiffness': 1,
+        'deform_damping_stiffness': 0.01,
+        'cam_viewmat': [9, -23, 269, 0, 0, 9],
+    },
     'bags/bags_zehang/bag1_0.obj': {
         'deform_init_pos': [0, 8, 2],
         'deform_init_ori': [np.pi / 2, 0, 0],

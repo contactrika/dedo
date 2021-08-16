@@ -101,15 +101,21 @@ def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori, texture_fil
         print('Unknown file extension', obj_file_name)
         assert(False), 'load_rigid_object supports only obj and URDF files'
     n_jt = sim.getNumJoints(rigid_id)
-    print(n_jt)
+
     if texture_file is not None:
         texture_id = sim.loadTexture(texture_file)
         kwargs = {}
         if hasattr(pybullet, 'VISUAL_SHAPE_DOUBLE_SIDED'):
             kwargs['flags'] = pybullet.VISUAL_SHAPE_DOUBLE_SIDED
-        for i in range(-1, n_jt):
+
+        if obj_file_name.endswith('figure_headless.urdf'): # Only changing the body of the figure
             sim.changeVisualShape(
-                rigid_id, i, rgbaColor=[1,1,1,1], textureUniqueId=texture_id, **kwargs)
+                rigid_id, 0, rgbaColor=[1, 1, 1, 1], textureUniqueId=texture_id, **kwargs)
+        else:
+            for i in range(-1, n_jt):
+                sim.changeVisualShape(
+                    rigid_id, i, rgbaColor=[1,1,1,1], textureUniqueId=texture_id, **kwargs)
+
     return rigid_id
 
 

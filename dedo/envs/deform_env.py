@@ -19,6 +19,7 @@ from ..utils.init_utils import (
     load_deform_object, load_rigid_object, reset_bullet, get_preset_properties)
 from ..utils.mesh_utils import get_mesh_data
 from ..utils.task_info import CAM_INFO, DEFORM_INFO, SCENE_INFO, TASK_INFO
+from ..utils.procedural_utils import gen_procedural_hang_cloth, gen_procedural_button_cloth
 
 
 class DeformEnv(gym.Env):
@@ -77,12 +78,25 @@ class DeformEnv(gym.Env):
     def anchor_ids(self):
         return list(self.anchors)
 
+    def get_texture_path(self, file_path):
+        # Get either the prespecified texture file name or a random one, depends on settings
+        if self.args.use_random_textures:
+            parent = os.path.dirname(file_path)
+            full_parent_path = os.path.join(self.args.data_path, parent)
+            randfile = np.random.choice(list(os.listdir(full_parent_path)))
+            file_path = os.path.join(parent,randfile)
+        return file_path
+
     def load_objects(self, sim, args):
         scene_name = self.args.task.lower()
         # if scene_name.startswith('hang'):
         #     scene_name = 'hang'  # same scene for 'HangBag', 'HangCloth'
         if scene_name.startswith('button'):
             scene_name = 'button'  # same human figure for dress and mask tasks
+        elif scene_name.startswith('hangproccloth'):
+            scene_name = 'hangcloth'
+
+
         data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
         args.data_path = data_path
         sim.setAdditionalSearchPath(data_path)
@@ -93,7 +107,7 @@ class DeformEnv(gym.Env):
         for name, kwargs in SCENE_INFO[scene_name]['entities'].items():
             pth = os.path.join(data_path, name)
             rgba_color = kwargs['rgbaColor'] if 'rgbaColor' in kwargs else None
-            texture_file = args.rigid_texture_file if 'useTexture' in kwargs and kwargs['useTexture'] else None
+            texture_file = self.get_texture_path(args.rigid_texture_file) if 'useTexture' in kwargs and kwargs['useTexture'] else None
             id = load_rigid_object(
                 sim, pth, kwargs['globalScaling'],
                 kwargs['basePosition'], kwargs['baseOrientation'], texture_file, rgba_color)
@@ -110,8 +124,14 @@ class DeformEnv(gym.Env):
             for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
                 setattr(args, arg_nm, arg_val)
 
+        # Procedural generation stuff
+        if deform_obj == 'procedural_hang_cloth':
+            args.node_density = 15
+            args.num_holes = 1
+            deform_obj = gen_procedural_hang_cloth(self.args, deform_obj, DEFORM_INFO)
+
         texture_path = os.path.join(
-            data_path, args.deform_texture_file) # TODO Check for absolute path
+            data_path, self.get_texture_path(args.deform_texture_file)) # TODO Check for absolute path
         deform_id = load_deform_object(
             sim, deform_obj, texture_path, args.deform_scale,
             args.deform_init_pos, args.deform_init_ori,
@@ -141,7 +161,7 @@ class DeformEnv(gym.Env):
         self.episode_reward = 0.0
         self.anchors = {}
         plane_texture_path = os.path.join(
-            self.args.data_path, self.args.plane_texture_file)
+            self.args.data_path,  self.get_texture_path(self.args.plane_texture_file))
         reset_bullet(self.args, self.sim, self.cam_on, self.cam_args, plane_texture=plane_texture_path)
         self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos = \
             self.load_objects(self.sim, self.args)
@@ -209,6 +229,9 @@ class DeformEnv(gym.Env):
             print(f'step {self.stepnum:d} reward {reward:0.4f}')
             if done:
                 print(f'episode reward {self.episode_reward:0.4f}')
+
+        # TODO final step: release anchor and acccum reward, let run more steps
+        # info['is_success'] = True/False
         self.stepnum += 1
 
         return next_obs, reward, done, info

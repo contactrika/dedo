@@ -35,6 +35,7 @@ def get_args():
     parser.add_argument('--viz', action='store_true', help='Whether to visualize')
     parser.add_argument('--debug', action='store_true',
                         help='Whether to print debug info')
+
     # Simulation args. Note: turn up frequency when deform stiffness is high.
     parser.add_argument('--sim_gravity', type=float, default=-9.8,
                         help='Gravity constant for PyBullet simulation.')
@@ -76,6 +77,8 @@ def get_args():
                         help='Texture file for the rigid objects')
     parser.add_argument('--plane_texture_file', type=str, default="textures/plane/lightwood.jpg",
                         help='Texture file for the plane (floor)')
+    parser.add_argument('--use_random_textures', action='store_true',
+                        help='Randomly selecting a texture for the rigid obj, deformable obj and floor within the texture folder')
     # Camera args.
     parser.add_argument('--cam_resolution', type=int, default=None,
                         help='RGB camera resolution in pixels (both with and '
