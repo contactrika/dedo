@@ -20,7 +20,7 @@ def get_args():
                         default='HangBag-v0', help='Env name')
     parser.add_argument('--max_episode_len', type=int,
                         default=400, help='Maximum time per episode (in seconds)')
-    parser.add_argument('--seed', type=int, default=0, help='Random seed')
+    parser.add_argument('--seed', type=int, default=None, help='Random seed')
     parser.add_argument('--logdir', type=str, default=None,
                         help='Path for logs')
     parser.add_argument('--device', type=str, default='cuda:0',
@@ -101,5 +101,5 @@ def get_args():
     if args.task not in TASK_INFO.keys():
         print('Supported tasks are', list(TASK_INFO.keys()), 'got', args.task)
         exit(1)
-    assert(args.version < len(TASK_INFO[args.task])), 'env version too high'
+    assert(args.version < len(TASK_INFO[args.task])) or args.task in ['HangProcCloth'], 'env version too high'
     return args

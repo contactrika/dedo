@@ -13,43 +13,15 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
-NODE_DENSITY = 25
+
 
 def gen_procedural_hang_cloth(args, preset_obj_name, deform_info_dict):
     ''''''
     # args.data_path = '/tmp/'
     rand_id = np.random.uniform(1e7)
-    args.deform_obj = f'/tmp/procedural_hang{rand_id}.obj'
+    args.deform_obj = f'/home/pyshi/tmp/procedural_hang{rand_id}.obj'
     data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
     savepath = os.path.join(data_path, args.deform_obj)
-
-    def gen_random_hole():
-        '''Generates a hole. Taking existing hole into consideration so they don't collide'''
-        hole = {}
-        # Logic
-
-        # Define dimension constraints
-        max_hole = 1/args.num_holes - 0.1
-        hole_width_ratio_range = [0.05, max_hole]
-        hole_height_ratio_range = [0.05, max_hole]
-
-        # Sample dimension
-        hole_w = np.random.uniform(*hole_width_ratio_range)
-        hole_h = np.random.uniform(*hole_height_ratio_range)
-
-        # Define coordinate constraints
-        hole_x_range = (0.1, 0.9 - hole_w)
-        hole_y_range = (0.1, 0.9 - hole_h)
-
-        # Infer actual coordinates from constraints and dimensions
-        hole['x0'] = np.random.uniform(*hole_x_range)
-        hole['x1'] = hole['x0'] + hole_w
-
-        hole['y0'] = np.random.uniform(*hole_y_range)
-        hole['y1'] = hole['y0'] + hole_h
-
-        return hole
-
 
     width_range = [0.5, 2.0]
     height_range = [0.5, 2.0]
@@ -60,28 +32,23 @@ def gen_procedural_hang_cloth(args, preset_obj_name, deform_info_dict):
     #     h = 0.2
 
     # hole generation
-    holes = [gen_random_hole()]
+    num_holes = args.num_holes
+    holes = try_gen_holes(args.node_density, num_holes)
 
-    # holes = [new_hole1] # [new_hole1, new_hole2]
-    __ptr__hole_boundary_nodes_idx = [[] for _ in range(args.num_holes)]
-
-    cloth_obj_path, cloth_anchor_indices = create_cloth_obj(
+    cloth_obj_path, cloth_anchor_indices, gt_loop_vertices = create_cloth_obj(
         #min_point=[0.00, -0.3, -0.3], max_point=[0.00, 0.3, 0.3],
         min_point=[0.00, -w, -h], max_point=[0.00, w, h],
         # min_point=[0,0.42,0.48], max_point=[0.2,0.45,0.52],
         node_density=args.node_density,
         holes = holes,
         data_path=savepath,
-        use_hanging_anchors =True,
-        __ptr__hole_boundary_nodes_idx = __ptr__hole_boundary_nodes_idx,
-
     )
     # TODO Update universal dict
     if args.deform_obj not in deform_info_dict.keys():
         deform_info_dict[args.deform_obj] = deform_info_dict[preset_obj_name].copy()
 
     deform_info_dict[args.deform_obj]['deform_anchor_vertices'] = list(cloth_anchor_indices)
-    deform_info_dict[args.deform_obj]['deform_true_loop_vertices'] = __ptr__hole_boundary_nodes_idx
+    deform_info_dict[args.deform_obj]['deform_true_loop_vertices'] = gt_loop_vertices
 
     return args.deform_obj
 
@@ -221,13 +188,69 @@ returns:
     obj_path --> the path to the obj file for use when loading the cloth softbody
     anchor_index --> index of the node to be anchored (currently top right)
 '''
+def overlap_constraint(A, B):
+    mb = 3 # minimum boundary
+    lr = A['x0'] < B['x1'] + mb
+    rl = A['x1'] > B['x0'] - mb
+    tb = A['y0'] < B['y1'] + mb
+    bt = A['y1'] > B['y0'] - mb
+    return not (lr and rl and tb and bt)
+def boundary_constraint(node_density, hole):
+    ''' each hole should be at least 2 vertices away from the edge, so the edge could form a face '''
 
+    for key, val in hole.items():
+            # Setting the minimum boundary between edge and hole. Min two vertices away so edge could form face
+        upper_bound = node_density - 3 # 0-index node_density-1
+        lower_bound = 2
+        if hole[key] >= upper_bound or hole[key] <= lower_bound:
+            return False
+
+    return True
+
+def gen_random_hole(node_density):
+    '''Generates a hole. Taking existing hole into consideration so they don't collide'''
+    hole = {}
+    # Logic
+
+    # Define dimension constraints
+    max_hole = 0.2
+    hole_width_ratio_range = [0.05, max_hole]
+    hole_height_ratio_range = [0.05, max_hole]
+
+    # Sample dimension
+    hole_w = int(round(np.random.uniform(*hole_width_ratio_range) * node_density))
+    hole_h = int(round(np.random.uniform(*hole_height_ratio_range) * node_density))
+
+    # Define coordinate constraints
+    hole_x_range = (2, node_density-2)
+    hole_y_range = (2, node_density-2)
+
+    # Infer actual coordinates from constraints and dimensions
+    hole['x0'] = np.random.randint(*hole_x_range)
+    hole['x1'] = hole['x0'] + hole_w
+
+    hole['y0'] = np.random.randint(*hole_y_range)
+    hole['y1'] = hole['y0'] + hole_h
+
+    return hole
+
+def try_gen_holes(node_density, num_holes):
+    for i in range(100): #100 MC
+        if num_holes == 2:
+            holeA = gen_random_hole(node_density)
+            holeB = gen_random_hole(node_density)
+            if boundary_constraint(node_density, holeA) and boundary_constraint(node_density, holeB) and overlap_constraint(holeA, holeB):
+                return [holeA, holeB]  # satisfies boundary contrsaints
+        elif num_holes == 1:
+            hole = gen_random_hole(node_density)
+            if boundary_constraint(node_density, hole):
+                return [hole]
+        else:
+            raise NotImplemented('num_holes > 2 is not implemented yet')
 
 def create_cloth_obj(min_point, max_point, node_density,
                      holes, data_path,
-                     use_hanging_anchors=False,
                      __ptr__hole_boundary_nodes_idx=None,
-                     __ptr__hole_corners_idx=[],
                      ):
     def validate_and_integerize(hole):
 
@@ -240,9 +263,16 @@ def create_cloth_obj(min_point, max_point, node_density,
         for key, val in hole.items():
             if isinstance(val, float):
                 hole[key] = int(round(val * node_density))
+
+                # Setting the minimum boundary between edge and hole. Min two vertices away so edge could form face
+                if hole[key] >= node_density-2:
+                    hole[key] = node_density-3
+                elif hole[key] <= 1:
+                    hole[key] = 2
             assert isinstance(hole[key], int), f"{hole} {key} must be either an int or a float"
 
         assert len(min_point) == len(max_point) == 3, "min_point and max_point must both have length 3"
+        print('>>>> HOLE ',hole)
 
     holes_range = []
     holes_fp = []
@@ -252,8 +282,8 @@ def create_cloth_obj(min_point, max_point, node_density,
         validate_and_integerize(hole)
 
         # creates a 2d range of hole coords
-        x_range = np.arange(hole['x0'] + 1, hole['x1'])
-        y_range = np.arange(hole['y0'] + 1, hole['y1'])
+        x_range = np.arange(hole['x0'] , hole['x1']+ 1)
+        y_range = np.arange(hole['y0'] , hole['y1'] + 1,)
         xx, yy = np.meshgrid(x_range, y_range)
         # (x1, x1 ..., x2, x2 ...)
         xx = xx.flatten()
@@ -300,18 +330,20 @@ def create_cloth_obj(min_point, max_point, node_density,
 
     # Construct the list of nodes [(x1, y1), (x2, y2), ... , (xn, yn)]
     nodes = []
+    gt_loop_vertices = [[] for _ in range(len(holes))]
     for x in range(node_density):
         for y in range(node_density):
             if not node_in_hole(x, y):
                 nodes.append((x, y))
 
                 # Get a hole's boundary
-                if __ptr__hole_boundary_nodes_idx is not None:
-                    # get boundary nodes, used for topo_latents
-                    for neighbour_pos in ((x + 1, y), (x, y + 1), (x - 1, y), (x, y - 1)):
-                        if node_in_hole(*neighbour_pos):
-                            hole_id = which_hole(*neighbour_pos)
-                            __ptr__hole_boundary_nodes_idx[hole_id].append(nodes.index((x, y)))
+                # get boundary nodes, used for topo_latents
+                for neighbour_pos in ((x + 1, y), (x, y + 1), (x - 1, y), (x, y - 1)):
+                    if node_in_hole(*neighbour_pos):
+                        hole_id = which_hole(*neighbour_pos)
+                        vertex_id = nodes.index((x, y))
+                        gt_loop_vertices[hole_id].append(vertex_id)
+                        break
 
     # Construct the list of faces (clockwise around triangles) [(i, i2, i3), ...]
     faces = []
@@ -363,19 +395,6 @@ def create_cloth_obj(min_point, max_point, node_density,
     #     anchor_index = get_neighbour_indices(idx_right, 3)
     #     anchor_index2 = get_neighbour_indices(idx_left, 3)
 
-    # Build hole corners label
-    if type(__ptr__hole_corners_idx) is list:
-        for hole in holes:
-            try:
-                c0 = nodes.index((hole['x0'], hole['y0']))
-                c1 = nodes.index((hole['x0'], hole['y1']))
-                c2 = nodes.index((hole['x1'], hole['y1']))
-                c3 = nodes.index((hole['x1'], hole['y0']))
-            except ValueError as e:
-                plotter(holes_fp[0], holes_fp[1], 'fp')
-                plotter(holes[0], holes[1], 'int')
-                print(e)
-            __ptr__hole_corners_idx.append([c0, c1, c2, c3])
 
     with open(obj_path, 'w') as f:
         # f.write("# %d %d anchor index\n" % (anchor_index, anchor_index2))
@@ -386,7 +405,7 @@ def create_cloth_obj(min_point, max_point, node_density,
             f.write("f %d %d %d\n" % tri)
         f.close()
 
-    return obj_path, ([anchor_index], [anchor_index2])
+    return obj_path, ([anchor_index], [anchor_index2]), gt_loop_vertices
 
 
 def plotter(hole1, hole2, type):
@@ -398,4 +417,4 @@ def plotter(hole1, hole2, type):
 
     plot_one(hole1)
     plot_one(hole2)
-    plt.savefig(f'/tmp/debug_procedural_cloth_{type}.png')
+    plt.savefig(f'/home/pyshi/tmp/debug_procedural_cloth_{type}.png')

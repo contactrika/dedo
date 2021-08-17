@@ -129,8 +129,13 @@ class DeformEnv(gym.Env):
         # Procedural generation stuff
         if deform_obj == 'procedural_hang_cloth':
             args.node_density = 15
-            args.num_holes = 1
+            if args.version == 0:
+                args.num_holes = 1
+            elif args.version == 1:
+                args.num_holes = 2
             deform_obj = gen_procedural_hang_cloth(self.args, deform_obj, DEFORM_INFO)
+            for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
+                setattr(args, arg_nm, arg_val)
 
         texture_path = os.path.join(
             data_path, self.get_texture_path(args.deform_texture_file)) # TODO Check for absolute path
@@ -198,9 +203,10 @@ class DeformEnv(gym.Env):
         # DEBUG visualize true loop center
         if not hasattr(self.args, "deform_true_loop_vertices"): return
         _, vertex_positions = get_mesh_data(self.sim, self.deform_id)
-        vv = np.array(vertex_positions)
+        v = np.array(vertex_positions)
         for i, true_loop_vertices in enumerate(self.args.deform_true_loop_vertices):
-            cent_pos = vv[true_loop_vertices].mean(axis=0)
+            cent_pos = v[true_loop_vertices].mean(axis=0)
+
             alpha = 1 if i == 0 else 0.3  # Primary = solid, secondary = 50% transparent
             create_anchor_geom(self.sim, cent_pos, mass=0.0,
                                rgba=(0, 1, 0.8, alpha), use_collision=False)
