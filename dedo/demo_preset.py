@@ -18,9 +18,9 @@ import gym
 from dedo.utils.args import get_args
 from dedo.utils.anchor_utils import create_anchor_geom
 from dedo.utils.waypoint_utils import create_trajectory, interpolate_waypts
-import imageio
 import os
-
+import cv2
+WRITE_TO_VID = True
 preset_traj = {
     # TODO add constraint to scene name
     'cloth/apron_0.obj': {  # HangCloth-v0, 600 steps
@@ -231,7 +231,8 @@ def play(env, num_episodes, args):
         f'The environment name / deform obj "{deform_obj}" does not exist  ' \
         f'in presets. Available keys: {preset_traj.keys()}'
     preset_wp = preset_traj[deform_obj]['waypoints']
-
+    if WRITE_TO_VID:
+        vidwriter = cv2.VideoWriter(f'/home/pyshi/tmp/{args.env}.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 24, (640, 480))
     for epsd in range(num_episodes):
         print('------------ Play episode ', epsd, '------------------')
         obs = env.reset()
@@ -252,12 +253,17 @@ def play(env, num_episodes, args):
             act = traj[step] if step < len(traj) else np.zeros_like(traj[0])
 
             next_obs, rwd, done, info = env.step(act, unscaled_velocity=True)
-            # obs = env.render(mode='rgb_array', width=1000, height=1000)
+            if WRITE_TO_VID:
+                obs = env.render(mode='rgb_array', width=640, height=480)
+                bgr_obs = obs[...,::-1]
+                vidwriter.write(bgr_obs)
             # gif_frames.append(obs)
-            # if step > len(traj) + 100: break;
-            # if done: break;
+            if step > len(traj) + 100: break;
+            if done: break;
             obs = next_obs
             step += 1
+        if WRITE_TO_VID:
+            vidwriter.release()
 
         outfile = os.path.join(args.logdir, f"{args.env}.gif")
         print('saving to ',outfile)
