@@ -13,7 +13,7 @@ import pybullet_data
 import pybullet_utils.bullet_client as bclient
 
 from ..utils.anchor_utils import (
-    create_anchor, attach_anchor, create_anchor_geom, command_anchor_velocity,
+    create_anchor, attach_anchor, create_anchor_geom, command_anchor_velocity, release_anchor,
     pin_fixed)
 from ..utils.init_utils import (
     load_deform_object, load_rigid_object, reset_bullet, get_preset_properties)
@@ -27,6 +27,8 @@ class DeformEnv(gym.Env):
     MAX_ACT_VEL = 10.0  # max vel (in m/s) for the anchor actions
     NUM_ANCHORS = 2
     WORKSPACE_BOX_SIZE = 20.0  # workspace box limits (needs to be >=1)
+    STEPS_AFTER_DONE = 500 # Release anchor and let free fall to check if task is done correctly
+    SUCESS_REWARD_TRESHOLD = 2.5
 
     def __init__(self, args):
         self.args = args
@@ -220,8 +222,6 @@ class DeformEnv(gym.Env):
         # Get next obs, reward, done.
         next_obs, done = self.get_obs()
         reward = self.get_reward()
-        if done:  # if terminating early use reward from current step for rest
-            reward *= (self.max_episode_len - self.stepnum)
         self.episode_reward += reward
         done = (done or self.stepnum >= self.max_episode_len)
         info = {}
@@ -232,6 +232,22 @@ class DeformEnv(gym.Env):
 
         # TODO final step: release anchor and acccum reward, let run more steps
         # info['is_success'] = True/False
+        # Compute final reward
+        if done:
+            # Release anchors
+            release_anchor(self.sim, self.anchor_ids[0])
+            release_anchor(self.sim, self.anchor_ids[1])
+            old_reward = reward
+            for sim_step in range(self.STEPS_AFTER_DONE):
+                self.sim.stepSimulation()
+            # if terminating early use reward from current step for rest
+            reward = self.get_reward() * 50
+            # reward *= (self.max_episode_len - self.stepnum)
+
+            info['is_success'] = np.abs(reward) < self.SUCESS_REWARD_TRESHOLD
+            print('is sucess',  info['is_success'] )
+            print('final reward -- ',reward)
+
         self.stepnum += 1
 
         return next_obs, reward, done, info
@@ -263,7 +279,7 @@ class DeformEnv(gym.Env):
         if not hasattr(self.args, 'deform_true_loop_vertices'):
             return 0.0  # not reward info without info about true loops
         _, vertex_positions = get_mesh_data(self.sim, self.deform_id)
-        dist = 0
+        dist = 0.
         # A simple solution for cases when there is a mismatch between
         # the number of goals and number of ground truth loops.
         num_holes_to_track = min(
@@ -278,6 +294,7 @@ class DeformEnv(gym.Env):
             assert not np.isnan(cent_pts).any(), 'There are still Nan inside cent pts'
             cent_pos = cent_pts.mean(axis=0)
             dist += np.linalg.norm(cent_pos - goal_pos)
+        dist /= float(num_holes_to_track)
         rwd = -1.0 * dist / DeformEnv.WORKSPACE_BOX_SIZE
         return rwd
 

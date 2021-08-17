@@ -252,15 +252,16 @@ def play(env, num_episodes, args):
             act = traj[step] if step < len(traj) else np.zeros_like(traj[0])
 
             next_obs, rwd, done, info = env.step(act, unscaled_velocity=True)
-            obs = env.render(mode='rgb_array', width=1000, height=1000)
-            gif_frames.append(obs)
-            if step > len(traj) + 100: break;
+            # obs = env.render(mode='rgb_array', width=1000, height=1000)
+            # gif_frames.append(obs)
+            # if step > len(traj) + 100: break;
+            # if done: break;
             obs = next_obs
             step += 1
 
         outfile = os.path.join(args.logdir, f"{args.env}.gif")
         print('saving to ',outfile)
-        imageio.mimwrite(outfile, gif_frames, fps=24)
+        # imageio.mimwrite(outfile, gif_frames, fps=24)
 
 def merge_traj(traj_a, traj_b):
     if traj_a.shape[0] != traj_b.shape[0]:  # padding is required
