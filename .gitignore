@@ -1,6 +1,7 @@
 # Custom ignores
 **/.DS_Store
 **/.idea
+wandb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

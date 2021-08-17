@@ -32,6 +32,8 @@ def get_args():
                         help='Number of parallel envs (for A2C, PPO, SAC)')
     parser.add_argument('--num_play_runs', type=int, default=1,
                         help='Number of runs/episodes to play')
+    parser.add_argument('--use_wandb', action='store_true',
+                        help='Whether to enable logging to wandb.ai')
     parser.add_argument('--viz', action='store_true', help='Whether to visualize')
     parser.add_argument('--debug', action='store_true',
                         help='Whether to print debug info')

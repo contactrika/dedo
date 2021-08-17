@@ -19,6 +19,7 @@ import gym
 from stable_baselines3 import A2C, DDPG, HER, PPO, SAC, TD3  # used dynamically
 from stable_baselines3.common.env_util import (
     make_vec_env, DummyVecEnv, SubprocVecEnv)
+import wandb
 
 from dedo.utils.args import get_args
 from dedo.utils.rl_utils import CustomCallback
@@ -34,6 +35,10 @@ def main(args):
         tstamp = datetime.strftime(datetime.today(), '%y%m%d_%H%M%S')
         subdir = '_'.join([args.rl_algo, tstamp, args.env])
         logdir = os.path.join(os.path.expanduser(args.logdir), subdir)
+        if args.use_wandb:
+            wandb.init(config=vars(args), project='dedo', name=logdir)
+            wandb.init(sync_tensorboard=False)
+            wandb.tensorboard.patch(tensorboardX=True, pytorch=True)
     # Stable baselines only support vectorized envs for on-policy algos.
     n_envs = args.num_envs if args.rl_algo in ['A2C', 'PPO'] else 1
     eval_env = gym.make(args.env, args=args)
