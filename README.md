@@ -138,47 +138,53 @@ Adding `--cam_resolutioni=200` would change the state representation to
 
 #### HangBag
 
-Versions that are ready: `HangBag-v0`, `HangBag-v1`,`HangBag-v2`,`HangBag-v3`,
-`HangBag-v4`
+Versions that are ready: `HangBag-v1`,`HangBag-v2`,`HangBag-v3`
 
 ```
-python -m dedo.rl_demo --env=HangBag-v0  --logdir=/tmp/dedo --max_episode_len=400
+python -m dedo.rl_demo --env=HangBag-v1  --logdir=/tmp/dedo --max_episode_len=200
 ```
 
 #### HangCloth
-Versions that are ready: `HangCloth-v0`, `HangCloth-v1`,`HangCloth-v2`,
-`HangCloth-v3`,`HangCloth-v4`
+Versions that are ready: `HangCloth-v1`,`HangCloth-v2`,
+`HangCloth-v3`,`HangCloth-v4`,`HangCloth-v5`
 
 ```
-python -m dedo.rl_demo --env=HangCloth-v5  --logdir=/tmp/dedo --max_episode_len=400
+python -m dedo.rl_demo --env=HangCloth-v5  --logdir=/tmp/dedo --max_episode_len=200
 ```
 
 #### Lasso
-Versions that are ready: `Lasso-v0`
+Versions that are ready: `Lasso-v1`
 
 ```
-python -m dedo.rl_demo --env=Lasso-v0  --logdir=/tmp/dedo --max_episode_len=400
+python -m dedo.rl_demo --env=Lasso-v1  --logdir=/tmp/dedo --max_episode_len=200
+```
+
+#### Hoop
+Versions that are ready: `Hoop-v1`
+
+```
+python -m dedo.rl_demo --env=Hoop-v1  --logdir=/tmp/dedo --max_episode_len=200
 ```
 
 #### Dress
-Versions that are ready: `Dress-v0`, `Dress-v1`, `Dress-v5`
+Versions that are ready: `Dress-v1`, `Dress-v2`, `Dress-v3`, `Dress-v4`, `Dress-v5`, `Dress-v6`, `Dress-v7`, `Dress-v8`, `Dress-v9`, `Dress-v10`
 
 ```
-python -m dedo.rl_demo --env=Dress-v5  --logdir=/tmp/dedo --max_episode_len=800
+python -m dedo.rl_demo --env=Dress-v5  --logdir=/tmp/dedo --max_episode_len=600
 ```
 
 #### Mask
-Versions that are ready: `Mask-v0`
+Versions that are ready: `Mask-v1`
 
 ```
-python -m dedo.rl_demo --env=Mask-v0  --logdir=/tmp/dedo --max_episode_len=800
+python -m dedo.rl_demo --env=Mask-v1 --logdir=/tmp/dedo 
 ```
 
 #### Buttoning
 
-Versions that are ready: `ButtonSimple-v0`
+Versions that are ready: `ButtonSimple-v1`
 
 ```
-python -m dedo.rl_demo --env=ButtonSimple-v0 --logdir=/tmp/dedo --max_episode_len=800
+python -m dedo.rl_demo --env=ButtonSimple-v1 --logdir=/tmp/dedo
 ```
 
