@@ -105,21 +105,8 @@ class DeformEnv(gym.Env):
         data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
         args.data_path = data_path
         sim.setAdditionalSearchPath(data_path)
-        #
-        # Load rigid objects.
-        #
-        rigid_ids = []
-        for name, kwargs in SCENE_INFO[scene_name]['entities'].items():
-            pth = os.path.join(data_path, name)
-            rgba_color = kwargs['rgbaColor'] if 'rgbaColor' in kwargs else None
-            texture_file = self.get_texture_path(args.rigid_texture_file) if 'useTexture' in kwargs and kwargs['useTexture'] else None
-            id = load_rigid_object(
-                sim, pth, kwargs['globalScaling'],
-                kwargs['basePosition'], kwargs['baseOrientation'], texture_file, rgba_color)
-            rigid_ids.append(id)
-        #
-        # Load deformable object.
-        #
+
+
         if args.override_deform_obj is not None:
             deform_obj = args.override_deform_obj
         else:
@@ -129,7 +116,7 @@ class DeformEnv(gym.Env):
             for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
                 setattr(args, arg_nm, arg_val)
 
-        # Procedural generation stuff
+        # Procedural generation for hanging cloth
         if deform_obj == 'procedural_hang_cloth':
             args.node_density = 15
             if args.version == 0:
@@ -140,8 +127,46 @@ class DeformEnv(gym.Env):
             for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
                 setattr(args, arg_nm, arg_val)
 
+        # Procedural generation for buttoninig
+        if self.args.task == 'ButtonProc':
+            args.num_holes = 2
+            args.node_density = 15
+            deform_obj, hole_centers = gen_procedural_button_cloth(self.args, deform_obj, DEFORM_INFO)
+            for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
+                setattr(args, arg_nm, arg_val)
+
+            h1, h2 = hole_centers
+            # conversion
+            h1 = (-h1[1], 0, -h1[2]+2)
+            h2 = (-h2[1], 0, -h2[2] + 2)
+
+            buttons = SCENE_INFO['button']
+            buttons['entities']['urdf/button_fixed.urdf']['basePosition'] = (h1[0], 0.2, h1[2])
+            buttons['entities']['urdf/button_fixed2.urdf']['basePosition'] = (h2[0], 0.2, h2[2])
+
+            # goal pos
+            buttons['goal_pos'] = [h1, h2]
+            # TODO Add noise to the pos of buttons
+
+        #
+        # Load rigid objects.
+        #
+        rigid_ids = []
+        for name, kwargs in SCENE_INFO[scene_name]['entities'].items():
+            pth = os.path.join(data_path, name)
+            rgba_color = kwargs['rgbaColor'] if 'rgbaColor' in kwargs else None
+            texture_file = self.get_texture_path(args.rigid_texture_file) if 'useTexture' in kwargs and kwargs[
+                'useTexture'] else None
+            id = load_rigid_object(
+                sim, pth, kwargs['globalScaling'],
+                kwargs['basePosition'], kwargs['baseOrientation'], texture_file, rgba_color)
+            rigid_ids.append(id)
+
+        #
+        # Load deformable object.
+        #
         texture_path = os.path.join(
-            data_path, self.get_texture_path(args.deform_texture_file)) # TODO Check for absolute path
+            data_path, self.get_texture_path(args.deform_texture_file))
         deform_id = load_deform_object(
             sim, deform_obj, texture_path, args.deform_scale,
             args.deform_init_pos, args.deform_init_ori,
@@ -159,6 +184,7 @@ class DeformEnv(gym.Env):
         if args.viz and args.debug:
             for i, goal_pos in enumerate(goal_poses):
                 alpha = 1 if i == 0 else 0.3  # primary vs secondary goal
+                print(f'goal_pos{i}', goal_pos)
                 create_anchor_geom(sim, goal_pos, mass=0.0,
                                    rgba=(0, 1, 0, alpha), use_collision=False)
         return rigid_ids, deform_id, deform_obj, np.array(goal_poses)
@@ -211,6 +237,7 @@ class DeformEnv(gym.Env):
             cent_pos = v[true_loop_vertices].mean(axis=0)
 
             alpha = 1 if i == 0 else 0.3  # Primary = solid, secondary = 50% transparent
+            print('cent_pos', cent_pos)
             create_anchor_geom(self.sim, cent_pos, mass=0.0,
                                rgba=(0, 1, 0.8, alpha), use_collision=False)
 
@@ -239,15 +266,21 @@ class DeformEnv(gym.Env):
             if done:
                 print(f'episode reward {self.episode_reward:0.4f}')
 
-        # TODO final step: release anchor and acccum reward, let run more steps
-        # info['is_success'] = True/False
-        # Compute final reward
+        # Compute final reward by releasing anchor and let fall
         if done:
             # Release anchors
             release_anchor(self.sim, self.anchor_ids[0])
             release_anchor(self.sim, self.anchor_ids[1])
-            old_reward = reward
+            if self.args.task.lower() == 'lasso':
+                self.STEPS_AFTER_DONE *= 2
             for sim_step in range(self.STEPS_AFTER_DONE):
+
+                # For lasso, pull the string at the end to prevent dropping lasso
+                if self.args.task.lower() == 'lasso' and sim_step % self.args.sim_steps_per_action == 0:
+                    action = [100,100,0] # pull towards the endge
+                    for i in range(DeformEnv.NUM_ANCHORS):
+                        command_anchor_velocity(self.sim, self.anchor_ids[i], action)
+                # extend string
                 self.sim.stepSimulation()
             # if terminating early use reward from current step for rest
             reward = self.get_reward() * 50

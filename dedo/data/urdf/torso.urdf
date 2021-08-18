@@ -16,7 +16,7 @@
     <parent link="world"/>
     <child link="torso"/>
     <!--origin xyz="0 0 0" rpy="0.5235987756 0 -1.5707963268"/-->
-    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <origin xyz="1.5 -1.5 0" rpy="0 0 0"/>
   </joint>
   <link name="torso">
     <inertial>
@@ -27,14 +27,14 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="0.2 0.18 0.3"/>
+        <box size="3 3 4"/>
       </geometry>
       <material name="peach" />
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="0.2 0.18 0.3"/>
+        <box size="3 3 4"/>
       </geometry>
       <material name="peach" />
     </collision>

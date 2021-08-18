@@ -19,7 +19,7 @@ def get_args():
     parser.add_argument('--env', type=str,
                         default='HangBag-v0', help='Env name')
     parser.add_argument('--max_episode_len', type=int,
-                        default=400, help='Maximum time per episode (in seconds)')
+                        default=200, help='Maximum time per episode (in seconds)')
     parser.add_argument('--seed', type=int, default=None, help='Random seed')
     parser.add_argument('--logdir', type=str, default=None,
                         help='Path for logs')
@@ -43,7 +43,7 @@ def get_args():
                         help='Gravity constant for PyBullet simulation.')
     parser.add_argument('--sim_freq', type=int, default=500,  # 250-1K
                         help='PyBullet simulation frequency.')
-    parser.add_argument('--sim_steps_per_action', type=int, default=4,
+    parser.add_argument('--sim_steps_per_action', type=int, default=8,
                         help='Number of sim steps per action.')
     # Anchor/grasping args.
     parser.add_argument('--anchor_init_pos', type=float, nargs=3,
@@ -82,7 +82,7 @@ def get_args():
     parser.add_argument('--use_random_textures', action='store_true',
                         help='Randomly selecting a texture for the rigid obj, deformable obj and floor within the texture folder')
     # Camera args.
-    parser.add_argument('--cam_resolution', type=int, default=None,
+    parser.add_argument('--cam_resolution', type=int, default=200,
                         help='RGB camera resolution in pixels (both with and '
                              'height). Use none to get only anchor poses.')
     # TODO: move this flag to a separate utlity.

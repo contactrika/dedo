@@ -28,7 +28,7 @@ TASK_INFO = {
                   'cloth/tshirt_4.obj',
                   ],
     'ButtonSimple': ['cloth/button_cloth.obj'],
-    'ButtonProcedural': ['cloth/button_cloth.obj'],  # TODO wire up procedural cloths
+    'ButtonProc': ['proc_button_cloth'],  # TODO wire up procedural cloths
     'Dress': [
         'bags/backpack_0.obj',
         'bags/backpack_1.obj',
@@ -137,21 +137,21 @@ SCENE_INFO = {
             'urdf/torso.urdf': {
                 'basePosition': [0.0, 0.0, 2],
                 'baseOrientation': [0, 0, 0],
-                'globalScaling': 12.8,
+                'globalScaling': 1,
                 'useTexture':True,
             },
             'urdf/button_fixed.urdf': {
-                'basePosition': [0.85, 1.25, 3.0],
+                'basePosition': [1.95, 0.20, 2.70],
                 'baseOrientation': [0, 0, np.pi / 2],
                 'globalScaling': 7,
             },
             'urdf/button_fixed2.urdf': {
-                'basePosition': [0.85, 1.25, 1.35],
+                'basePosition': [2.25, 0.20, 1.40],
                 'baseOrientation': [0, 0, np.pi / 2],
                 'globalScaling': 7,
             },
         },
-        'goal_pos': [[0.85, 1.2, 1.4], [0.85, 1.2, 3.05]],
+        'goal_pos': [[1.95, 0.00, 2.70], [2.25, 0.00, 1.40]],
 
     },
     'hoop': {
@@ -208,7 +208,7 @@ SCENE_INFO = {
 DEFORM_INFO = {
     'procedural_hang_cloth': {  # This used to be apron_zehang
         'deform_init_pos': [0, 5,8],
-        'deform_init_ori': [0, 0, np.pi/2],
+        'deform_init_ori': [-np.pi/2, 0 , np.pi/2],
         'deform_scale': 3,
         'deform_elastic_stiffness': 50,
         'deform_bending_stiffness': 1,
@@ -964,11 +964,30 @@ DEFORM_INFO = {
         'deform_texture_file':'textures/deform/pd_gold.jpg',
     },
     'cloth/button_cloth.obj': {
-        'deform_init_pos': [-0.0, 1.95, 2.3],  # [-0.13, 0.16, 0.21],
+        'deform_init_pos': [0, 0.05, 2],  # [-0.13, 0.16, 0.21],
+        'deform_init_ori': [np.pi, 0, 0],
+        'deform_scale': 1,  # 0.5
+        'deform_elastic_stiffness': 10,
+        'deform_bending_stiffness': 10,
+        'deform_anchor_vertices': [
+            [0, ],
+            [38, ],
+        ],
+        'deform_fixed_anchor_vertex_ids':
+            [378, 379, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397],
+
+        'deform_true_loop_vertices': [
+            [101, 102, 103, 120, 121, 140, 141, 160],
+            [74, 75, 76, 94, 95, 113, 114, 132],
+        ],
+        'cam_viewmat': [6, -16, 176.2, -0.08, 0.29, 1.80],
+    },
+    'proc_button_cloth': {
+        'deform_init_pos': [0, 0.05, 2],  # [-0.13, 0.16, 0.21],
+        'deform_init_ori': [np.pi, 0, -np.pi/2],
         'anchor_init_pos': [-0.6, 3, 4],
         'other_anchor_init_pos': [-0.6, 3, 0.4],
-        'deform_init_ori': [0, 0, 0],
-        'deform_scale': 8,  # 0.5
+
         'deform_elastic_stiffness': 10,
         'deform_bending_stiffness': 10,
         'deform_fixed_anchor_vertex_ids':

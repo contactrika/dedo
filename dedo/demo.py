@@ -57,7 +57,7 @@ def play(env, num_episodes, args):
         obs = env.reset()
         # Need to step to get low-dim state from info.
         step = 0
-        # input('Reset done; press enter to start episode')
+        input('Reset done; press enter to start episode')
         while True:
             assert(not isinstance(env.action_space, gym.spaces.Discrete))
             print('step', step)

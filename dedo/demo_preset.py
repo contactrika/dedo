@@ -20,7 +20,7 @@ from dedo.utils.anchor_utils import create_anchor_geom
 from dedo.utils.waypoint_utils import create_trajectory, interpolate_waypts
 import os
 import cv2
-WRITE_TO_VID = True
+WRITE_TO_VID = False
 preset_traj = {
     # TODO add constraint to scene name
     'cloth/apron_0.obj': {  # HangCloth-v0, 600 steps
@@ -64,7 +64,7 @@ preset_traj = {
         'waypoints': {
             'a': [
                 # [ x, y, z, timesteps]
-                [1.0, 2, 4.5, 1],
+                [2.9, 0.5, 3.1, 1],
                 [2.0, 1.8, 4.5, 0.5],
                 [2, -3, 5, 0.5],
                 [2, -10, 5, 0.5],
@@ -73,7 +73,7 @@ preset_traj = {
             ],
             'b': [
                 # [ x, y, z, timesteps]
-                [2, 2, 0.7, 1],
+                [2.9, .5, 1.1, 1],
                 [3, 1.8, 0.7, 0.5],
                 [3, -3, 0, 0.5],
                 [3, -10, 0.0, 0.5],
@@ -258,7 +258,7 @@ def play(env, num_episodes, args):
                 bgr_obs = obs[...,::-1]
                 vidwriter.write(bgr_obs)
             # gif_frames.append(obs)
-            if step > len(traj) + 100: break;
+            # if step > len(traj) + 100: break;
             if done: break;
             obs = next_obs
             step += 1
