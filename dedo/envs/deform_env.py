@@ -98,6 +98,9 @@ class DeformEnv(gym.Env):
         elif scene_name.startswith('hangproccloth'):
             scene_name = 'hangcloth'
 
+        if args.version == 0:
+            args.use_random_textures = True
+
 
         data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
         args.data_path = data_path
