@@ -138,7 +138,7 @@ Adding `--cam_resolutioni=200` would change the state representation to
 
 #### HangBag
 
-Versions that are ready: `HangBag-v1`,`HangBag-v2`,`HangBag-v3`
+Versions that are ready: `HangBag-v1`,`HangBag-v2`,`HangBag-v3`, ... ,`HangBag-v108`
 
 ```
 python -m dedo.rl_demo --env=HangBag-v1  --logdir=/tmp/dedo --max_episode_len=200

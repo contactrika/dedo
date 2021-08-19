@@ -27,17 +27,17 @@ preset_traj = {
         'waypoints': {
             'a': [
                 # [ x, y, z, seconds(time)]
-                [2, 3.5, 11, 1],  # waypoint 0
-                [2, 2, 10.5, 1],  # waypoint 0
-                [2, 1, 10.5, 1],
-                [2, -1, 8, 2],
+                # [2, 3.5, 11, 1],  # waypoint 0
+                # [2, 2, 10.5, 1],  # waypoint 0
+                [2, -0.5, 9.5, 1],
+                [2, -1, 8, 1],
             ],
             'b': [
                 # [ x, y, z, seconds(time)]
-                [-2, 3.5, 11, 1],  # waypoint 0
-                [-2, 2, 10.5, 1],  # waypoint 0
-                [-2, 1, 10.5, 1],
-                [-2, -1, 8, 2],
+                # [-2, 3.5, 11, 1],  # waypoint 0
+                # [-2, 2, 10.5, 1],  # waypoint 0
+                [-2, -0.5, 9.5, 1],
+                [-2, -1, 8, 1],
             ],
         },
     },
@@ -168,7 +168,7 @@ preset_traj = {
             'a': [
                 # [ [-2.8518, -0.2436 , 5.9087]],
                 [-2.8518, -0.2436, 5.9087, 3],
-                [-0.3518, 0.1, 8, 3],
+                [-0.3518, -0.0, 8, 3],
                 [2, 0, 8, 1],
                 [2, 0, 1, 1],
 
@@ -176,7 +176,7 @@ preset_traj = {
             'b': [
                 # [-3.6025, -0.3533,  5.9768]
                 [-3.6025, -0.3533, 5.9768, 3],
-                [-1.1025, 0.1, 8, 3],
+                [-1.1025, -0.0, 8, 3],
                 [1.3, 0, 8, 1],
                 [1.3, 0, 1, 1],
 
@@ -231,8 +231,12 @@ def play(env, num_episodes, args):
         f'The environment name / deform obj "{deform_obj}" does not exist  ' \
         f'in presets. Available keys: {preset_traj.keys()}'
     preset_wp = preset_traj[deform_obj]['waypoints']
+
     if WRITE_TO_VID:
-        vidwriter = cv2.VideoWriter(f'/home/pyshi/tmp/{args.env}.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 24, (640, 480))
+        savepath = os.path.join(args.logdir, f'{args.env}.mp4')
+        vidwriter = cv2.VideoWriter(savepath, cv2.VideoWriter_fourcc(*'mp4v'), 24, (640, 480))
+        print('saving to ', savepath)
+
     for epsd in range(num_episodes):
         print('------------ Play episode ', epsd, '------------------')
         obs = env.reset()
@@ -259,15 +263,11 @@ def play(env, num_episodes, args):
                 vidwriter.write(bgr_obs)
             # gif_frames.append(obs)
             # if step > len(traj) + 100: break;
-            if done: break;
+            # if done: break;
             obs = next_obs
             step += 1
         if WRITE_TO_VID:
             vidwriter.release()
-
-        outfile = os.path.join(args.logdir, f"{args.env}.gif")
-        print('saving to ',outfile)
-        # imageio.mimwrite(outfile, gif_frames, fps=24)
 
 def merge_traj(traj_a, traj_b):
     if traj_a.shape[0] != traj_b.shape[0]:  # padding is required

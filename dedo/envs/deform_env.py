@@ -106,6 +106,17 @@ class DeformEnv(gym.Env):
         args.data_path = data_path
         sim.setAdditionalSearchPath(data_path)
 
+        # Setup Hangbag task's 100+ objects
+        _do = TASK_INFO[args.task][args.version]
+        if args.task == 'HangBag' and _do not in DEFORM_INFO:
+            bn = os.path.basename(_do)
+            if bn.startswith('bag1'):
+                DEFORM_INFO[_do] = DEFORM_INFO['bags/bags_zehang/bag1_0.obj'].copy()
+            elif bn.startswith('bag2'):
+                DEFORM_INFO[_do] = DEFORM_INFO['bags/bags_zehang/bag2_0.obj'].copy()
+            elif bn.startswith('bag3'):
+                DEFORM_INFO[_do] = DEFORM_INFO['bags/bags_zehang/bag3_0.obj'].copy()
+
 
         if args.override_deform_obj is not None:
             deform_obj = args.override_deform_obj
@@ -113,6 +124,8 @@ class DeformEnv(gym.Env):
             assert (args.task in TASK_INFO)  # already checked in args
             assert (args.version < len(TASK_INFO[args.task]))  # checked in args
             deform_obj = TASK_INFO[args.task][args.version]
+
+
             for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
                 setattr(args, arg_nm, arg_val)
 
