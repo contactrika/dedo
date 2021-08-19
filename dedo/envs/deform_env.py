@@ -271,10 +271,9 @@ class DeformEnv(gym.Env):
             # Release anchors
             release_anchor(self.sim, self.anchor_ids[0])
             release_anchor(self.sim, self.anchor_ids[1])
-            if self.args.task.lower() == 'lasso':
-                self.STEPS_AFTER_DONE *= 2
+            # if self.args.task.lower() == 'lasso':
+            #     self.STEPS_AFTER_DONE *= 2
             for sim_step in range(self.STEPS_AFTER_DONE):
-
                 # For lasso, pull the string at the end to prevent dropping lasso
                 if self.args.task.lower() == 'lasso' and sim_step % self.args.sim_steps_per_action == 0:
                     action = [100,100,0] # pull towards the endge

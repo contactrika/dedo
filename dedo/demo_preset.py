@@ -163,7 +163,7 @@ preset_traj = {
             ]
         },
     },
-    'ropes/lasso3d_0.obj': {
+    'ropes/lasso3d_0_fast.obj': {
         'waypoints': {
             'a': [
                 # [ [-2.8518, -0.2436 , 5.9087]],

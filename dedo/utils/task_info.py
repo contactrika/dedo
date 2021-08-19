@@ -43,7 +43,7 @@ TASK_INFO = {
     ],
     'Hoop': ['ropes/hoop3d_0.obj'],  # TODO Hoop preset traj
     'Lasso': [
-        'ropes/lasso3d_0.obj',
+        'ropes/lasso3d_0_fast.obj',
     ],
     'Mask': ['cloth/mask_0.obj',
              'cloth/mask_1.obj',
@@ -921,7 +921,7 @@ DEFORM_INFO = {
         'deform_elastic_stiffness': 100,
         'deform_bending_stiffness': 1,
         'deform_damping_stiffness': 0.1,
-'deform_friction_coeff': 0.5,
+        'deform_friction_coeff': 0.5,
         'deform_anchor_vertices': [
             [221, ],
             [131, ],
@@ -936,6 +936,34 @@ DEFORM_INFO = {
              766, 771, 772, 774, 785, 787, 791, 799, 800, 802, 807, 813, 817,
              818, 820, 823, 824, 833, 835, 844, 852, 856, 861, 863, 864, 867,
              868, 871, 877, 878, 880, 881, 886, 892, 897],
+        ],
+        'cam_viewmat': [7, -15, 267, -0.08, 0.32, 4.5],
+        'rigid_texture_file': "textures/rigid/red_leather.jpg",
+        'plane_texture_file': 'textures/plane/white_marble.jpg',
+        'deform_texture_file': 'textures/deform/pd_gold.jpg',
+    },
+    'ropes/lasso3d_0_fast.obj': {
+        'deform_init_pos': [-3, 1, 6],
+        'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
+        'deform_scale': 5,
+        'deform_elastic_stiffness': 100,
+        'deform_bending_stiffness': 0.1,
+        'deform_damping_stiffness': 0.1,
+        'deform_friction_coeff': 0.5,
+        'deform_anchor_vertices': [
+            [82, ],
+            [2, ],
+        ],
+
+        'deform_true_loop_vertices': [
+            [180, 181, 204, 220, 222, 223, 224, 225, 229, 230, 233, 237, 240,
+       241, 243, 245, 247, 249, 251, 255, 256, 265, 268, 271, 274, 276,
+       279, 281, 283, 285, 286, 290, 292, 295, 297, 300, 306, 307, 309,
+       310, 319, 339, 433, 442, 443, 445, 447, 454, 455, 458, 459, 460,
+       461, 463, 467, 478, 479, 480, 482, 487, 488, 491, 495, 498, 499,
+       503, 504, 506, 507, 514, 519, 520, 523, 527, 531, 539, 542, 543,
+       547, 549, 554, 559, 561, 565, 566, 568, 569, 574, 575, 576, 578,
+       579, 580, 581, 584, 590, 593, 594, 596, 601],
         ],
         'cam_viewmat': [7, -15, 267, -0.08, 0.32, 4.5],
         'rigid_texture_file': "textures/rigid/red_leather.jpg",
