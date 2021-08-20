@@ -2,6 +2,7 @@
 **/.DS_Store
 **/.idea
 wandb
+tmp_data
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

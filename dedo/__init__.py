@@ -17,7 +17,8 @@ for task, versions in TASK_INFO.items():
     if task == 'HangProcCloth':
         # HangProcCloth have v0 and v1
         versions += versions
-    elif task in ['HangCloth', 'HangBag', 'Mask', 'Dress', 'Hoop', 'Lasso', 'ButtonSimple']: # These tasks have v0 as random material textures
+    # These tasks have v0 as random material textures
+    if task in ['HangCloth', 'HangBag', 'Mask', 'Dress', 'Hoop', 'Lasso', 'ButtonSimple', 'HangProcCloth']:
         obj_name = np.random.choice(versions)
         versions.insert( 0,obj_name,) # prepend a randomly sampled object to v0
 
