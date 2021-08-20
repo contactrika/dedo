@@ -20,7 +20,7 @@ TASK_INFO = {
                   'cloth/apron_3.obj',
                   'cloth/apron_4.obj',
 
-                  'cloth/tshirt_0.obj',
+                  'cloth/shirt_0.obj',
                   'cloth/tshirt_1.obj',
                   'cloth/tshirt_2.obj',
                   'cloth/tshirt_3.obj',
@@ -50,9 +50,9 @@ TASK_INFO = {
              'cloth/mask_3.obj',
              'cloth/mask_4.obj',
              ],
-    'HangProcCloth':['procedural_hang_cloth',],
+    'HangProcCloth': ['procedural_hang_cloth', ],
     'Debug': ['cloth/apron_0_large.obj',
-            'bags/backpack_0.obj',
+              'bags/backpack_0.obj',
               ]
 }
 
@@ -80,7 +80,7 @@ SCENE_INFO = {
                 'basePosition': [-0.22, 0, 3.00],
                 'baseOrientation': [0, 0, np.pi / 2],
                 'globalScaling': 10,
-                'useTexture':True,
+                'useTexture': True,
             },
             'head_with_ears2.obj': {
                 'basePosition': [-0.22, 0.00, 6.54],  # 'basePosition': [-0.22, 0.00, 0.64],
@@ -100,13 +100,12 @@ SCENE_INFO = {
                 'baseOrientation': [np.pi / 2, 0, 0],
                 'globalScaling': 0.5,
                 'rgbaColor': (0.9, 0.75, 0.65, 1),
-                'useTexture':True,
+                'useTexture': True,
             },
             'urdf/hook_small.urdf': {
                 'basePosition': [0, 1.28, 9],
                 'baseOrientation': [0, 0, np.pi / 2],
                 'globalScaling': 10,
-
 
             },
 
@@ -125,7 +124,7 @@ SCENE_INFO = {
                 'basePosition': [0.00, 0.00, 0],
                 'baseOrientation': [0, 0, 0],
                 'globalScaling': 10.0,
-                'useTexture':True,
+                'useTexture': True,
             },
 
         },
@@ -137,7 +136,7 @@ SCENE_INFO = {
                 'basePosition': [0.0, 0.0, 2],
                 'baseOrientation': [0, 0, 0],
                 'globalScaling': 1,
-                'useTexture':True,
+                'useTexture': True,
             },
             'urdf/button_fixed.urdf': {
                 'basePosition': [1.95, 0.20, 2.70],
@@ -159,13 +158,13 @@ SCENE_INFO = {
                 'basePosition': [0.00, 0.00, 0.00],
                 'baseOrientation': [0, 0, 0],
                 'globalScaling': 10.0,
-                'useTexture':True,
+                'useTexture': True,
             },
             'urdf/rod2.urdf': {
                 'basePosition': [2.00, 3.00, 0.00],
                 'baseOrientation': [0, 0, 0],
                 'globalScaling': 10.0,
-                'useTexture':True,
+                'useTexture': True,
             },
         },
         'goal_pos': [[0, 0.00, 0.5]],
@@ -177,7 +176,7 @@ SCENE_INFO = {
                 'basePosition': [0.00, 0.00, 0.00],
                 'baseOrientation': [0, 0, 0],
                 'globalScaling': 10.0,
-                'useTexture':True,
+                'useTexture': True,
             },
         },
         'goal_pos': [[0, 0.00, 0.5]],
@@ -189,7 +188,7 @@ SCENE_INFO = {
                 'basePosition': [-0.22, 0, 3.00],
                 'baseOrientation': [0, 0, np.pi / 2],
                 'globalScaling': 10,
-                'useTexture':True,
+                'useTexture': True,
             },
             'head_with_ears2.obj': {
                 'basePosition': [-0.22, 0.00, 6.54],  # 'basePosition': [-0.22, 0.00, 0.64],
@@ -206,8 +205,8 @@ SCENE_INFO = {
 # Information about deformable objects.
 DEFORM_INFO = {
     'procedural_hang_cloth': {  # This used to be apron_zehang
-        'deform_init_pos': [0, 5,8],
-        'deform_init_ori': [-np.pi/2, 0 , np.pi/2],
+        'deform_init_pos': [0, 5, 8],
+        'deform_init_ori': [-np.pi / 2, 0, np.pi / 2],
         'deform_scale': 3,
         'deform_elastic_stiffness': 50,
         'deform_bending_stiffness': 1,
@@ -226,7 +225,7 @@ DEFORM_INFO = {
             [238],
         ],
         'deform_true_loop_vertices': [
-            [515, 511, 509, 507, 505, 512, 510, 508, 506,502, 504, 503, 514, 513,],
+            [515, 511, 509, 507, 505, 512, 510, 508, 506, 502, 504, 503, 514, 513, ],
             [461, 457, 455, 453, 451, 458, 456, 454, 452, 448, ],
         ],
         'cam_viewmat': [8, -5.8, 272, 1.05, 4.04, 5.22],
@@ -246,8 +245,10 @@ DEFORM_INFO = {
             [297],
         ],
         'deform_true_loop_vertices': [
-            [200, 190, 535, 534, 533, 532, 259, 276, 196, 191, 539, 538, 537, 536, 258, 280, 196, 197, 198, 199, 280, 279, 278, 277, ],
-            [167, 166, 164, 165, 163, 354, 353, 352, 351, 350, 178, 487, 486, 485, 484, 333, 179, 491,  490, 489, 488, 332, ],
+            [200, 190, 535, 534, 533, 532, 259, 276, 196, 191, 539, 538, 537, 536, 258, 280, 196, 197, 198, 199, 280,
+             279, 278, 277, ],
+            [167, 166, 164, 165, 163, 354, 353, 352, 351, 350, 178, 487, 486, 485, 484, 333, 179, 491, 490, 489, 488,
+             332, ],
         ],
         'cam_viewmat': [8, -5.8, 272, 1.05, 4.04, 5.22],
         'plane_texture_file': 'textures/plane/grey_tile.jpg',
@@ -265,12 +266,14 @@ DEFORM_INFO = {
             [220],
             [299],
         ],
-        'deform_texture_file':'textures/deform/pb_pink_fur.jpg',
-        'rigid_texture_file':"textures/rigid/darkwood.jpg",
-        'plane_texture_file':'textures/plane/cobblestone.jpg',
+        'deform_texture_file': 'textures/deform/pb_pink_fur.jpg',
+        'rigid_texture_file': "textures/rigid/darkwood.jpg",
+        'plane_texture_file': 'textures/plane/cobblestone.jpg',
         'deform_true_loop_vertices': [
-            [195, 196, 197, 198, 199, 200, 186, 179,479,478, 477, 476, 243, 254, 263, 264, 265, 266, 267, 268, 269, 255, 242, 480, 481, 482, 483, 180, 185, 194],
-            [335, 321, 308, 444, 445, 446, 447,171,162, 153,329, 320, 309, 440,441,442, 443, 170, 161, 147, 152, 151, 150, 149, 148, 335, 334, 333, 332, 331, 330],
+            [195, 196, 197, 198, 199, 200, 186, 179, 479, 478, 477, 476, 243, 254, 263, 264, 265, 266, 267, 268, 269,
+             255, 242, 480, 481, 482, 483, 180, 185, 194],
+            [335, 321, 308, 444, 445, 446, 447, 171, 162, 153, 329, 320, 309, 440, 441, 442, 443, 170, 161, 147, 152,
+             151, 150, 149, 148, 335, 334, 333, 332, 331, 330],
         ],
         'cam_viewmat': [8, -5.8, 272, 1.05, 4.04, 5.22],
     },
@@ -282,7 +285,7 @@ DEFORM_INFO = {
         # 'deform_bending_stiffness': 5,
         'deform_bending_stiffness': 10,
         'deform_damping_stiffness': 0.01,
-'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
+        'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
         'deform_anchor_vertices': [
 
             [549],
@@ -311,7 +314,7 @@ DEFORM_INFO = {
         # 'deform_bending_stiffness': 5,
         'deform_bending_stiffness': 10,
         'deform_damping_stiffness': 0.01,
-'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
+        'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
         'deform_anchor_vertices': [
             [535, ],
             [260, ],
@@ -339,7 +342,7 @@ DEFORM_INFO = {
         # 'deform_bending_stiffness': 5,
         'deform_bending_stiffness': 10,
         'deform_damping_stiffness': 0.01,
-'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
+        'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
         'deform_anchor_vertices': [
             [538, ],
             [261, ],
@@ -367,7 +370,7 @@ DEFORM_INFO = {
         # 'deform_bending_stiffness': 5,
         'deform_bending_stiffness': 10,
         'deform_damping_stiffness': 0.01,
-'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
+        'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
         'deform_anchor_vertices': [
             [525, ],
             [265, ],
@@ -395,7 +398,7 @@ DEFORM_INFO = {
         # 'deform_bending_stiffness': 5,
         'deform_bending_stiffness': 10,
         'deform_damping_stiffness': 0.01,
-'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
+        'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
         'deform_anchor_vertices': [
             [542, ],
             [249, ],
@@ -413,7 +416,7 @@ DEFORM_INFO = {
         'deform_texture_file': 'textures/deform/pb_white_knit.jpg',
     },
     'cloth/apron_0.obj': {  # This used to be apron_zehang
-        'deform_init_pos': [0, 5,8],
+        'deform_init_pos': [0, 5, 8],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 3,
         'deform_elastic_stiffness': 50,
@@ -432,9 +435,9 @@ DEFORM_INFO = {
              148, 149, 152, 153, 235, 236, 237, 238, 258, 260, 266, 267, 268,
              269, 270, 271, 272, 273, 276, 278, 280, 281, 282, 287, 288]
         ],
-        'plane_texture_file':'textures/plane/cobblestone.jpg',
-        'rigid_texture_file':"textures/rigid/darkbrownwood.jpg",
-        'deform_texture_file':'textures/deform/pd_gold.jpg',
+        'plane_texture_file': 'textures/plane/cobblestone.jpg',
+        'rigid_texture_file': "textures/rigid/darkbrownwood.jpg",
+        'deform_texture_file': 'textures/deform/pd_gold.jpg',
     },
     'cloth/apron_1.obj': {  # This used to be apron_zehang
         'deform_init_pos': [0, 5, 5.5],
@@ -540,6 +543,27 @@ DEFORM_INFO = {
         'plane_texture_file': 'textures/plane/grass.jpg',
         'rigid_texture_file': "textures/rigid/red_marble.png",
         'deform_texture_file': 'textures/deform/pb_whitered_checker.jpg',
+    },
+    'cloth/shirt_0.obj': {
+        'deform_init_pos': [0, 3, 4],  # [0, 0, 6]
+        'deform_init_ori': [np.pi / 2, 0, 0],
+        'deform_scale': 5,
+        'deform_elastic_stiffness': 90,
+        'deform_bending_stiffness': 0.1,
+        'deform_damping_stiffness': 0.01,
+        'deform_friction_coeff': 0.5,
+        'cam_viewmat': [7.2, -30, 353, -0.37, 1.08, 4.7],
+        'deform_anchor_vertices': [
+            [294],
+            [3],
+
+        ],
+        'deform_true_loop_vertices': [
+            [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 237, 292, 294, 296, 298, 300, 303, 305, 307, 309, 311, 312, 519],
+        ],
+        'deform_texture_file': 'textures/deform/white.png',
+        'plane_texture_file': 'textures/plane/red_brick.jpg',
+        'rigid_texture_file': "textures/rigid/metal.jpg",
     },
     'cloth/tshirt_0.obj': {
         'deform_init_pos': [0, 3, 4],
@@ -941,13 +965,13 @@ DEFORM_INFO = {
 
         'deform_true_loop_vertices': [
             [180, 181, 204, 220, 222, 223, 224, 225, 229, 230, 233, 237, 240,
-       241, 243, 245, 247, 249, 251, 255, 256, 265, 268, 271, 274, 276,
-       279, 281, 283, 285, 286, 290, 292, 295, 297, 300, 306, 307, 309,
-       310, 319, 339, 433, 442, 443, 445, 447, 454, 455, 458, 459, 460,
-       461, 463, 467, 478, 479, 480, 482, 487, 488, 491, 495, 498, 499,
-       503, 504, 506, 507, 514, 519, 520, 523, 527, 531, 539, 542, 543,
-       547, 549, 554, 559, 561, 565, 566, 568, 569, 574, 575, 576, 578,
-       579, 580, 581, 584, 590, 593, 594, 596, 601],
+             241, 243, 245, 247, 249, 251, 255, 256, 265, 268, 271, 274, 276,
+             279, 281, 283, 285, 286, 290, 292, 295, 297, 300, 306, 307, 309,
+             310, 319, 339, 433, 442, 443, 445, 447, 454, 455, 458, 459, 460,
+             461, 463, 467, 478, 479, 480, 482, 487, 488, 491, 495, 498, 499,
+             503, 504, 506, 507, 514, 519, 520, 523, 527, 531, 539, 542, 543,
+             547, 549, 554, 559, 561, 565, 566, 568, 569, 574, 575, 576, 578,
+             579, 580, 581, 584, 590, 593, 594, 596, 601],
         ],
         'cam_viewmat': [5.6, -40, 271, -0.08, 0.33, 4.6],
         'rigid_texture_file': "textures/rigid/red_leather.jpg",
@@ -971,9 +995,9 @@ DEFORM_INFO = {
              282, 294, 306, 318, 330, 342, 354, 366, 378, 390, 402, 414, 426, 438, 450, 462, 474, 486, 498, 510, 522,
              534, 546, 558, 570],
         ],
-        'rigid_texture_file':"textures/rigid/lightwood.jpg",
-        'plane_texture_file':'textures/plane/blue_carpet.jpg',
-        'deform_texture_file':'textures/deform/pd_gold.jpg',
+        'rigid_texture_file': "textures/rigid/lightwood.jpg",
+        'plane_texture_file': 'textures/plane/blue_carpet.jpg',
+        'deform_texture_file': 'textures/deform/pd_gold.jpg',
     },
     'cloth/button_cloth.obj': {
         'deform_init_pos': [0, 0.05, 2],  # [-0.13, 0.16, 0.21],
@@ -986,17 +1010,17 @@ DEFORM_INFO = {
             [38, ],
         ],
         'deform_fixed_anchor_vertex_ids':
-            [378, 379, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397],
+            [372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391],
 
         'deform_true_loop_vertices': [
-            [101, 102, 103, 120, 121, 140, 141, 160],
-            [74, 75, 76, 94, 95, 113, 114, 132],
+            [54, 55, 56, 57, 74, 75, 92, 93, 108, 109, 110, 126],
+            [80, 81, 82, 83, 98, 99, 115, 116, 134, 135, 136, 154],
         ],
         'cam_viewmat': [3.2, -8.8, 176.2, 1.4, 0.2, 1.65],
     },
     'proc_button_cloth': {
         'deform_init_pos': [0, 0.05, 2],  # [-0.13, 0.16, 0.21],
-        'deform_init_ori': [np.pi, 0, -np.pi/2],
+        'deform_init_ori': [np.pi, 0, -np.pi / 2],
         'anchor_init_pos': [-0.6, 3, 4],
         'other_anchor_init_pos': [-0.6, 3, 0.4],
 

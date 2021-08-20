@@ -73,8 +73,8 @@ def gen_procedural_button_cloth(args, preset_obj_name, deform_info_dict):
     constraints = {}
     constraints['x_range'] = (2, 7)  # (2, args.node_density - 2)
     constraints['y_range'] = (2, node_density - 2)  # (2, args.node_density - 2)
-    constraints['width_range'] = (0, 1)  # (1, int(round(node_density*0.3)))
-    constraints['height_range'] = (0, 1)  # (1, int(round(node_density*0.3)))
+    constraints['width_range'] = (1, 2)  # (1, int(round(node_density*0.3)))
+    constraints['height_range'] = (1, 2)  # (1, int(round(node_density*0.3)))
     holes = try_gen_holes(node_density, num_holes, constraints)
 
     # tmp obj file path

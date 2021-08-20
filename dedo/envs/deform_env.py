@@ -132,9 +132,9 @@ class DeformEnv(gym.Env):
         # Procedural generation for hanging cloth
         if deform_obj == 'procedural_hang_cloth':
             args.node_density = 15
-            if args.version == 0:
+            if args.version == 1:
                 args.num_holes = 1
-            elif args.version == 1:
+            elif args.version == 2:
                 args.num_holes = 2
             deform_obj = gen_procedural_hang_cloth(self.args, deform_obj, DEFORM_INFO)
             for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
@@ -352,8 +352,7 @@ class DeformEnv(gym.Env):
         rwd = -1.0 * dist / DeformEnv.WORKSPACE_BOX_SIZE
         return rwd
 
-    def render(self, mode='rgb_array', width=300, height=300,
-               dist=11.4, pitch=-22.4, yaw=257, tgt_pos=[-0.08, -0.29, 1.8]):
+    def render(self, mode='rgb_array', width=300, height=300,):
         #
         # TODO(Yonk): remove hard-coded numbers.
         #

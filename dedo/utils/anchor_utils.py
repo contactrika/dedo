@@ -121,9 +121,10 @@ def attach_anchor(sim, anchor_id, anchor_vertices, deform_id, change_color=False
 
 
 def release_anchor(sim, anchor_id):
-    sim.removeConstraint(anchor_id)
-    sim.changeVisualShape(anchor_id, -1, rgbaColor=ANCHOR_RGBA_INACTIVE)
-
+    # sim.removeConstraint(anchor_id)
+    sim.changeVisualShape(anchor_id, -1, rgbaColor=[0.5, 0.5, 0.5, 1])
+    # sim.changeVisualShape(anchor_id, -1, rgbaColor=ANCHOR_RGBA_INACTIVE)
+    pass
 
 def pin_fixed(sim, deform_id, vert_ids):
     _, v_pos_list = get_mesh_data(sim, deform_id)
