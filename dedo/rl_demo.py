@@ -59,6 +59,7 @@ def main(args):
     cb = CustomCallback(eval_env, args.num_play_runs, logdir, n_envs, args,
                         num_steps_between_play=10000,
                         viz=args.viz, debug=args.debug)
+    print('RL training start')
     rl_agent.learn(total_timesteps=rl_tot_steps, callback=cb)
     vec_env.close()
 
