@@ -224,6 +224,11 @@ class DeformEnv(gym.Env):
         reset_bullet(self.args, self.sim, self.cam_on, self.cam_args, plane_texture=plane_texture_path)
         self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos = \
             self.load_objects(self.sim, self.args)
+
+        # Special case for Procedural Cloth V2 (two holes), reward is based on the closest hole
+        if self.args.env == 'HangProcCloth-v2':
+            self.goal_pos = np.vstack((self.goal_pos,self.goal_pos))
+
         self.sim.stepSimulation()  # step once to get initial state
         #
         if self.args.debug and self.args.viz:
@@ -345,7 +350,9 @@ class DeformEnv(gym.Env):
         if not hasattr(self.args, 'deform_true_loop_vertices'):
             return 0.0  # not reward info without info about true loops
         _, vertex_positions = get_mesh_data(self.sim, self.deform_id)
-        dist = 0.
+        dist = []
+
+
         # A simple solution for cases when there is a mismatch between
         # the number of goals and number of ground truth loops.
         num_holes_to_track = min(
@@ -361,10 +368,19 @@ class DeformEnv(gym.Env):
             if len(cent_pts) == 0 or np.isnan(cent_pts).any():
                 #return a failure reward immediately
                 dist = DeformEnv.WORKSPACE_BOX_SIZE*num_holes_to_track*50
+
+                # save a screenshot for debug
+                obs = self.render('rgb_array', 300, 300)
+                fpath = f'{self.args.logdir}/nan_{self.args.env}_s{self.stepnum}.npy'
+                np.save(fpath, obs)
                 break
             cent_pos = cent_pts.mean(axis=0)
-            dist += np.linalg.norm(cent_pos - goal_pos)
-        dist /= float(num_holes_to_track)
+            dist.append( np.linalg.norm(cent_pos - goal_pos))
+
+        if self.args.env == 'HangProcCloth-v2':
+            dist = np.min(dist)
+        else:
+            dist = np.mean(dist)
         rwd = -1.0 * dist / DeformEnv.WORKSPACE_BOX_SIZE
         return rwd
 
