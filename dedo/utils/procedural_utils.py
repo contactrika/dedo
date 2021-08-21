@@ -5,11 +5,6 @@
 #
 
 import os
-import itertools
-
-import numpy as np
-
-import os
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -102,9 +97,9 @@ def gen_procedural_button_cloth(args, preset_obj_name, deform_info_dict):
     deform_info_dict[args.deform_obj]['deform_anchor_vertices'] = list(cloth_anchor_indices)
     deform_info_dict[args.deform_obj]['deform_fixed_anchor_vertex_ids'] = fixed_anchors
     deform_info_dict[args.deform_obj]['deform_true_loop_vertices'] = gt_loop_vertices
-    print('deform_true_loop_vertices', gt_loop_vertices)
-    print('deform_anchor_vertices', cloth_anchor_indices)
-    print('deform_fixed_anchor_vertex_ids', fixed_anchors)
+    # print('deform_true_loop_vertices', gt_loop_vertices)
+    # print('deform_anchor_vertices', cloth_anchor_indices)
+    # print('deform_fixed_anchor_vertex_ids', fixed_anchors)
 
     return args.deform_obj, hole_centers
 
