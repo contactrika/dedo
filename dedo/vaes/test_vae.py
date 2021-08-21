@@ -14,7 +14,7 @@ import numpy as np
 import torch
 import torchvision
 
-from .svae import SVAE
+from dedo.vaes.svae import SVAE
 
 
 def plot_recon(svae, train_data, test_data, fig):

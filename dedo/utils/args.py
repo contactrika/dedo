@@ -20,7 +20,7 @@ def get_args():
                         default='HangBag-v0', help='Env name')
     parser.add_argument('--max_episode_len', type=int,
                         default=200, help='Maximum time per episode (in seconds)')
-    parser.add_argument('--seed', type=int, default=None, help='Random seed')
+    parser.add_argument('--seed', type=int, default=0, help='Random seed')
     parser.add_argument('--logdir', type=str, default=None,
                         help='Path for logs')
     parser.add_argument('--device', type=str, default='cuda:0',
@@ -72,6 +72,8 @@ def get_args():
                         help='deform spring elastic stiffness')  # 1.0-300.0
     parser.add_argument('--deform_friction_coeff', type=float, default=0.1,
                         help='deform friction coefficient')
+    parser.add_argument('--disable_self_collision', action='store_true',
+                        help='Disables self collision in the deformable object')
     # Texture args
     parser.add_argument('--deform_texture_file', type=str, default="textures/deform/orange_pattern.png",
                         help='Texture file for the deformable objects')
@@ -81,6 +83,7 @@ def get_args():
                         help='Texture file for the plane (floor)')
     parser.add_argument('--use_random_textures', action='store_true',
                         help='Randomly selecting a texture for the rigid obj, deformable obj and floor within the texture folder')
+
     # Camera args.
     parser.add_argument('--cam_resolution', type=int, default=200,
                         help='RGB camera resolution in pixels (both with and '
@@ -101,5 +104,5 @@ def get_args():
     if args.task not in TASK_INFO.keys():
         print('Supported tasks are', list(TASK_INFO.keys()), 'got', args.task)
         exit(1)
-    assert(args.version < len(TASK_INFO[args.task])) or args.task in ['HangProcCloth'], 'env version too high'
+    assert(args.version < len(TASK_INFO[args.task]) + 1) or args.task in ['HangProcCloth'], 'env version too high'
     return args

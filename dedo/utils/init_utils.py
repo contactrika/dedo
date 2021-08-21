@@ -122,7 +122,7 @@ def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori, texture_fil
 def load_deform_object(sim, obj_file_name, texture_file_name,
                        scale, init_pos, init_ori,
                        bending_stiffness, damping_stiffness, elastic_stiffness,
-                       friction_coeff, debug):
+                       friction_coeff, self_collision, debug):
     """Load object from obj file with pybullet's loadSoftBody()."""
     if debug:
         print('Loading filename', obj_file_name)
@@ -138,7 +138,7 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
         springBendingStiffness=bending_stiffness,
         frictionCoeff=friction_coeff,
         # collisionMargin=0.003,  # how far apart do two objects begin interacting
-        useSelfCollision=0,
+        useSelfCollision=self_collision,
         springDampingAllDirections=1,
         useFaceContact=True,
         useNeoHookean=0,
@@ -172,14 +172,8 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
 
 def reset_bullet(args, sim, cam_on=False, cam_args={}, plane_texture=None, debug=False):
     """Reset/initialize pybullet simulation."""
-    if args.viz:  # toggle aux menus in the GUI.
-        pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_GUI, cam_on)
-        pybullet.configureDebugVisualizer(
-            pybullet.COV_ENABLE_RGB_BUFFER_PREVIEW, cam_on)
-        pybullet.configureDebugVisualizer(
-            pybullet.COV_ENABLE_DEPTH_BUFFER_PREVIEW, cam_on)
-        pybullet.configureDebugVisualizer(
-            pybullet.COV_ENABLE_SEGMENTATION_MARK_PREVIEW, cam_on)
+    if args.viz:
+        pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_GUI, False)
         sim.resetDebugVisualizerCamera(**cam_args)
         if debug:
             res = sim.getDebugVisualizerCamera()
@@ -201,7 +195,7 @@ def reset_bullet(args, sim, cam_on=False, cam_args={}, plane_texture=None, debug
     sim.setAdditionalSearchPath(pybullet_data.getDataPath())
     floor_id = sim.loadURDF('plane.urdf')
     if plane_texture is not None:
-        print('texture file', plane_texture)
+        if debug: print('texture file', plane_texture)
         texture_id = sim.loadTexture(plane_texture)
         sim.changeVisualShape(
             floor_id, -1, rgbaColor=[1,1,1,1], textureUniqueId=texture_id, )

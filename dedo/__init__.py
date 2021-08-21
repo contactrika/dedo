@@ -18,11 +18,6 @@ for task, versions in TASK_INFO.items():
         # HangProcCloth have v0 and v1
         versions += versions
     # These tasks have v0 as random material textures
-    if task in ['HangCloth', 'HangBag', 'Mask', 'Dress', 'Hoop', 'Lasso', 'ButtonSimple', 'HangProcCloth']:
-        obj_name = np.random.choice(versions)
-        versions.insert( 0,obj_name,) # prepend a randomly sampled object to v0
-
-
-
+    register(id=task+'-v'+str(0), entry_point='dedo.envs:DeformEnv')
     for version_id, obj_name in enumerate(versions):
-        register(id=task+'-v'+str(version_id), entry_point='dedo.envs:DeformEnv')
+        register(id=task+'-v'+str(version_id+1), entry_point='dedo.envs:DeformEnv')

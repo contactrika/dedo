@@ -18,218 +18,25 @@ import gym
 from dedo.utils.args import get_args
 from dedo.utils.anchor_utils import create_anchor_geom
 from dedo.utils.waypoint_utils import create_trajectory, interpolate_waypts
+from dedo.utils.preset_info import preset_traj
 import os
 import cv2
 WRITE_TO_VID = True
-preset_traj = {
-    # TODO add constraint to scene name
-    'cloth/apron_0.obj': {  # HangCloth-v0, 600 steps
-        'waypoints': {
-            'a': [
-                # [ x, y, z, seconds(time)]
-                # [2, 3.5, 11, 1],  # waypoint 0
-                # [2, 2, 10.5, 1],  # waypoint 0
-                [2, -0.5, 9.5, 1],
-                [2, -1, 8, 1],
-            ],
-            'b': [
-                # [ x, y, z, seconds(time)]
-                # [-2, 3.5, 11, 1],  # waypoint 0
-                # [-2, 2, 10.5, 1],  # waypoint 0
-                [-2, -0.5, 9.5, 1],
-                [-2, -1, 8, 1],
-            ],
-        },
-    },
-    'cloth/shirt_0.obj': {  # HangCloth-v5, 1500 steps
-        'waypoints': {
-            'a': [
-                # [ x, y, z, seconds(time)]
-                # [0.173 , 2.4621 ,6.5115, 1],
-                [2.5 ,  -0.5 ,9, 3],
-                [1 ,  -1 ,10.5, 1],
-[1 ,  -1 ,8, 1],
-
-
-            ],
-            'b': [
-                # [ x, y, z, seconds(time)]
-                # [-0.1283 , 2.4621 , 6.5115, 1]
-                [0, 0.5 , 9, 3],
-                [-2, 0 , 10.5, 1],
-                [-4, 0, 10.5, 3],
-[-3, -1, 10.5, 0.5],
-[-1, -1, 10.5, 1],
-[-1, -1, 9, 0.5],
-
-
-            ]
-        },
-    },
-    'cloth/button_cloth.obj': {  # ButtonSimple-v0, 800 steps
-        'waypoints': {
-            'a': [
-                # [ x, y, z, timesteps]
-                [2.9, 00, 3.6, 1],
-[2.9, 0, 3.6, 3],
-
-            ],
-            'b': [
-                # [ x, y, z, timesteps]
-                [2.9, 0, 1.6, 1],
-[2.9, 0, 1.6, 3],
-
-
-            ]
-        },
-    },
-    'bags/bags_zehang/bag1_0.obj': {  # HangBag-v0, 1500 steps
-        'waypoints': {
-            'a': [
-                [0.2, 2, 10.4, 3],
-                [0.2, 1, 10.4, 1],
-            ],
-            'b': [
-                [-0.2, 2, 10.4, 3],
-                [-0.2, 1, 10.4, 1],
-            ]
-        },
-    },
-    'cloth/cardigan_0.obj': {  # Dress-v5 #
-        'waypoints': {
-            'a': [
-                # [-0.278 ,  1.7888,  6.245 ],
-                [0.6, 1.7888, 6.245, 0.6],
-                # [0.6 ,  1.1,  6.245, 100 ],
-                # [0.6 ,  0.8,  6.245, 100 ],
-                [0.6, 0.0, 6.245, 0.8],
-                [0, 0, 6.445, 1.2],
-
-            ],
-            'b': [
-                # [0.3004, 1.7888, 6.245 ]
-                [2.3, 1.7888, 6.245, 0.6],
-                # [2.3, 0.5, 6.245, 100 ],
-                # [2.3, -0.3, 6.245, 100 ],
-                [2.8, -1, 6.245, 0.8],
-                [-0.5, -4, 6.245, 1.2],
-                [-3, -1, 6.245, 0.6],
-                [-2, 2, 6.245, 0.8],
-                [-1, 2, 6.245, 0.2],
-                # [-1, 2, 6.245, 0.6 ],
-                [-1, 0, 6.245, 0.6],
-
-            ]
-        },
-    },
-    'bags/backpack_0.obj': {  # Dress-v0
-        'waypoints': {
-            'a': [
-                [-0.8019, 0.9734, 4.0249, 1],
-                [0.3, 1.7888, 6.5245, 2],
-                [0.3, 0.0, 6.9245, 3],
-                [0.8, -0.5, 6.945, 1.2],
-
-            ],
-            'b': [
-                [0.1823, 0.9618, 4.4351, 1],
-                [3.7, 1.7888, 6.945, 2],
-                [3.7, -1, 6.945, 3],
-                [0, -3, 7.245, 2],
-                [-3, -1, 6.845, 0.6],
-                [-2, 2, 6.845, 0.8],
-                [-2, 1, 6.845, 0.6],
-
-            ]
-        },
-    },
-    'cloth/mask_0.obj': {  # Mask-v0
-        'waypoints': {
-            'a': [
-                # [0.4332, 1.9885, 6.1941],
-                [0.5, 0, 7.3, 2],
-                [0.8, -1, 7.1, 0.5],
-                [0.3, -1, 7.1, 0.5],
-                [0.3, -1, 7.1, 0.5],
-                [0.3, -1, 6.7, 0.5],
-            ],
-            'b': [
-                # [-0.8332 , 1.9885 , 6.1941]
-                [-0.9, 0, 7.3, 2],
-                [-1.3, -1, 7.1, 0.5],
-                [-0.6, -1.2, 7.1, 0.5],
-                [-0.6, -1.2, 6.8, 0.5],
-
-            ]
-        },
-    },
-    'ropes/lasso3d_0_fast.obj': {
-        'waypoints': {
-            'a': [
-                # [ [-2.8518, -0.2436 , 5.9087]],
-                [-2.8518, -0.2436, 5.9087, 3],
-                [-0.3518, -0.0, 8, 3],
-                [2, 0, 8, 1],
-                [2, 0, 1, 1],
-
-            ],
-            'b': [
-                # [-3.6025, -0.3533,  5.9768]
-                [-3.6025, -0.3533, 5.9768, 3],
-                [-1.1025, -0.0, 8, 3],
-                [1.3, 0, 8, 1],
-                [1.3, 0, 1, 1],
-
-            ]
-        },
-    },
-    'ropes/hoop3d_0.obj': {
-        'waypoints': {
-            'a': [
-                # [1.5708, 1.9639, 1.1152],
-                [1.5708, 1.9639, 6, 1.1],
-                [-0.5, -0.3, 6, 1.1],
-                [-0.5, -0.3, 1, 1.1],
-            ],
-            'b': [
-                # [2.2903, 1.9168, 5.9768]
-                [2.2903, 1.9168, 6, 1.1],
-                [-0.2, -0.5, 6, 1.1],
-                [-0.2, -0.5, 1, 1.1],
-
-            ]
-        },
-    }
-}
-
-
-def policy_simple(obs, act, task):
-    act = act.reshape(2, 3)
-    obs = obs.reshape(-1, 3)
-    if task == 'Button':
-        act[:, :] = 0.0
-        if obs[0, 0] < 0.10:
-            act[:, 0] = 0.10  # increase x
-    elif task in ['Lasso', 'Hoop', 'Dress']:
-        if obs[0, 1] > 0.0:
-            act[:, 1] = -0.25  # decrease y
-    elif obs[0, 2] > 0.50:
-        act[:, 1] = -0.10  # decrease y
-        act[:, 2] = -0.06  # decrease z
-    return act.reshape(-1)
-
-
-def viz_waypoints(sim, waypoints, rgba):
-    waypoints = np.array(waypoints)
-    for waypoint in waypoints:
-        create_anchor_geom(sim, waypoint[:3], mass=0, rgba=rgba, use_collision=False)
-
 
 def play(env, num_episodes, args):
-    deform_obj = env.deform_obj
+
+    if args.task == 'ButtonProc':
+        deform_obj = 'cloth/button_cloth.obj'
+    elif args.task == 'HangProcCloth':
+        deform_obj = 'cloth/apron_0.obj'
+    else:
+        deform_obj = env.deform_obj
+
+
     assert deform_obj in preset_traj, \
-        f'The environment name / deform obj "{deform_obj}" does not exist  ' \
-        f'in presets. Available keys: {preset_traj.keys()}'
+        f'The preset for "{args.env}" does not exist. Only v1 (and v6, if exists) of each task contains preset. ' \
+        f'Procedurally generated tasks are also supported, but uses same trajectories "HangCloth" and "ButtonSimple".' \
+        f'Available keys: {preset_traj.keys()}'
     preset_wp = preset_traj[deform_obj]['waypoints']
 
     if WRITE_TO_VID:
@@ -269,6 +76,11 @@ def play(env, num_episodes, args):
         if WRITE_TO_VID:
             vidwriter.release()
 
+def viz_waypoints(sim, waypoints, rgba):
+    waypoints = np.array(waypoints)
+    for waypoint in waypoints:
+        create_anchor_geom(sim, waypoint[:3], mass=0, rgba=rgba, use_collision=False)
+
 def merge_traj(traj_a, traj_b):
     if traj_a.shape[0] != traj_b.shape[0]:  # padding is required
         n_pad = np.abs(traj_a.shape[0] - traj_b.shape[0])
@@ -289,8 +101,6 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq):
     # Traditional wp
     steps = (wp[:, -1] * ctrl_freq).round().astype(np.int32)  # seconds -> ctrl steps
     pos = create_trajectory(init_anc_pos, wp[:, :3], steps, ctrl_freq)  # [:,3:]
-    # traj = pos[:, :3]
-    # traj = pos[1:, :3] - pos[:-1, :3]
     traj = pos[:, 3:]
 
     # Using the savgol_filter

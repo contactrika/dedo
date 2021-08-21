@@ -206,12 +206,15 @@ SCENE_INFO = {
 DEFORM_INFO = {
     'procedural_hang_cloth': {  # This used to be apron_zehang
         'deform_init_pos': [0, 5, 8],
-        'deform_init_ori': [-np.pi / 2, 0, np.pi / 2],
+        'deform_init_ori': [-np.pi / 2, 0, 3*np.pi / 2],
         'deform_scale': 3,
         'deform_elastic_stiffness': 50,
         'deform_bending_stiffness': 1,
         'deform_damping_stiffness': 0.01,
-        'cam_viewmat': [9, -23, 269, 0, 0, 9],
+        'cam_viewmat': [8.8, -12.6, 314, -0.4, 0.6, 5.3],
+        'plane_texture_file': 'textures/plane/brown_yellow_carpet.jpg',
+        'rigid_texture_file': "textures/rigid/lightwood.jpg",
+        'deform_texture_file': 'textures/deform/pb_greenleaves.png',
     },
     'bags/bags_zehang/bag1_0.obj': {
         'deform_init_pos': [0, 8, 2],
@@ -229,8 +232,8 @@ DEFORM_INFO = {
             [461, 457, 455, 453, 451, 458, 456, 454, 452, 448, ],
         ],
         'cam_viewmat': [8, -5.8, 272, 1.05, 4.04, 5.22],
-        'plane_texture_file': 'textures/plane/red_brick.jpg',
-        'rigid_texture_file': "textures/rigid/concrete.jpg",
+        'plane_texture_file': 'textures/plane/white_marble.jpg',
+        'rigid_texture_file': "textures/rigid/darkwood.jpg",
         'deform_texture_file': 'textures/deform/pb_bluegold_pattern.jpg',
     },
     'bags/bags_zehang/bag2_0.obj': {
@@ -301,9 +304,10 @@ DEFORM_INFO = {
              579, 580, 581, 582, 583, 584],
         ],
 
-        'plane_texture_file': 'textures/plane/white_marble.jpg',
+        'plane_texture_file': 'textures/plane/red_brick.jpg',
         'rigid_texture_file': "textures/rigid/darkbrownwood.jpg",
-        'deform_texture_file': 'textures/deform/pb_pink_fur.jpg',
+
+'deform_texture_file': 'textures/deform/pb_whitered_checker.jpg',
 
     },
     'bags/backpack_1.obj': {
@@ -330,9 +334,11 @@ DEFORM_INFO = {
              545, 546, 548, 571, 573, 575, 576, 577, 578, 579, 580, 581, 582,
              583, 589],
         ],
-        'plane_texture_file': 'textures/plane/red_brick.jpg',
+
+'plane_texture_file': 'textures/plane/white_marble.jpg',
         'rigid_texture_file': "textures/rigid/darkbrownwood.jpg",
-        'deform_texture_file': 'textures/deform/pb_whitered_checker.jpg',
+'deform_texture_file': 'textures/deform/pb_pink_fur.jpg',
+
     },
     'bags/backpack_2.obj': {
         'deform_init_pos': [-0.2, 2, 4],
@@ -426,7 +432,7 @@ DEFORM_INFO = {
             [15],  # 10, 12, 13, 14, 15],
             [170],  # 163, 165, 167, 168, 170],
         ],
-        'cam_viewmat': [9, -23, 269, 0, 0, 9],
+        'cam_viewmat': [8.8, -12.6, 314, -0.4, 0.6, 5.3],
         'deform_true_loop_vertices': [
             [0, 1, 3, 4, 7, 8, 11, 12, 14, 16, 22, 24, 26, 30, 31, 32, 154, 155,
              157, 158, 160, 161, 162, 165, 167, 169, 175, 177, 179, 183, 184,
@@ -446,6 +452,7 @@ DEFORM_INFO = {
         'deform_elastic_stiffness': 50,
         'deform_bending_stiffness': 1,
         'deform_damping_stiffness': 0.01,
+        'cam_viewmat': [8.8, -12.6, 314, -0.4, 0.6, 5.3],
         'deform_anchor_vertices': [
             [15],  # 10, 12, 13, 14, 15],
             [174],  # 167, 169, 171, 172, 174],
@@ -471,6 +478,7 @@ DEFORM_INFO = {
         'deform_elastic_stiffness': 50,
         'deform_bending_stiffness': 1,
         'deform_damping_stiffness': 0.01,
+        'cam_viewmat': [8.8, -12.6, 314, -0.4, 0.6, 5.3],
         'deform_anchor_vertices': [
             [172, ],  # , 72, 73, 76, 77, 78, 79, 227, 230, 602, 604, 721, 722],
             [16, ],  # 159, 161, 162, 163, 285, 288, 520, 522, 680, 681, 763],
@@ -495,6 +503,7 @@ DEFORM_INFO = {
         'deform_elastic_stiffness': 50,
         'deform_bending_stiffness': 1,
         'deform_damping_stiffness': 0.01,
+        'cam_viewmat': [8.8, -12.6, 314, -0.4, 0.6, 5.3],
         'deform_anchor_vertices': [
             [128],  # 10, 12, 13, 14, 15],
             [79],  # 167, 169, 171, 172, 174],
@@ -525,6 +534,7 @@ DEFORM_INFO = {
         'deform_elastic_stiffness': 50,
         'deform_bending_stiffness': 1,
         'deform_damping_stiffness': 0.01,
+        'cam_viewmat': [8.8, -12.6, 314, -0.4, 0.6, 5.3],
         'deform_anchor_vertices': [
             [15],  # 10, 12, 13, 14, 15],
             [173],  # 166, 168, 170, 171, 173],
@@ -552,7 +562,7 @@ DEFORM_INFO = {
         'deform_bending_stiffness': 0.1,
         'deform_damping_stiffness': 0.01,
         'deform_friction_coeff': 0.5,
-        'cam_viewmat': [7.2, -30, 353, -0.37, 1.08, 4.7],
+        'cam_viewmat': [7.2, -30, 323, -0.37, 1.08, 4.7],
         'deform_anchor_vertices': [
             [294],
             [3],
@@ -561,9 +571,9 @@ DEFORM_INFO = {
         'deform_true_loop_vertices': [
             [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 237, 292, 294, 296, 298, 300, 303, 305, 307, 309, 311, 312, 519],
         ],
-        'deform_texture_file': 'textures/deform/white.png',
-        'plane_texture_file': 'textures/plane/red_brick.jpg',
-        'rigid_texture_file': "textures/rigid/metal.jpg",
+        'deform_texture_file': 'textures/deform/pb_leopard.png',
+        'plane_texture_file': 'textures/plane/cobblestone.jpg',
+        'rigid_texture_file': "textures/rigid/concrete.jpg",
     },
     'cloth/tshirt_0.obj': {
         'deform_init_pos': [0, 3, 4],
@@ -699,8 +709,8 @@ DEFORM_INFO = {
 
         ],
         'cam_viewmat': [4.2, -26, 151, 0.04, 0.17, 4.66],
-        'plane_texture_file': 'textures/plane/red_brick.jpg',
-        'rigid_texture_file': "textures/rigid/concrete.jpg",
+        'plane_texture_file': 'textures/plane/stonefloor.jpg',
+        'rigid_texture_file': "textures/rigid/birch.png",
         'deform_texture_file': 'textures/deform/pb_camo.png',
     },
     'cloth/cardigan_1.obj': {
@@ -975,7 +985,7 @@ DEFORM_INFO = {
         ],
         'cam_viewmat': [5.6, -40, 271, -0.08, 0.33, 4.6],
         'rigid_texture_file': "textures/rigid/red_leather.jpg",
-        'plane_texture_file': 'textures/plane/white_marble.jpg',
+        'plane_texture_file': 'textures/plane/white_brick.jpg',
         'deform_texture_file': 'textures/deform/pd_gold.jpg',
     },
     'ropes/hoop3d_0.obj': {
@@ -1016,11 +1026,11 @@ DEFORM_INFO = {
             [54, 55, 56, 57, 74, 75, 92, 93, 108, 109, 110, 126],
             [80, 81, 82, 83, 98, 99, 115, 116, 134, 135, 136, 154],
         ],
-        'cam_viewmat': [3.2, -8.8, 176.2, 1.4, 0.2, 1.65],
+        'cam_viewmat': [4, -8.8, 176.2, 1.4, 0.2, 1.65],
     },
     'proc_button_cloth': {
         'deform_init_pos': [0, 0.05, 2],  # [-0.13, 0.16, 0.21],
-        'deform_init_ori': [np.pi, 0, -np.pi / 2],
+        'deform_init_ori': [np.pi, np.pi, 0 ],
         'anchor_init_pos': [-0.6, 3, 4],
         'other_anchor_init_pos': [-0.6, 3, 0.4],
 
@@ -1036,6 +1046,9 @@ DEFORM_INFO = {
             [667, 668, 669, 670, 705, 706, 741, 742, 782, 784],
         ],
         'cam_viewmat': [6, -16, 176.2, -0.08, 0.29, 1.80],
+        'plane_texture_file': 'textures/plane/grass.jpg',
+        'rigid_texture_file': "textures/rigid/lightwood.jpg",
+        'deform_texture_file': 'textures/deform/pb_white_knit.jpg',
     },
     'ts/ts_lasso_sparser.obj': {  # TODO: REMOVE - PROPRIETARY MESH MODEL
         'anchor_init_pos': [-0.1206, 0.4875, 0.4857],
@@ -1114,10 +1127,14 @@ DEFORM_INFO = {
     },
 }
 
+
+
+DEFAULT_CAM = [11.4, -22.4, 257, -0.08, -0.29, 1.8,]
+
 # Info for camera rendering without debug visualizer.
 # projectionMatrix is output 3 from pybullet.getDebugVisualizerCamera()
-CAM_INFO = {
-    # Camera info for {cameraDistance: 11.0, cameraYaw: 140, 
+DEFAULT_CAM_PROJECTION = {
+    # Camera info for {cameraDistance: 11.0, cameraYaw: 140,
     # cameraPitch: -40, cameraTargetPosition: array([0., 0., 0.])}
     'projectionMatrix': (1.0, 0.0, 0.0, 0.0,
                          0.0, 1.0, 0.0, 0.0,

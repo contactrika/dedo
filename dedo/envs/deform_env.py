@@ -18,7 +18,7 @@ from ..utils.anchor_utils import (
 from ..utils.init_utils import (
     load_deform_object, load_rigid_object, reset_bullet, get_preset_properties)
 from ..utils.mesh_utils import get_mesh_data
-from ..utils.task_info import CAM_INFO, DEFORM_INFO, SCENE_INFO, TASK_INFO
+from ..utils.task_info import DEFAULT_CAM_PROJECTION, DEFORM_INFO, SCENE_INFO, TASK_INFO, DEFAULT_CAM
 from ..utils.procedural_utils import gen_procedural_hang_cloth, gen_procedural_button_cloth
 
 
@@ -98,6 +98,7 @@ class DeformEnv(gym.Env):
         elif scene_name.startswith('hangproccloth'):
             scene_name = 'hangcloth'
 
+        # Make v0 the random version
         if args.version == 0:
             args.use_random_textures = True
 
@@ -107,7 +108,10 @@ class DeformEnv(gym.Env):
         sim.setAdditionalSearchPath(data_path)
 
         # Setup Hangbag task's 100+ objects
-        _do = TASK_INFO[args.task][args.version]
+        if args.version == 0:
+            _do = np.random.choice(TASK_INFO[args.task])
+        else:
+            _do = TASK_INFO[args.task][args.version-1]
         if args.task == 'HangBag' and _do not in DEFORM_INFO:
             bn = os.path.basename(_do)
             if bn.startswith('bag1'):
@@ -122,8 +126,12 @@ class DeformEnv(gym.Env):
             deform_obj = args.override_deform_obj
         else:
             assert (args.task in TASK_INFO)  # already checked in args
-            assert (args.version < len(TASK_INFO[args.task]))  # checked in args
-            deform_obj = TASK_INFO[args.task][args.version]
+            assert (args.version < len(TASK_INFO[args.task]) + 1)  # checked in args
+            if args.version == 0:
+                deform_obj = np.random.choice(TASK_INFO[args.task])
+            else:
+                deform_obj = TASK_INFO[args.task][args.version-1]
+            # deform_obj = self.TASK_INFO[args.task][args.version]
 
 
             for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
@@ -149,9 +157,11 @@ class DeformEnv(gym.Env):
                 setattr(args, arg_nm, arg_val)
 
             h1, h2 = hole_centers
+
+            # Move buttons according to match hole position so the task can complete
             # conversion
-            h1 = (-h1[1], 0, -h1[2]+2)
-            h2 = (-h2[1], 0, -h2[2] + 2)
+            h1 = (-h1[1], 0, h1[2]+2)
+            h2 = (-h2[1], 0, h2[2] + 2)
 
             buttons = SCENE_INFO['button']
             buttons['entities']['urdf/button_fixed.urdf']['basePosition'] = (h1[0], 0.2, h1[2])
@@ -184,7 +194,7 @@ class DeformEnv(gym.Env):
             sim, deform_obj, texture_path, args.deform_scale,
             args.deform_init_pos, args.deform_init_ori,
             args.deform_bending_stiffness, args.deform_damping_stiffness,
-            args.deform_elastic_stiffness, args.deform_friction_coeff,
+            args.deform_elastic_stiffness, args.deform_friction_coeff, not args.disable_self_collision,
             args.debug)
         if scene_name == 'button':  # pin cloth edge for buttoning task
             assert ('deform_fixed_anchor_vertex_ids' in DEFORM_INFO[deform_obj])
@@ -218,6 +228,8 @@ class DeformEnv(gym.Env):
         #
         if self.args.debug and self.args.viz:
             self.debug_viz_cent_loop()
+
+
 
         # Setup dynamic anchors.
         for i in range(DeformEnv.NUM_ANCHORS):  # make anchors
@@ -373,7 +385,7 @@ class DeformEnv(gym.Env):
         w, h, rgba_px, _, _ = self.sim.getCameraImage(
             width=width, height=height,
             renderer=pybullet.ER_BULLET_HARDWARE_OPENGL,
-            viewMatrix=view_mat, **CAM_INFO)
+            viewMatrix=view_mat, **DEFAULT_CAM_PROJECTION)
         # If getCameraImage() returns a tuple instead of numpy array that
         # means that pybullet was installed without numpy being present.
         # Uninstall pybullet, then install numpy, then install pybullet.
