@@ -90,7 +90,7 @@ def get_args():
                              'height). Use none to get only anchor poses.')
     # TODO: move this flag to a separate utlity.
     parser.add_argument('--cam_viewmat', type=float, nargs=6,
-                        default=None,
+                        default=[10, -22, 260, 0, 0, 2,],
                         help='Generate the view matrix for rendering camera'
                              '(not the debug camera). '
                              '[distance, pitch, yaw, posX, posY, posZ')

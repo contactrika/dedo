@@ -170,8 +170,15 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
     return deform_id
 
 
-def reset_bullet(args, sim, cam_on=False, cam_args={}, plane_texture=None, debug=False):
+def reset_bullet(args, sim, plane_texture=None, debug=False):
     """Reset/initialize pybullet simulation."""
+    dist, pitch, yaw, pos_x, pos_y, pos_z = args.cam_viewmat
+    cam_args = {
+            'cameraDistance': dist,
+            'cameraPitch': pitch,
+            'cameraYaw': yaw,
+            'cameraTargetPosition': np.array([pos_x, pos_y, pos_z])
+    }
     if args.viz:
         pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_GUI, False)
         sim.resetDebugVisualizerCamera(**cam_args)

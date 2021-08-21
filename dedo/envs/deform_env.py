@@ -34,27 +34,13 @@ class DeformEnv(gym.Env):
         self.args = args
         self.max_episode_len = args.max_episode_len
         self.cam_on = args.cam_resolution is not None
-        self.cam_args = {
-            'cameraDistance': 11.4,
-            'cameraPitch': -22.4,
-            'cameraYaw': 257,
-            'cameraTargetPosition': np.array([-0.08, -0.29, 1.8])
-        }
         # Initialize sim and load objects.
         self.sim = bclient.BulletClient(
             connection_mode=pybullet.GUI if args.viz else pybullet.DIRECT)
-        reset_bullet(args, self.sim, self.cam_on, self.cam_args, debug=args.debug)
+        reset_bullet(args, self.sim, debug=args.debug)
         self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos = \
             self.load_objects(self.sim, self.args)
-        # setting cam_args again after loading preset data
-        if self.args.cam_viewmat is not None:
-            dist, pitch, yaw, pos_x, pos_y, pos_z = self.args.cam_viewmat
-            self.cam_args = {
-                'cameraDistance': dist,
-                'cameraPitch': pitch,
-                'cameraYaw': yaw,
-                'cameraTargetPosition': np.array([pos_x, pos_y, pos_z])
-            }
+
         # Define sizes of observation and action spaces.
         self.anchor_lims = np.tile(np.concatenate(
             [DeformEnv.WORKSPACE_BOX_SIZE * np.ones(3),  # 3D pos
@@ -221,7 +207,7 @@ class DeformEnv(gym.Env):
         self.anchors = {}
         plane_texture_path = os.path.join(
             self.args.data_path,  self.get_texture_path(self.args.plane_texture_file))
-        reset_bullet(self.args, self.sim, self.cam_on, self.cam_args, plane_texture=plane_texture_path)
+        reset_bullet(self.args, self.sim, plane_texture=plane_texture_path)
         self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos = \
             self.load_objects(self.sim, self.args)
 
@@ -389,10 +375,7 @@ class DeformEnv(gym.Env):
         # TODO(Yonk): remove hard-coded numbers.
         #
         assert (mode == 'rgb_array')
-        if self.args.cam_viewmat is None:
-            dist, pitch, yaw, pos_x, pos_y, pos_z = [11.4, -22.4, 257, -0.08, -0.29, 1.8,]
-        else:
-            dist, pitch, yaw, pos_x, pos_y, pos_z = self.args.cam_viewmat
+        dist, pitch, yaw, pos_x, pos_y, pos_z = self.args.cam_viewmat
         cam = {
             'distance': dist,
             'pitch': pitch,
