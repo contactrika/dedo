@@ -1026,7 +1026,7 @@ DEFORM_INFO = {
             [54, 55, 56, 57, 74, 75, 92, 93, 108, 109, 110, 126],
             [80, 81, 82, 83, 98, 99, 115, 116, 134, 135, 136, 154],
         ],
-        'cam_viewmat': [4, -8.8, 176.2, 1.4, 0.2, 1.65],
+        'cam_viewmat': [5, -8.8, 176.2, 1.4, 0.2, 1.65],
     },
     'proc_button_cloth': {
         'deform_init_pos': [0, 0.05, 2],  # [-0.13, 0.16, 0.21],
@@ -1045,7 +1045,7 @@ DEFORM_INFO = {
             [647, 648, 649, 650, 687, 688, 723, 724, 760, 762],
             [667, 668, 669, 670, 705, 706, 741, 742, 782, 784],
         ],
-        'cam_viewmat': [6, -16, 176.2, -0.08, 0.29, 1.80],
+        'cam_viewmat': [5, -8.8, 176.2, 1.4, 0.2, 1.65],
         'plane_texture_file': 'textures/plane/grass.jpg',
         'rigid_texture_file': "textures/rigid/lightwood.jpg",
         'deform_texture_file': 'textures/deform/pb_white_knit.jpg',
