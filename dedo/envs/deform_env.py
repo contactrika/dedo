@@ -356,8 +356,12 @@ class DeformEnv(gym.Env):
             pts = np.array(vertex_positions)
             cent_pts = pts[true_loop_vertices]
             cent_pts = cent_pts[~np.isnan(cent_pts).any(axis=1)] # Nan guard
-            assert len(cent_pts) > 0, 'no valid center points left after NaN clean up. '
-            assert not np.isnan(cent_pts).any(), 'There are still Nan inside cent pts'
+            # assert len(cent_pts) > 0, 'no valid center points left after NaN clean up. '
+            # assert not np.isnan(cent_pts).any(), 'There are still Nan inside cent pts'
+            if len(cent_pts) == 0 or np.isnan(cent_pts).any():
+                #return a failure reward immediately
+                dist = DeformEnv.WORKSPACE_BOX_SIZE*num_holes_to_track*50
+                break
             cent_pos = cent_pts.mean(axis=0)
             dist += np.linalg.norm(cent_pos - goal_pos)
         dist /= float(num_holes_to_track)
