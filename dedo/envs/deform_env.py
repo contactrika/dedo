@@ -36,7 +36,7 @@ class DeformEnv(gym.Env):
     def __init__(self, args):
         self.args = args
         self.max_episode_len = args.max_episode_len
-        self.cam_on = args.cam_resolution is not None
+        self.cam_on = args.cam_resolution > 0
         # Initialize sim and load objects.
         self.sim = bclient.BulletClient(
             connection_mode=pybullet.GUI if args.viz else pybullet.DIRECT)
@@ -48,7 +48,7 @@ class DeformEnv(gym.Env):
         self.anchor_lims = np.tile(np.concatenate(
             [DeformEnv.WORKSPACE_BOX_SIZE * np.ones(3),  # 3D pos
              np.ones(3)]), DeformEnv.NUM_ANCHORS)        # 3D linvel/MAX_OBS_VEL
-        if args.cam_resolution is None:
+        if args.cam_resolution <= 0:  # report anchor positions as low-dim obs
             self.observation_space = gym.spaces.Box(
                 -1.0 * self.anchor_lims, self.anchor_lims)
         else:  # RGB
@@ -323,12 +323,12 @@ class DeformEnv(gym.Env):
             anc_obs.extend(pos)
             anc_obs.extend((np.array(linvel) / DeformEnv.MAX_OBS_VEL).tolist())
         anc_obs = np.array(anc_obs)
-        # if (np.abs(anc_obs) > self.anchor_lims).any():
-        #     if self.args.debug:
-        #         print('clipping anchor obs', anc_obs)
-        #     anc_obs = np.clip(anc_obs, -1.0*self.anchor_lims, self.anchor_lims)
-        #     done = True
-        if self.args.cam_resolution is None:
+        if (np.abs(anc_obs) > self.anchor_lims).any():  # reached workspace lims
+            if self.args.debug:
+                print('clipping anchor obs', anc_obs)
+            anc_obs = np.clip(anc_obs, -1.0*self.anchor_lims, self.anchor_lims)
+            done = True
+        if self.args.cam_resolution <= 0:
             obs = anc_obs
         else:
             w, h, rgba_px, _, _ = self.sim.getCameraImage(
@@ -342,10 +342,7 @@ class DeformEnv(gym.Env):
             return 0.0  # not reward info without info about true loops
         _, vertex_positions = get_mesh_data(self.sim, self.deform_id)
         dist = []
-
-
-        # A simple solution for cases when there is a mismatch between
-        # the number of goals and number of ground truth loops.
+        # Compute distance from loop/hole to the corresponding target.
         num_holes_to_track = min(
             len(self.args.deform_true_loop_vertices), len(self.goal_pos))
         for i in range(num_holes_to_track):  # loop through goal vertices
@@ -353,22 +350,20 @@ class DeformEnv(gym.Env):
             goal_pos = self.goal_pos[i]
             pts = np.array(vertex_positions)
             cent_pts = pts[true_loop_vertices]
-            cent_pts = cent_pts[~np.isnan(cent_pts).any(axis=1)] # Nan guard
-            # assert len(cent_pts) > 0, 'no valid center points left after NaN clean up. '
-            # assert not np.isnan(cent_pts).any(), 'There are still Nan inside cent pts'
+            cent_pts = cent_pts[~np.isnan(cent_pts).any(axis=1)]  # remove nans
             if len(cent_pts) == 0 or np.isnan(cent_pts).any():
-                #return a failure reward immediately
-                dist = DeformEnv.WORKSPACE_BOX_SIZE*num_holes_to_track*50
-
-                # save a screenshot for debug
+                # Record final reward (failed frame).
+                dist = DeformEnv.WORKSPACE_BOX_SIZE*num_holes_to_track
+                dist *= DeformEnv.FINAL_REWARD_MULT
+                # Save a screenshot for debugging.
                 obs = self.render('rgb_array', 300, 300)
                 fpath = f'{self.args.logdir}/nan_{self.args.env}_s{self.stepnum}.npy'
                 np.save(fpath, obs)
                 break
             cent_pos = cent_pts.mean(axis=0)
-            dist.append( np.linalg.norm(cent_pos - goal_pos))
+            dist.append(np.linalg.norm(cent_pos - goal_pos))
 
-        if self.args.env == 'HangProcCloth-v2':
+        if self.args.env.startswith('HangProcCloth'):
             dist = np.min(dist)
         else:
             dist = np.mean(dist)
