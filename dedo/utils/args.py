@@ -105,7 +105,7 @@ def get_args():
     args = parser.parse_args()
     env_parts = args.env.split('-v')
     assert(len(env_parts) == 2 and env_parts[1].isdigit()), \
-        '--env=[Task]-v[Version] (e.g. HangCloth-v0)'
+        '--env=[Task]-v[Version] (e.g. HangGarment-v1)'
     args.task = env_parts[0]
     args.version = int(env_parts[1])
     if args.task not in TASK_INFO.keys():

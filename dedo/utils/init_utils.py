@@ -25,7 +25,7 @@ def get_preset_properties(object_preset_dict, deform_obj_name, key):
 
 def load_objects(sim, scene_name, args):
     if scene_name.startswith('hang'):
-        scene_name = 'hang'  # same scene for 'HangBag', 'HangCloth'
+        scene_name = 'hang'  # same scene for 'HangBag', 'HangGarment'
     elif scene_name.startswith('mask'):
         scene_name = 'dress'  # same human figure for dress and mask tasks
     elif scene_name.startswith('button'):

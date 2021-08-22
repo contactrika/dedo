@@ -143,8 +143,8 @@ class CustomCallback(BaseCallback):
 
 
 def main(args):
-    # Example usage (if training logged to PPO_210822_104834_HangCloth-v1):
-    # python -m dedo.utils.rl_utils --logdir PPO_210822_104834_HangCloth-v1
+    # Example usage (if training logged to PPO_210822_104834_HangBag-v1):
+    # python -m dedo.utils.rl_utils --logdir PPO_210822_104834_HangBag-v1
     checkpt = os.path.join(args.logdir, 'agent.zip')
     print('Loading checkpoint from', checkpt)
     args = pickle.load(open(os.path.join(args.logdir, 'args.pkl'), 'rb'))

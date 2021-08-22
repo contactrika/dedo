@@ -30,6 +30,11 @@ pip install numpy
 pip install -e .
 ```
 
+To enable recording/logging videos install ffmpeg:
+```
+sudo apt-get install ffmpeg
+```
+
 <a name="examples"></a>
 ### Basic Examples
 
@@ -41,7 +46,7 @@ python -m dedo.demo --env=HangBag-v0 --viz --debug
 ![misc/imgs/bag_end.png](misc/imgs/bag_end.png)
 
 ```
-python -m dedo.demo --env=HangCloth-v0 --viz --debug
+python -m dedo.demo --env=HangGarment-v0 --viz --debug
 ```
 
 ![misc/imgs/apron_begin.png](misc/imgs/apron_begin.png)
@@ -54,7 +59,7 @@ testing).
 To get images as state use `--cam_resolution` flag as follows:
 
 ```
-python -m dedo.demo --env=HangCloth-v0 --cam_resolution 200 --viz --debug
+python -m dedo.demo --env=HangGarment-v0 --cam_resolution 200 --viz --debug
 ```
 
 ![misc/imgs/apron_rgb.png](misc/imgs/apron_rgb.png)
@@ -92,14 +97,14 @@ For items not in `DEFORM_DICT` you will need to specify sensible defaults,
 for example:
 
 ```
-python -m dedo.demo --env=HangCloth-v0 --viz --debug \
+python -m dedo.demo --env=HangGarment-v0 --viz --debug \
   --override_deform_obj=generated_cloth/generated_cloth.obj \
   --deform_init_pos 0.02 0.41 0.63 --deform_init_ori 0 0 1.5708
 ```
 
 Example of scaling up the custom mesh objects:
 ```
-python -m dedo.demo --env=HangCloth-v0 --viz --debug \
+python -m dedo.demo --env=HangGarment-v0 --viz --debug \
    --override_deform_obj=generated_cloth/generated_cloth.obj \
    --deform_init_pos 0.02 0.41 0.55 --deform_init_ori 0 0 1.5708 \
    --deform_scale 2.0 --anchor_init_pos -0.10 0.40 0.70 \
@@ -113,7 +118,7 @@ python -m dedo.demo --env=HangCloth-v0 --viz --debug \
 algorithm from Stable Baselines:
 
 ```
-python -m dedo.rl_demo --env=HangCloth-v0 \
+python -m dedo.rl_demo --env=HangGarment-v0 \
     --logdir=/tmp/dedo --num_play_runs=3 --viz --debug
 
 tensorboard --logdir=/tmp/dedo --bind_all --port 6006 \
@@ -144,12 +149,12 @@ Versions that are ready: `HangBag-v1`,`HangBag-v2`,`HangBag-v3`, ... ,`HangBag-v
 python -m dedo.rl_demo --env=HangBag-v1  --logdir=/tmp/dedo --max_episode_len=200
 ```
 
-#### HangCloth
-Versions that are ready: `HangCloth-v1`,`HangCloth-v2`,
-`HangCloth-v3`,`HangCloth-v4`,`HangCloth-v5`
+#### HangGarment
+Versions that are ready: `HangGarment-v1`,`HangGarment-v2`,
+`HangGarment-v3`,`HangGarment-v4`,`HangGarment-v5`
 
 ```
-python -m dedo.rl_demo --env=HangCloth-v5  --logdir=/tmp/dedo --max_episode_len=200
+python -m dedo.rl_demo --env=HangGarment-v5  --logdir=/tmp/dedo --max_episode_len=200
 ```
 
 #### Lasso

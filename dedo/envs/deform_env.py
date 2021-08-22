@@ -80,8 +80,8 @@ class DeformEnv(gym.Env):
 
     def load_objects(self, sim, args):
         scene_name = self.args.task.lower()
-        # if scene_name.startswith('hang'):
-        #     scene_name = 'hang'  # same scene for 'HangBag', 'HangCloth'
+        if scene_name.startswith('hanggarment'):
+           scene_name = 'hangcloth'  # same hanger for garments and cloths
         if scene_name.startswith('button'):
             scene_name = 'button'  # same human figure for dress and mask tasks
         elif scene_name.startswith('hangproccloth'):
@@ -217,10 +217,10 @@ class DeformEnv(gym.Env):
         self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos = \
             self.load_objects(self.sim, self.args)
 
-        # Special case for Procedural Cloth V2 (two holes),
+        # Special case for Procedural Cloth tasks that can have two holes:
         # reward is based on the closest hole.
-        if self.args.env == 'HangProcCloth-v2':
-            self.goal_pos = np.vstack((self.goal_pos,self.goal_pos))
+        if self.args.env.startswith('HangProcCloth'):
+            self.goal_pos = np.vstack((self.goal_pos, self.goal_pos))
 
         self.sim.stepSimulation()  # step once to get initial state
         #

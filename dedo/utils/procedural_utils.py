@@ -178,10 +178,9 @@ def try_gen_holes(node_density, num_holes, constraints):
         if num_holes == 2:
             holeA = gen_random_hole(node_density, constraints)
             holeB = gen_random_hole(node_density, constraints)
-            if boundary_constraint(node_density, holeA) and boundary_constraint(node_density,
-                                                                                holeB) and overlap_constraint(holeA,
-                                                                                                              holeB):
-                return [holeA, holeB]  # satisfies boundary contrsaints
+            if boundary_constraint(node_density, holeA) and boundary_constraint(
+                    node_density, holeB) and overlap_constraint(holeA, holeB):
+                return [holeA, holeB]  # satisfies boundary constraints
         elif num_holes == 1:
             hole = gen_random_hole(node_density, constraints)
             if boundary_constraint(node_density, hole):
@@ -207,16 +206,16 @@ def create_cloth_obj(min_point, max_point, node_density,
         for key, val in hole.items():
             if isinstance(val, float):
                 hole[key] = int(round(val * node_density))
-
-                # Setting the minimum boundary between edge and hole. Min two vertices away so edge could form face
+                # Setting the minimum boundary between edge and hole.
+                # Min two vertices away so edge could form face
                 if hole[key] >= node_density - 2:
                     hole[key] = node_density - 3
                 elif hole[key] <= 1:
                     hole[key] = 2
-            assert isinstance(hole[key], int), f"{hole} {key} must be either an int or a float"
-
-        assert len(min_point) == len(max_point) == 3, "min_point and max_point must both have length 3"
-        print('>>>> HOLE ', hole)
+            assert isinstance(hole[key], int), \
+                f'{hole} {key} must be either an int or a float'
+        assert len(min_point) == len(max_point) == 3, \
+            'min_point and max_point must both have length 3'
 
     holes_range = []
     holes_fp = []
