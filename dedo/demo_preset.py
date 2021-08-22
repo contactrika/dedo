@@ -7,21 +7,22 @@ tODO(Yonk): remove old control code, use simple trajectory interpolation.
 @pyshi
 
 """
-import matplotlib.pyplot as plt
-from matplotlib import interactive
-
-interactive(True)
-import numpy as np
+import os
 
 import gym
+from matplotlib import interactive
+interactive(True)
+import numpy as np
 
 from dedo.utils.args import get_args
 from dedo.utils.anchor_utils import create_anchor_geom
 from dedo.utils.waypoint_utils import create_trajectory, interpolate_waypts
 from dedo.utils.preset_info import preset_traj
-import os
-import cv2
-WRITE_TO_VID = True
+
+WRITE_TO_VID = False
+if WRITE_TO_VID:
+    import cv2
+
 
 def play(env, num_episodes, args):
 

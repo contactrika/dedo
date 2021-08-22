@@ -74,7 +74,7 @@ def gen_procedural_button_cloth(args, preset_obj_name, deform_info_dict):
 
     # tmp obj file path
     rand_id = np.random.uniform(1e7)
-    args.deform_obj = f'/home/pyshi/tmp/procedural_hang{rand_id}.obj'
+    args.deform_obj = f'/tmp/procedural_hang{rand_id}.obj'
     data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
     savepath = os.path.join(data_path, args.deform_obj)
 
@@ -361,4 +361,4 @@ def plotter(hole1, hole2, type):
 
     plot_one(hole1)
     plot_one(hole2)
-    plt.savefig(f'/home/pyshi/tmp/debug_procedural_cloth_{type}.png')
+    plt.savefig(f'/tmp/debug_procedural_cloth_{type}.png')

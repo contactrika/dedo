@@ -126,10 +126,10 @@ class DeformEnv(gym.Env):
         # Procedural generation for hanging cloth
         if deform_obj == 'procedural_hang_cloth':
             args.node_density = 15
-            if args.version == 1:
-                args.num_holes = 1
-            elif args.version == 2:
-                args.num_holes = 2
+            if args.version == 0:
+                args.num_holes = np.random.randint(2)+1
+            elif args.version in [1,2]:
+                args.num_holes = args.version
             deform_obj = gen_procedural_hang_cloth(self.args, deform_obj, DEFORM_INFO)
             for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
                 setattr(args, arg_nm, arg_val)
