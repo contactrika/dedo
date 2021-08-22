@@ -116,9 +116,10 @@ class CustomCallback(BaseCallback):
             evaluate_policy(
                 self.model, self._eval_env, callback=grab_screens,
                 n_eval_episodes=self._num_play_episodes, deterministic=False)
-            self.logger.record(
-                'trajectory/video', Video(torch.ByteTensor([screens]), fps=50),
-                exclude=('stdout', 'log', 'json', 'csv'))
+            if not self._my_args.disable_logging_video:
+                self.logger.record(
+                    'trajectory/video', Video(torch.ByteTensor([screens]), fps=50),
+                    exclude=('stdout', 'log', 'json', 'csv'))
 
             self._steps_since_play = 0
             if self._logdir is not None:
