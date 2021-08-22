@@ -4,11 +4,18 @@ Utilities for RL training and eval.
 @contactrika
 
 """
+import pickle
+import os
+
+import gym
 import torch
 
+from stable_baselines3 import A2C, DDPG, HER, PPO, SAC, TD3  # used dynamically
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.logger import TensorBoardOutputFormat, Video
+
+from dedo.utils.args import get_args
 
 
 def play(env, num_episodes, rl_agent, debug=False):
@@ -115,7 +122,10 @@ class CustomCallback(BaseCallback):
 
             self._steps_since_play = 0
             if self._logdir is not None:
-                self.model.save(self._logdir)
+                self.model.save(os.path.join(self._logdir, 'agent'))
+                pickle.dump(self._my_args,
+                            open(os.path.join(self._logdir, 'args.pkl'), 'wb'),
+                            protocol=pickle.HIGHEST_PROTOCOL)
         return True
 
     def _on_rollout_end(self) -> None:
@@ -129,3 +139,21 @@ class CustomCallback(BaseCallback):
         This event is triggered before exiting the `learn()` method.
         """
         pass
+
+
+def main(args):
+    # Example usage (if training logged to PPO_210822_104834_HangCloth-v1):
+    # python -m dedo.utils.rl_utils --logdir PPO_210822_104834_HangCloth-v1
+    checkpt = os.path.join(args.logdir, 'agent.zip')
+    print('Loading checkpoint from', checkpt)
+    args = pickle.load(open(os.path.join(args.logdir, 'args.pkl'), 'rb'))
+    args.debug = True
+    args.viz = True
+    eval_env = gym.make(args.env, args=args)
+    eval_env.seed(args.seed)
+    rl_agent = eval(args.rl_algo).load(checkpt)
+    play(eval_env, num_episodes=10, rl_agent=rl_agent, debug=False)
+
+
+if __name__ == "__main__":
+    main(get_args())

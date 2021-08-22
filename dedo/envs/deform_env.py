@@ -13,13 +13,15 @@ import pybullet_data
 import pybullet_utils.bullet_client as bclient
 
 from ..utils.anchor_utils import (
-    create_anchor, attach_anchor, create_anchor_geom, command_anchor_velocity, release_anchor,
-    pin_fixed)
+    create_anchor, attach_anchor, create_anchor_geom, command_anchor_velocity,
+    release_anchor, pin_fixed)
 from ..utils.init_utils import (
     load_deform_object, load_rigid_object, reset_bullet, get_preset_properties)
 from ..utils.mesh_utils import get_mesh_data
-from ..utils.task_info import DEFAULT_CAM_PROJECTION, DEFORM_INFO, SCENE_INFO, TASK_INFO, DEFAULT_CAM
-from ..utils.procedural_utils import gen_procedural_hang_cloth, gen_procedural_button_cloth
+from ..utils.task_info import (
+    DEFAULT_CAM_PROJECTION, DEFORM_INFO, SCENE_INFO, TASK_INFO)
+from ..utils.procedural_utils import (
+    gen_procedural_hang_cloth, gen_procedural_button_cloth)
 
 
 class DeformEnv(gym.Env):
@@ -27,8 +29,9 @@ class DeformEnv(gym.Env):
     MAX_ACT_VEL = 10.0  # max vel (in m/s) for the anchor actions
     NUM_ANCHORS = 2
     WORKSPACE_BOX_SIZE = 20.0  # workspace box limits (needs to be >=1)
-    STEPS_AFTER_DONE = 500 # Release anchor and let free fall to check if task is done correctly
-    SUCESS_REWARD_TRESHOLD = 2.5
+    STEPS_AFTER_DONE = 500     # steps after releasing anchors at the end
+    FINAL_REWARD_MULT = 50     # multiply the final reward (for sparse rewards)
+    SUCESS_REWARD_TRESHOLD = 2.5  # threshold to log task success/failure
 
     def __init__(self, args):
         self.args = args
@@ -67,7 +70,7 @@ class DeformEnv(gym.Env):
         return list(self.anchors)
 
     def get_texture_path(self, file_path):
-        # Get either the prespecified texture file name or a random one, depends on settings
+        # Get either pre-specified texture file or a random one.
         if self.args.use_random_textures:
             parent = os.path.dirname(file_path)
             full_parent_path = os.path.join(self.args.data_path, parent)
@@ -87,7 +90,6 @@ class DeformEnv(gym.Env):
         # Make v0 the random version
         if args.version == 0:
             args.use_random_textures = True
-
 
         data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
         args.data_path = data_path
@@ -130,7 +132,8 @@ class DeformEnv(gym.Env):
                 args.num_holes = np.random.randint(2)+1
             elif args.version in [1,2]:
                 args.num_holes = args.version
-            deform_obj = gen_procedural_hang_cloth(self.args, deform_obj, DEFORM_INFO)
+            deform_obj = gen_procedural_hang_cloth(
+                self.args, deform_obj, DEFORM_INFO)
             for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
                 setattr(args, arg_nm, arg_val)
 
@@ -138,7 +141,8 @@ class DeformEnv(gym.Env):
         if self.args.task == 'ButtonProc':
             args.num_holes = 2
             args.node_density = 15
-            deform_obj, hole_centers = gen_procedural_button_cloth(self.args, deform_obj, DEFORM_INFO)
+            deform_obj, hole_centers = gen_procedural_button_cloth(
+                self.args, deform_obj, DEFORM_INFO)
             for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
                 setattr(args, arg_nm, arg_val)
 
@@ -164,11 +168,12 @@ class DeformEnv(gym.Env):
         for name, kwargs in SCENE_INFO[scene_name]['entities'].items():
             pth = os.path.join(data_path, name)
             rgba_color = kwargs['rgbaColor'] if 'rgbaColor' in kwargs else None
-            texture_file = self.get_texture_path(args.rigid_texture_file) if 'useTexture' in kwargs and kwargs[
-                'useTexture'] else None
+            texture_file = None
+            if 'useTexture' in kwargs and kwargs['useTexture']:
+                self.get_texture_path(args.rigid_texture_file)
             id = load_rigid_object(
-                sim, pth, kwargs['globalScaling'],
-                kwargs['basePosition'], kwargs['baseOrientation'], texture_file, rgba_color)
+                sim, pth, kwargs['globalScaling'], kwargs['basePosition'],
+                kwargs['baseOrientation'], texture_file, rgba_color)
             rigid_ids.append(id)
 
         #
@@ -180,7 +185,8 @@ class DeformEnv(gym.Env):
             sim, deform_obj, texture_path, args.deform_scale,
             args.deform_init_pos, args.deform_init_ori,
             args.deform_bending_stiffness, args.deform_damping_stiffness,
-            args.deform_elastic_stiffness, args.deform_friction_coeff, not args.disable_self_collision,
+            args.deform_elastic_stiffness, args.deform_friction_coeff,
+            not args.disable_self_collision,
             args.debug)
         if scene_name == 'button':  # pin cloth edge for buttoning task
             assert ('deform_fixed_anchor_vertex_ids' in DEFORM_INFO[deform_obj])
@@ -192,8 +198,8 @@ class DeformEnv(gym.Env):
         goal_poses = SCENE_INFO[scene_name]['goal_pos']
         if args.viz and args.debug:
             for i, goal_pos in enumerate(goal_poses):
-                alpha = 1 if i == 0 else 0.3  # primary vs secondary goal
                 print(f'goal_pos{i}', goal_pos)
+                alpha = 1 if i == 0 else 0.3  # primary vs secondary goal
                 create_anchor_geom(sim, goal_pos, mass=0.0,
                                    rgba=(0, 1, 0, alpha), use_collision=False)
         return rigid_ids, deform_id, deform_obj, np.array(goal_poses)
@@ -211,7 +217,8 @@ class DeformEnv(gym.Env):
         self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos = \
             self.load_objects(self.sim, self.args)
 
-        # Special case for Procedural Cloth V2 (two holes), reward is based on the closest hole
+        # Special case for Procedural Cloth V2 (two holes),
+        # reward is based on the closest hole.
         if self.args.env == 'HangProcCloth-v2':
             self.goal_pos = np.vstack((self.goal_pos,self.goal_pos))
 
@@ -219,8 +226,6 @@ class DeformEnv(gym.Env):
         #
         if self.args.debug and self.args.viz:
             self.debug_viz_cent_loop()
-
-
 
         # Setup dynamic anchors.
         for i in range(DeformEnv.NUM_ANCHORS):  # make anchors
@@ -252,7 +257,7 @@ class DeformEnv(gym.Env):
         for i, true_loop_vertices in enumerate(self.args.deform_true_loop_vertices):
             cent_pos = v[true_loop_vertices].mean(axis=0)
 
-            alpha = 1 if i == 0 else 0.3  # Primary = solid, secondary = 50% transparent
+            alpha = 1 if i == 0 else 0.3  # solid or transparent
             print('cent_pos', cent_pos)
             create_anchor_geom(self.sim, cent_pos, mass=0.0,
                                rgba=(0, 1, 0.8, alpha), use_collision=False)
@@ -282,7 +287,7 @@ class DeformEnv(gym.Env):
             if done:
                 print(f'episode reward {self.episode_reward:0.4f}')
 
-        # Compute final reward by releasing anchor and let fall
+        # Compute final reward by releasing anchor and letting the object fall.
         if done:
             # Release anchors
             release_anchor(self.sim, self.anchor_ids[0])
@@ -290,20 +295,20 @@ class DeformEnv(gym.Env):
             # if self.args.task.lower() == 'lasso':
             #     self.STEPS_AFTER_DONE *= 2
             for sim_step in range(self.STEPS_AFTER_DONE):
-                # For lasso, pull the string at the end to prevent dropping lasso
-                if self.args.task.lower() == 'lasso' and sim_step % self.args.sim_steps_per_action == 0:
-                    action = [100,100,0] # pull towards the endge
-                    for i in range(DeformEnv.NUM_ANCHORS):
-                        command_anchor_velocity(self.sim, self.anchor_ids[i], action)
-                # extend string
+                # For lasso pull the string at the end to avoid dropping lasso.
+                if self.args.task.lower() == 'lasso':
+                    if sim_step % self.args.sim_steps_per_action == 0:
+                        action = [100,100,0] # pull towards the end
+                        for i in range(DeformEnv.NUM_ANCHORS):
+                            command_anchor_velocity(
+                                self.sim, self.anchor_ids[i], action)
                 self.sim.stepSimulation()
-            # if terminating early use reward from current step for rest
-            reward = self.get_reward() * 50
-            # reward *= (self.max_episode_len - self.stepnum)
-
+            reward = self.get_reward() * DeformEnv.FINAL_REWARD_MULT
+            # Log stats.
             info['is_success'] = np.abs(reward) < self.SUCESS_REWARD_TRESHOLD
-            print('is sucess',  info['is_success'] )
-            print('final reward -- ',reward)
+            if self.args.debug:
+                print('is success', info['is_success'])
+                print('final reward ', reward)
 
         self.stepnum += 1
 
@@ -370,10 +375,7 @@ class DeformEnv(gym.Env):
         rwd = -1.0 * dist / DeformEnv.WORKSPACE_BOX_SIZE
         return rwd
 
-    def render(self, mode='rgb_array', width=300, height=300,):
-        #
-        # TODO(Yonk): remove hard-coded numbers.
-        #
+    def render(self, mode='rgb_array', width=300, height=300):
         assert (mode == 'rgb_array')
         dist, pitch, yaw, pos_x, pos_y, pos_z = self.args.cam_viewmat
         cam = {
@@ -381,8 +383,8 @@ class DeformEnv(gym.Env):
             'pitch': pitch,
             'yaw': yaw,
             'cameraTargetPosition': [pos_x, pos_y, pos_z],
-            'upAxisIndex':2,
-            'roll':0,
+            'upAxisIndex': 2,
+            'roll': 0,
         }
         view_mat = self.sim.computeViewMatrixFromYawPitchRoll(**cam)
         w, h, rgba_px, _, _ = self.sim.getCameraImage(

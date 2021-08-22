@@ -19,7 +19,7 @@ def get_args():
     parser.add_argument('--env', type=str,
                         default='HangBag-v0', help='Env name')
     parser.add_argument('--max_episode_len', type=int,
-                        default=200, help='Maximum time per episode (in seconds)')
+                        default=200, help='Max steps per episode')
     parser.add_argument('--seed', type=int, default=0, help='Random seed')
     parser.add_argument('--logdir', type=str, default=None,
                         help='Path for logs')
@@ -29,12 +29,13 @@ def get_args():
                         choices=['A2C', 'DDPG', 'HER', 'PPO', 'SAC', 'TD3'],
                         help='Name of RL algo from Stable Baselines to train')
     parser.add_argument('--num_envs', type=int, default=8,
-                        help='Number of parallel envs (for A2C, PPO, SAC)')
+                        help='Number of parallel envs (for A2C, PPO)')
     parser.add_argument('--num_play_runs', type=int, default=1,
                         help='Number of runs/episodes to play')
     parser.add_argument('--use_wandb', action='store_true',
                         help='Whether to enable logging to wandb.ai')
-    parser.add_argument('--viz', action='store_true', help='Whether to visualize')
+    parser.add_argument('--viz', action='store_true',
+                        help='Whether to visualize')
     parser.add_argument('--debug', action='store_true',
                         help='Whether to print debug info')
 
@@ -75,14 +76,18 @@ def get_args():
     parser.add_argument('--disable_self_collision', action='store_true',
                         help='Disables self collision in the deformable object')
     # Texture args
-    parser.add_argument('--deform_texture_file', type=str, default="textures/deform/orange_pattern.png",
+    parser.add_argument('--deform_texture_file', type=str,
+                        default="textures/deform/orange_pattern.png",
                         help='Texture file for the deformable objects')
-    parser.add_argument('--rigid_texture_file', type=str, default="textures/rigid/red_marble.png",
+    parser.add_argument('--rigid_texture_file', type=str,
+                        default="textures/rigid/red_marble.png",
                         help='Texture file for the rigid objects')
-    parser.add_argument('--plane_texture_file', type=str, default="textures/plane/lightwood.jpg",
+    parser.add_argument('--plane_texture_file', type=str,
+                        default="textures/plane/lightwood.jpg",
                         help='Texture file for the plane (floor)')
     parser.add_argument('--use_random_textures', action='store_true',
-                        help='Randomly selecting a texture for the rigid obj, deformable obj and floor within the texture folder')
+                        help='Randomly selecting a texture for the rigid obj, '
+                             'deformable obj and floor from the texture folder')
 
     # Camera args.
     parser.add_argument('--cam_resolution', type=int, default=200,
@@ -104,5 +109,8 @@ def get_args():
     if args.task not in TASK_INFO.keys():
         print('Supported tasks are', list(TASK_INFO.keys()), 'got', args.task)
         exit(1)
-    assert(args.version < len(TASK_INFO[args.task]) + 1) or args.task in ['HangProcCloth'], 'env version too high'
+    if args.task not in ['HangProcCloth']:
+        if args.version > len(TASK_INFO[args.task]):
+            print('env version too high')
+            exit(1)
     return args
