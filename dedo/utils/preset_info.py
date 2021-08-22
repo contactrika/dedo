@@ -1,6 +1,6 @@
 preset_traj = {
     # TODO add constraint to scene name
-    'cloth/apron_0.obj': {  # HangCloth-v0, 600 steps
+    'cloth/apron_0.obj': {  # HangGarment-v0, 600 steps
         'waypoints': {
             'a': [
                 # [ x, y, z, seconds(time)]
@@ -18,7 +18,7 @@ preset_traj = {
             ],
         },
     },
-    'cloth/shirt_0.obj': {  # HangCloth-v5, 1500 steps
+    'cloth/shirt_0.obj': {  # HangGarment-v5, 1500 steps
         'waypoints': {
             'a': [
                 # [ x, y, z, seconds(time)]

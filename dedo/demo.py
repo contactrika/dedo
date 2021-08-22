@@ -1,7 +1,7 @@
 """
 A simple demo for envs (with random actions).
 
-python -m dedo.demo --env=HangCloth-v0 --viz --debug
+python -m dedo.demo --env=HangGarment-v1 --viz --debug
 python -m dedo.demo --env=HangBag-v1 --viz --debug
 
 @contactrika
@@ -31,7 +31,7 @@ def policy_simple(obs, act, task, step):
         act[:, :] = 0.0
         if obs[0, 0] < 0.10:
             act[:, 0] = 0.10  # increase x
-    elif task in ['HangCloth', 'HangProcCloth']:
+    elif task in ['HangGarment', 'HangProcCloth']:
         act[:, 1] = -0.2
 
     elif task in ['HangBag']:

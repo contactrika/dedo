@@ -1,7 +1,7 @@
 """
 A simple demo with an example of RL training using Stable Baselines.
 
-python -m dedo.rl_demo --env=HangCloth-v0 --rl_algo PPO --logdir=/tmp/dedo
+python -m dedo.rl_demo --env=HangGarment-v1 --rl_algo PPO --logdir=/tmp/dedo
 
 tensorboard --logdir=/tmp/dedo --bind_all --port 6006
 
@@ -12,6 +12,9 @@ tensorboard --logdir=/tmp/dedo --bind_all --port 6006
 from copy import deepcopy
 from datetime import datetime
 import os
+import platform
+if platform.system() == 'Linux':
+    os.environ['IMAGEIO_FFMPEG_EXE'] = '/usr/bin/ffmpeg'
 
 import numpy as np
 
@@ -40,7 +43,8 @@ def main(args):
             wandb.init(sync_tensorboard=False)
             wandb.tensorboard.patch(tensorboardX=True, pytorch=True)
     # Stable baselines only support vectorized envs for on-policy algos.
-    n_envs = args.num_envs if args.rl_algo in ['A2C', 'PPO'] else 1
+    on_policy = args.rl_algo in ['A2C', 'PPO']
+    n_envs = args.num_envs if on_policy else 1
     eval_env = gym.make(args.env, args=args)
     eval_env.seed(args.seed)
     train_args = deepcopy(args)
@@ -54,10 +58,14 @@ def main(args):
     print('Created', args.task, 'with observation_space',
           vec_env.observation_space.shape, 'action_space',
           vec_env.action_space.shape)
-    rl_agent = eval(args.rl_algo)('MlpPolicy', vec_env, device=args.device,
-                                  tensorboard_log=logdir, verbose=1)
+    rl_kwargs = {'device': args.device, 'tensorboard_log': logdir, 'verbose': 1}
+    num_steps_between_play = 10000 if on_policy else 1000
+    if not on_policy:
+        if args.cam_resolution > 0:
+            rl_kwargs['buffer_size'] = 50000  # storing RGB frames in replay
+    rl_agent = eval(args.rl_algo)('MlpPolicy', vec_env, **rl_kwargs)
     cb = CustomCallback(eval_env, args.num_play_runs, logdir, n_envs, args,
-                        num_steps_between_play=10000,
+                        num_steps_between_play=num_steps_between_play,
                         viz=args.viz, debug=args.debug)
     print('RL training start')
     rl_agent.learn(total_timesteps=rl_tot_steps, callback=cb)
