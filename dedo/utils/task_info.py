@@ -50,8 +50,8 @@ TASK_INFO = {
              'cloth/mask_3.obj',
              'cloth/mask_4.obj',
              ],
-    'HangProcCloth': ['procedural_hang_cloth', ],
-    'BGarments':['berkeley_garments'],
+    'HangProcCloth': ['procedural_hang_cloth'],
+    'BGarments': ['berkeley_garments'],
     'Debug': ['cloth/apron_0_large.obj',
               'bags/backpack_0.obj',
               ]
