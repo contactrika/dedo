@@ -36,7 +36,7 @@ class DeformEnv(gym.Env):
 
     def __init__(self, args):
         self.args = args
-        self.max_episode_len = args.max_episode_len
+
         self.cam_on = args.cam_resolution > 0
         # Initialize sim and load objects.
         self.sim = bclient.BulletClient(
@@ -44,7 +44,7 @@ class DeformEnv(gym.Env):
         reset_bullet(args, self.sim, debug=args.debug)
         self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos = \
             self.load_objects(self.sim, self.args)
-
+        self.max_episode_len = self.args.max_episode_len
         # Define sizes of observation and action spaces.
         self.anchor_lims = np.tile(np.concatenate(
             [DeformEnv.WORKSPACE_BOX_SIZE * np.ones(3),  # 3D pos

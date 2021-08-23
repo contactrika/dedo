@@ -19,10 +19,10 @@ TASK_INFO = {
                     'cloth/apron_4.obj',
 
                     'cloth/shirt_0.obj',
-                    'cloth/tshirt_1.obj',
-                    'cloth/tshirt_2.obj',
-                    'cloth/tshirt_3.obj',
-                    'cloth/tshirt_4.obj',
+                    'cloth/shirt_1.obj',
+                    'cloth/shirt_2.obj',
+                    'cloth/shirt_3.obj',
+                    'cloth/shirt_4.obj',
                     ],
     'ButtonSimple': ['cloth/button_cloth.obj'],
     'ButtonProc': ['proc_button_cloth'],
@@ -292,6 +292,7 @@ DEFORM_INFO = {
         'deform_bending_stiffness': 10,
         'deform_damping_stiffness': 0.01,
         'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
+'max_episode_len':700,
         'disable_self_collision': True,
         'deform_anchor_vertices': [
 
@@ -323,6 +324,7 @@ DEFORM_INFO = {
         'deform_bending_stiffness': 10,
         'deform_damping_stiffness': 0.01,
         'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
+'max_episode_len':700,
         'disable_self_collision': True,
         'deform_anchor_vertices': [
             [535, ],
@@ -355,6 +357,7 @@ DEFORM_INFO = {
         'deform_damping_stiffness': 0.01,
         'disable_self_collision': True,
         'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
+'max_episode_len':700,
         'deform_anchor_vertices': [
             [538, ],
             [261, ],
@@ -383,6 +386,7 @@ DEFORM_INFO = {
         'deform_bending_stiffness': 10,
         'deform_damping_stiffness': 0.01,
         'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
+'max_episode_len':700,
         'disable_self_collision': True,
         'deform_anchor_vertices': [
             [525, ],
@@ -413,6 +417,7 @@ DEFORM_INFO = {
         'deform_damping_stiffness': 0.01,
         'disable_self_collision': True,
         'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
+'max_episode_len':700,
         'deform_anchor_vertices': [
             [542, ],
             [249, ],
@@ -583,6 +588,90 @@ DEFORM_INFO = {
         'plane_texture_file': 'textures/plane/cobblestone.jpg',
         'rigid_texture_file': "textures/rigid/concrete.jpg",
     },
+    'cloth/shirt_1.obj': {
+        'deform_init_pos': [0, 3, 4],  # [0, 0, 6]
+        'deform_init_ori': [np.pi / 2, 0, 0],
+        'deform_scale': 5,
+        'deform_elastic_stiffness': 90,
+        'deform_bending_stiffness': 0.1,
+        'deform_damping_stiffness': 0.01,
+        'deform_friction_coeff': 0.5,
+        'cam_viewmat': [7.2, -30, 323, -0.37, 1.08, 4.7],
+        'deform_anchor_vertices': [
+            [294],
+            [3],
+
+        ],
+        'deform_true_loop_vertices': [
+            [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 238, 292, 294, 296, 298, 300, 303, 305, 307, 309, 311, 312, 520],
+        ],
+        'deform_texture_file': 'textures/deform/pb_purple_fancy.jpg',
+        'plane_texture_file': 'textures/plane/brown_yellow_carpet.jpg',
+        'rigid_texture_file': "textures/rigid/red_leather.jpg",
+    },
+    'cloth/shirt_2.obj': {
+        'deform_init_pos': [0, 3, 4],  # [0, 0, 6]
+        'deform_init_ori': [np.pi / 2, 0, 0],
+        'deform_scale': 5,
+        'deform_elastic_stiffness': 90,
+        'deform_bending_stiffness': 0.1,
+        'deform_damping_stiffness': 0.01,
+        'deform_friction_coeff': 0.5,
+        'cam_viewmat': [7.2, -30, 323, -0.37, 1.08, 4.7],
+        'deform_anchor_vertices': [
+            [294],
+            [3],
+
+        ],
+        'deform_true_loop_vertices': [
+            [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 238, 292, 294, 296, 298, 300, 303, 305, 307, 309, 311, 312, 519],
+        ],
+        'deform_texture_file': 'textures/deform/pb_leopard.png',
+        'plane_texture_file': 'textures/plane/grey_tile.jpg',
+        'rigid_texture_file': "textures/rigid/marble.png",
+    },
+    'cloth/shirt_3.obj': {
+        'deform_init_pos': [0, 3, 4],  # [0, 0, 6]
+        'deform_init_ori': [np.pi / 2, 0, 0],
+        'deform_scale': 5,
+        'deform_elastic_stiffness': 90,
+        'deform_bending_stiffness': 0.1,
+        'deform_damping_stiffness': 0.01,
+        'deform_friction_coeff': 0.5,
+        'cam_viewmat': [7.2, -30, 323, -0.37, 1.08, 4.7],
+        'deform_anchor_vertices': [
+            [294],
+            [3],
+
+        ],
+        'deform_true_loop_vertices': [
+            [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 238, 292, 294, 296, 298, 300, 303, 305, 307, 309, 311, 312, 520],
+        ],
+        'plane_texture_file': 'textures/plane/white_brick.jpg',
+        'rigid_texture_file': "textures/rigid/concrete.jpg",
+        'deform_texture_file': 'textures/deform/pb_pink_fur.jpg',
+    },
+    'cloth/shirt_4.obj': {
+        'deform_init_pos': [0, 3, 4],  # [0, 0, 6]
+        'deform_init_ori': [np.pi / 2, 0, 0],
+        'deform_scale': 5,
+        'deform_elastic_stiffness': 90,
+        'deform_bending_stiffness': 0.1,
+        'deform_damping_stiffness': 0.01,
+        'deform_friction_coeff': 0.5,
+        'cam_viewmat': [7.2, -30, 323, -0.37, 1.08, 4.7],
+        'deform_anchor_vertices': [
+            [294],
+            [3],
+
+        ],
+        'deform_true_loop_vertices': [
+            [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 238, 292, 294, 296, 298, 300, 303, 305, 307, 309, 311, 312, 520],
+        ],
+        'deform_texture_file': 'textures/deform/pb_white_knit.jpg',
+        'plane_texture_file': 'textures/plane/blue_carpet.jpg',
+        'rigid_texture_file': "textures/rigid/darkwood.jpg",
+    },
     'cloth/tshirt_0.obj': {
         'deform_init_pos': [0, 3, 4],
         'deform_init_ori': [np.pi / 2, 0, 0],
@@ -717,6 +806,7 @@ DEFORM_INFO = {
 
         ],
         'cam_viewmat': [4.2, -26, 151, 0.04, 0.17, 4.66],
+'max_episode_len':350,
         'plane_texture_file': 'textures/plane/stonefloor.jpg',
         'rigid_texture_file': "textures/rigid/birch.png",
         'deform_texture_file': 'textures/deform/pb_camo.png',
@@ -742,6 +832,7 @@ DEFORM_INFO = {
 
         ],
         'cam_viewmat': [4.2, -26, 151, 0.04, 0.17, 4.66],
+'max_episode_len':350,
         'plane_texture_file': 'textures/plane/brown_brick.jpg',
         'rigid_texture_file': "textures/rigid/brown_brick.jpg",
         'deform_texture_file': 'textures/deform/pb_greenleaves.png',
@@ -766,6 +857,7 @@ DEFORM_INFO = {
 
         ],
         'cam_viewmat': [4.2, -26, 151, 0.04, 0.17, 4.66],
+'max_episode_len':350,
         'plane_texture_file': 'textures/plane/cobblestone.jpg',
         'rigid_texture_file': "textures/rigid/brown_brick.jpg",
         'deform_texture_file': 'textures/deform/orange_pattern.png',
@@ -790,6 +882,7 @@ DEFORM_INFO = {
              190, 191, 192, 193],
         ],
         'cam_viewmat': [4.2, -26, 151, 0.04, 0.17, 4.66],
+'max_episode_len':350,
         'plane_texture_file': 'textures/plane/grass.jpg',
         'rigid_texture_file': "textures/rigid/brown_brick.jpg",
         'deform_texture_file': 'textures/deform/pd_goldpattern.jpg',
@@ -815,6 +908,7 @@ DEFORM_INFO = {
 
         ],
         'cam_viewmat': [4.2, -26, 151, 0.04, 0.17, 4.66],
+'max_episode_len':350,
         'plane_texture_file': 'textures/plane/lightwood.jpg',
         'rigid_texture_file': "textures/rigid/brown_brick.jpg",
         'deform_texture_file': 'textures/deform/pb_whitered_checker.jpg',
@@ -977,6 +1071,8 @@ DEFORM_INFO = {
         'deform_bending_stiffness': 0.1,
         'deform_damping_stiffness': 0.1,
         'deform_friction_coeff': 0.5,
+        'disable_self_collision': True,
+        'max_episode_len': 250,
         'deform_anchor_vertices': [
             [82, ],
             [2, ],
