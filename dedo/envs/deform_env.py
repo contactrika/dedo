@@ -11,6 +11,7 @@ import gym
 import pybullet
 import pybullet_data
 import pybullet_utils.bullet_client as bclient
+import matplotlib.pyplot as plt
 
 from ..utils.anchor_utils import (
     create_anchor, attach_anchor, create_anchor_geom, command_anchor_velocity,
@@ -323,10 +324,7 @@ class DeformEnv(gym.Env):
         if self.args.cam_resolution <= 0:
             obs = anc_obs
         else:
-            w, h, rgba_px, _, _ = self.sim.getCameraImage(
-                width=self.args.cam_resolution, height=self.args.cam_resolution,
-                renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
-            obs = rgba_px[:, :, 0:3]
+            obs = self.render('rgb_array', self.args.cam_resolution, self.args.cam_resolution)
         return obs, done
 
     def get_reward(self):
@@ -361,9 +359,8 @@ class DeformEnv(gym.Env):
             dist = np.mean(dist)
         rwd = -1.0 * dist / DeformEnv.WORKSPACE_BOX_SIZE
         return rwd
-
-    def render(self, mode='rgb_array', width=300, height=300):
-        assert (mode == 'rgb_array')
+    @property
+    def _cam_viewmat(self):
         dist, pitch, yaw, pos_x, pos_y, pos_z = self.args.cam_viewmat
         cam = {
             'distance': dist,
@@ -374,10 +371,15 @@ class DeformEnv(gym.Env):
             'roll': 0,
         }
         view_mat = self.sim.computeViewMatrixFromYawPitchRoll(**cam)
+        return view_mat
+
+    def render(self, mode='rgb_array', width=300, height=300):
+        assert (mode == 'rgb_array')
         w, h, rgba_px, _, _ = self.sim.getCameraImage(
             width=width, height=height,
             renderer=pybullet.ER_BULLET_HARDWARE_OPENGL,
-            viewMatrix=view_mat, **DEFAULT_CAM_PROJECTION)
+            viewMatrix=self._cam_viewmat, **DEFAULT_CAM_PROJECTION,
+        )
         # If getCameraImage() returns a tuple instead of numpy array that
         # means that pybullet was installed without numpy being present.
         # Uninstall pybullet, then install numpy, then install pybullet.
