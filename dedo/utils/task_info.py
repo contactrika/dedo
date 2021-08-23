@@ -50,6 +50,7 @@ TASK_INFO = {
              'cloth/mask_3.obj',
              'cloth/mask_4.obj',
              ],
+    'Berkeley':['berkeley_garments'],
     'HangProcCloth': ['procedural_hang_cloth', ],
     'Debug': ['cloth/apron_0_large.obj',
               'bags/backpack_0.obj',
@@ -1125,8 +1126,9 @@ DEFORM_INFO = {
         'deform_elastic_stiffness': 10,
         'deform_bending_stiffness': 10,
         'deform_anchor_vertices': [
-            [0, ],
             [38, ],
+            [0, ],
+
         ],
         'deform_fixed_anchor_vertex_ids':
             [372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391],
@@ -1159,6 +1161,20 @@ DEFORM_INFO = {
         'rigid_texture_file': "textures/rigid/lightwood.jpg",
         'deform_texture_file': 'textures/deform/pb_white_knit.jpg',
 
+    },
+    'berkeley_garments': {
+        'deform_init_pos': [0, 5, 8],
+        'deform_init_ori': [np.pi/2, 0, 0],
+        'deform_scale': 10,
+        'anchor_init_pos': [1, 4.4722, 10.4271],
+        'other_anchor_init_pos': [-1,  4.4708, 10.4309],
+        'deform_elastic_stiffness': 10,
+        'deform_bending_stiffness': 0.1,
+        'deform_damping_stiffness': 0.01,
+        'cam_viewmat': [8.8, -12.6, 314, -0.4, 0.6, 5.3],
+        'plane_texture_file': 'textures/plane/brown_yellow_carpet.jpg',
+        'rigid_texture_file': "textures/rigid/lightwood.jpg",
+        'deform_texture_file': 'textures/deform/pb_whitered_checker.jpg',
     },
 }
 

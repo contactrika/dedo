@@ -73,17 +73,22 @@ class DeformEnv(gym.Env):
 
     def get_texture_path(self, file_path):
         # Get either pre-specified texture file or a random one.
+
         if self.args.use_random_textures:
             parent = os.path.dirname(file_path)
             full_parent_path = os.path.join(self.args.data_path, parent)
             randfile = np.random.choice(list(os.listdir(full_parent_path)))
             file_path = os.path.join(parent,randfile)
+        print('self.args.use_random_textures', self.args.use_random_textures)
+        print('file_path', file_path)
         return file_path
 
     def load_objects(self, sim, args):
         scene_name = self.args.task.lower()
         if scene_name.startswith('hanggarment'):
            scene_name = 'hangcloth'  # same hanger for garments and cloths
+        if scene_name.startswith('berkeley'):
+           scene_name = 'hangcloth'  # same hanger for berkeley garments
         if scene_name.startswith('button'):
             scene_name = 'button'
         elif scene_name.startswith('hangproccloth'):
@@ -99,45 +104,26 @@ class DeformEnv(gym.Env):
         args.data_path = data_path
         sim.setAdditionalSearchPath(data_path)
 
+
+
+
         if args.override_deform_obj is not None:
             deform_obj = args.override_deform_obj
-        else:
-            assert (args.task in TASK_INFO)  # already checked in args
-            assert (args.version <= len(TASK_INFO[args.task]))
-            if args.version == 0:
-                deform_obj = np.random.choice(TASK_INFO[args.task])
-                if args.task == 'HangBag':  # select from 100+ obj mesh variants
-                    tmp_id0 = np.random.randint(TOTE_MAJOR_VERSIONS)
-                    tmp_id1 = np.random.randint(TOTE_VARS_PER_VERSION)
-                    deform_obj = f'bags/totes/bag{tmp_id0:d}_{tmp_id1:d}.obj'
-                    if deform_obj not in DEFORM_INFO:
-                        tmp_key = f'bags/totes/bag{tmp_id0:d}_0.obj'
-                        assert(tmp_key in DEFORM_INFO)
-                        DEFORM_INFO[deform_obj] = DEFORM_INFO[tmp_key].copy()
-            else:
-                deform_obj = TASK_INFO[args.task][args.version-1]
-
-            for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
-                setattr(args, arg_nm, arg_val)
-
-        # Procedural generation for hanging cloth
-        if deform_obj == 'procedural_hang_cloth':
+        elif self.args.task == 'HangProcCloth': # Procedural generation for hanging cloth
             args.node_density = 15
             if args.version == 0:
                 args.num_holes = np.random.randint(2)+1
             elif args.version in [1,2]:
                 args.num_holes = args.version
             deform_obj = gen_procedural_hang_cloth(
-                self.args, deform_obj, DEFORM_INFO)
+                self.args, 'procedural_hang_cloth', DEFORM_INFO)
             for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
                 setattr(args, arg_nm, arg_val)
-
-        # Procedural generation for buttoninig
-        if self.args.task == 'ButtonProc':
+        elif self.args.task == 'ButtonProc': # Procedural generation for buttoninig
             args.num_holes = 2
             args.node_density = 15
             deform_obj, hole_centers = gen_procedural_button_cloth(
-                self.args, deform_obj, DEFORM_INFO)
+                self.args, 'proc_button_cloth', DEFORM_INFO)
             for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
                 setattr(args, arg_nm, arg_val)
 
@@ -152,8 +138,38 @@ class DeformEnv(gym.Env):
             buttons['entities']['urdf/button_fixed.urdf']['basePosition'] = (h1[0], 0.2, h1[2])
             buttons['entities']['urdf/button_fixed2.urdf']['basePosition'] = (h2[0], 0.2, h2[2])
             # goal pos
-            buttons['goal_pos'] = [h1, h2]  # TODO: add noise to button pos
+            buttons['goal_pos'] = [h1, h2]
+        elif self.args.task == 'Berkeley':
+            if args.version == 0:
+                deform_obj = np.random.choice(TASK_INFO[args.task])
+            else:
+                deform_obj = TASK_INFO[args.task][args.version]
 
+            DEFORM_INFO[deform_obj] = DEFORM_INFO['berkeley_garments'].copy()
+
+
+        else:
+            assert (args.task in TASK_INFO)  # already checked in args
+            assert (args.version <= len(TASK_INFO[args.task]))
+            if args.version == 0:
+                deform_obj = np.random.choice(TASK_INFO[args.task])
+                if args.task == 'HangBag':  # select from 100+ obj mesh variants
+                    tmp_id0 = np.random.randint(TOTE_MAJOR_VERSIONS)
+                    tmp_id1 = np.random.randint(TOTE_VARS_PER_VERSION)
+                    deform_obj = f'bags/totes/bag{tmp_id0:d}_{tmp_id1:d}.obj'
+                    if deform_obj not in DEFORM_INFO:
+                        tmp_key = f'bags/totes/bag{tmp_id0:d}_0.obj'
+                        assert (tmp_key in DEFORM_INFO)
+                        DEFORM_INFO[deform_obj] = DEFORM_INFO[tmp_key].copy()
+
+            else:
+                deform_obj = TASK_INFO[args.task][args.version - 1]
+
+            for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
+                setattr(args, arg_nm, arg_val)
+        if deform_obj in DEFORM_INFO:
+            for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
+                setattr(args, arg_nm, arg_val)
         #
         # Load rigid objects.
         #
