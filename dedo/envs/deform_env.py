@@ -162,7 +162,7 @@ class DeformEnv(gym.Env):
             rgba_color = kwargs['rgbaColor'] if 'rgbaColor' in kwargs else None
             texture_file = None
             if 'useTexture' in kwargs and kwargs['useTexture']:
-                self.get_texture_path(args.rigid_texture_file)
+                texture_file = self.get_texture_path(args.rigid_texture_file)
             id = load_rigid_object(
                 sim, pth, kwargs['globalScaling'], kwargs['basePosition'],
                 kwargs['baseOrientation'], texture_file, rgba_color)
