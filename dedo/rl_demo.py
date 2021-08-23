@@ -62,7 +62,7 @@ def main(args):
     num_steps_between_play = 10000 if on_policy else 1000
     if not on_policy:
         if args.cam_resolution > 0:
-            rl_kwargs['buffer_size'] = 50000  # storing RGB frames in replay
+            rl_kwargs['buffer_size'] = 10000  # storing RGB frames in replay
     rl_agent = eval(args.rl_algo)('MlpPolicy', vec_env, **rl_kwargs)
     cb = CustomCallback(eval_env, args.num_play_runs, logdir, n_envs, args,
                         num_steps_between_play=num_steps_between_play,
