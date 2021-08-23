@@ -32,8 +32,6 @@ def main(args):
     np.set_printoptions(precision=4, linewidth=150, suppress=True)
     if args.rl_algo is None:
         args.rl_algo = 'PPO'  # default to PPO if RL algo not specified
-    if args.cam_resolution > 0:
-        args.uint8_pixels = True  # for CnnPolicy
     logdir = None
     if args.logdir is not None:
         tstamp = datetime.strftime(datetime.today(), '%y%m%d_%H%M%S')
@@ -65,7 +63,9 @@ def main(args):
     if not on_policy:
         if args.cam_resolution > 0:
             rl_kwargs['buffer_size'] = 10000  # storing RGB frames in replay
-    policy_name = 'CnnPolicy' if args.cam_resolution > 0 else 'MlpPolicy'
+    policy_name = 'MlpPolicy'
+    if args.cam_resolution > 0 and args.uint8_pixels:
+        policy_name = 'CnnPolicy'
     rl_agent = eval(args.rl_algo)(policy_name, vec_env, **rl_kwargs)
     cb = CustomCallback(eval_env, args.num_play_runs, logdir, n_envs, args,
                         num_steps_between_play=num_steps_between_play,

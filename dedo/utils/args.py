@@ -109,7 +109,7 @@ def get_args():
     parser.add_argument('--reward_strategy',  type=int, default=0,
                         help='Which reward strategy to use')
     parser.add_argument('--uint8_pixels', action='store_true',
-                        help='Whether to report pixels as uint8 in [0,255]')
+                        help='User CNNs for RL and uint8 in [0,255] for pixels')
     # Parse args and do sanity checks.
     args = parser.parse_args()
     env_parts = args.env.split('-v')
