@@ -25,23 +25,23 @@ in `v0`).
 
 `HangBag-v[1-3]`: three bag versions with textures shown below:
 
-![misc/imgs/hang_bags_annotated.png](misc/imgs/hang_bags_annotated.jpg)
+![misc/imgs/hang_bags_annotated.jpg](misc/imgs/hang_bags_annotated.jpg)
 
 
 ### HangGarment
 `HangGarment-v0`: hang garment with randomized textures 
 (a few examples below):
 
-![misc/imgs/hang_garments.png](misc/imgs/hang_garments_0.jpg)
+![misc/imgs/hang_garments_0.jpg](misc/imgs/hang_garments_0.jpg)
 
 `HangGarment-v[1-5]`: 5 apron meshes and texture combos shown below:
 
-![misc/imgs/hang_garments.png](misc/imgs/hang_garments_5.jpg)
+![misc/imgs/hang_garments_5.jpg](misc/imgs/hang_garments_5.jpg)
 
 
 `HangGarment-v[6-10]`: 5 shirt meshes and texture combos shown below:
 
-![misc/imgs/shirts.png](misc/imgs/shirts.jpg)
+![misc/imgs/hang_shirts_5.jpg](misc/imgs/hang_shirts_5.jpg)
 
 
 ### HangProcCloth
@@ -51,7 +51,7 @@ procedurally generated cloth with 1 and 2 holes.
 
 `HangProcCloth-v[1-2]`: same, but with either 1 or 2 holes
 
-![misc/imgs/hang_proc_cloth.png](misc/imgs/hang_proc_cloth.jpg)
+![misc/imgs/hang_proc_cloth.jpg](misc/imgs/hang_proc_cloth.jpg)
 
 ### Buttoning
 
@@ -60,14 +60,14 @@ procedurally generated cloth with 1 and 2 holes.
 
 `ButtonProc-v[1-2]`: procedurally generated cloth, 1 or two holes.
 
-![misc/imgs/button_proc.png](misc/imgs/button_proc.jpg)
+![misc/imgs/button_proc.jpg](misc/imgs/button_proc.jpg)
 
 `ButtonSimple-v0`: randomized textures, but fixed cloth and button positions.
 
 `ButtonSimple-v1`:  fixed cloth and button positions with one texture 
 (see image below):
 
-![misc/imgs/button_simple.png](misc/imgs/button_simple.jpg)
+![misc/imgs/button_simple.jpg](misc/imgs/button_simple.jpg)
 
 
 #### Hoop and Lasso
@@ -76,28 +76,28 @@ procedurally generated cloth with 1 and 2 holes.
 
 `Hoop-v1`, `Lasso-v1`: pre-selected textures
 
-![misc/imgs/hoop_and_lasso.png](misc/imgs/hoop_and_lasso.jpg)
+![misc/imgs/hoop_and_lasso.jpg](misc/imgs/hoop_and_lasso.jpg)
 
 
 ### Dress
 
 `DressBag-v0`, `DressBag-v[1-5]`: demo for `-v1` shown below
 
-![misc/imgs/dress_bag.png](misc/imgs/dress_bag.jpg)
+![misc/imgs/dress_bag.jpg](misc/imgs/dress_bag.jpg)
 
 Visualizations of the 5 backpack mesh and texture variants for `DressBag-v[1-5]`:
 
-![misc/imgs/backpack_meshes.png](misc/imgs/backpack_meshes.jpg)
+![misc/imgs/backpack_meshes.jpg](misc/imgs/backpack_meshes.jpg)
 
 `DressGarment-v0`, `DressGarment-v[1-5]`: demo for `-v1` shown below
 
-![misc/imgs/dress_garment.png](misc/imgs/dress_garment.jpg)
+![misc/imgs/dress_garment.jpg](misc/imgs/dress_garment.jpg)
 
 ### Mask
 
 `Mask-v0`, `Mask-v[1-5]`: a few texture variants shown below:
 
-![misc/imgs/mask.png](misc/imgs/mask.jpg)
+![misc/imgs/mask_0.jpg](misc/imgs/mask_0.jpg)
 
 
 
@@ -131,15 +131,10 @@ sudo apt-get install ffmpeg
 
 ```
 python -m dedo.demo --env=HangBag-v1 --viz --debug
+python -m dedo.demo --env=HangGarment-v1 --cam_resolution 400 --viz --debug
 ```
 
-![misc/imgs/hang_bags_annotated.png](misc/imgs/hang_bags_annotated.jpg)
-
-```
-python -m dedo.demo --env=HangGarment-v1 --cam_resolution 200 --viz --debug
-```
-
-![misc/imgs/hang_garments.png](misc/imgs/hang_garments_1.jpg)
+![misc/imgs/hang_task_ui.jpg](misc/imgs/hang_task_ui.jpg)
 
 
 <a name="rl"></a>
