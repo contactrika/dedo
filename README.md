@@ -1,14 +1,93 @@
-# Dynamic Environments with Deformable Objects
-
-TODO: port the rest of the code and add documentation
-
-Workshop page with paper+poster: https://sites.google.com/nvidia.com/do-sim/posters
-
+# DEDO: Dynamic Environments with Deformable Objects
 
 **Table of Contents:**<br />
+[Tasks](#tasks)<br />
 [Installation](#install)<br />
 [Basic Examples](#examples)<br />
 [RL Examples](#rl)<br />
+[Customization](#custom)<br />
+
+## Tasks:
+
+All tasks have `-v0` that randomizes textures and meshes.
+
+All tasks have `-v1` and `-v2` with a particular choice of meshes and textures
+that is not randomized. Most tasks have versions up to `-v5` with additional
+mesh and texture variations.
+
+Tasks with procedurally generated cloth (`ButtonProc` and `HangProcCloth`)
+generate random cloth objects for all versions (but randomize textures only
+in `v0`).
+
+### HangBag
+
+`HangBag-v0`: selects one of 108 bag meshes; randomized textures
+
+`HangBag-v[1-3]`: three bag versions with textures shown below:
+
+![misc/imgs/hang_bags_annotated.png](misc/imgs/hang_bags_annotated.jpg)
+
+
+### HangGarment
+`HangGarment-v0`: hang garment with randomized textures 
+(a few examples below):
+
+![misc/imgs/hang_garments.png](misc/imgs/hang_garments_0.jpg)
+
+`HangGarment-v[1-5]`: 5 apron meshes shown below with tall images:
+
+![misc/imgs/hang_garments.png](misc/imgs/hang_garments_5.jpg)
+
+### HangProcCloth
+
+`HangProcCloth-v0`: random textures, 
+procedurally generated cloth with 1 and 2 holes.
+
+`HangProcCloth-v[1-2]`: same, but with either 1 or 2 holes
+
+![misc/imgs/hang_proc_cloth.png](misc/imgs/hang_proc_cloth.jpg)
+
+### Buttoning
+
+`ButtonProc-v0`: randomized textures and procedurally generated cloth with 
+2 holes, randomized hole/button positions.
+
+`ButtonProc-v[1-2]`: procedurally generated cloth, 1 or two holes.
+
+![misc/imgs/button_proc.png](misc/imgs/button_proc.jpg)
+
+`ButtonSimple-v0`: randomized textures, but fixed cloth and button positions.
+
+`ButtonSimple-v1`:  fixed cloth and button positions with one texture 
+(see image below):
+
+![misc/imgs/button_simple.png](misc/imgs/button_simple.jpg)
+
+
+#### Hoop and Lasso
+
+`Hoop-v0`, `Lasso-v0`: randomized textures
+
+`Hoop-v1`, `Lasso-v1`: pre-selected textures
+
+![misc/imgs/hoop_and_lasso.png](misc/imgs/hoop_and_lasso.jpg)
+
+
+### Dress
+
+`DressBag-v0`, `DressBag-v[1-5]`
+
+`DressGarment-v0`, `DressGarment-v[1-5]`
+
+![misc/imgs/dress.png](misc/imgs/dress.jpg)
+
+### Mask
+
+`Mask-v0`, `Mask-v[1-5]`
+
+![misc/imgs/mask.png](misc/imgs/mask.jpg)
+
+
 
 <a name="install"></a>
 ## Installation
@@ -39,30 +118,35 @@ sudo apt-get install ffmpeg
 ### Basic Examples
 
 ```
-python -m dedo.demo --env=HangBag-v0 --viz --debug
+python -m dedo.demo --env=HangBag-v1 --viz --debug
 ```
 
-![misc/imgs/bag_begin.png](misc/imgs/bag_begin.png)
-![misc/imgs/bag_end.png](misc/imgs/bag_end.png)
+![misc/imgs/hang_bags_annotated.png](misc/imgs/hang_bags_annotated.jpg)
 
 ```
-python -m dedo.demo --env=HangGarment-v0 --viz --debug
+python -m dedo.demo --env=HangGarment-v1 --cam_resolution 200 --viz --debug
 ```
 
-![misc/imgs/apron_begin.png](misc/imgs/apron_begin.png)
-![misc/imgs/apron_end.png](misc/imgs/apron_end.png)
+![misc/imgs/hang_garments.png](misc/imgs/hang_garments_1.jpg)
 
 
-The above will only have anchor positions as the state (this is just for quick
-testing). 
+<a name="rl"></a>
+## RL Examples
 
-To get images as state use `--cam_resolution` flag as follows:
+`dedo/rl_demo.py` gives an example of how to train an RL
+algorithm from Stable Baselines:
 
 ```
-python -m dedo.demo --env=HangGarment-v0 --cam_resolution 200 --viz --debug
+python -m dedo.rl_demo --env=HangGarment-v0 \
+    --logdir=/tmp/dedo --num_play_runs=3 --viz --debug
+
+tensorboard --logdir=/tmp/dedo --bind_all --port 6006 \
+  --samples_per_plugin images=1000
 ```
 
-![misc/imgs/apron_rgb.png](misc/imgs/apron_rgb.png)
+
+<a name="custom"></a>
+## Customization
 
 To load custom object you would first have to fill an entry in `DEFORM_INFO` in 
 `task_info.py`. The key should the the `.obj` file path relative to `data/`:
@@ -108,86 +192,3 @@ python -m dedo.demo --env=HangGarment-v0 --viz --debug \
    --deform_scale 2.0 --anchor_init_pos -0.10 0.40 0.70 \
    --other_anchor_init_pos 0.10 0.40 0.70
 ```
-
-<a name="rl"></a>
-## RL Examples
-
-`dedo/rl_demo.py` gives an example of how to train an Rl
-algorithm from Stable Baselines:
-
-```
-python -m dedo.rl_demo --env=HangGarment-v0 \
-    --logdir=/tmp/dedo --num_play_runs=3 --viz --debug
-
-tensorboard --logdir=/tmp/dedo --bind_all --port 6006 \
-  --samples_per_plugin images=1000
-```
-
-After 5-10 minutes of training (on a laptop) on a simplified
-env version where the anchor positions are given as
-observations we get:
-
-![misc/imgs/apron_ppo_play.gif](misc/imgs/apron_ppo_play.gif)
-
-The above illustration is mainly for debugging purposes, since anchor positions
-are reported as the environment state, so RL would learn only based on this
-low-dimensional input.
-
-Adding `--cam_resolutioni=200` would change the state representation to
-200x200 images, and this is the intended use for actual RL training.
-
-
-### RL envs/tasks that are currently ready:
-
-#### HangBag
-
-Versions that are ready: `HangBag-v1`,`HangBag-v2`,`HangBag-v3`, ... ,`HangBag-v108`
-
-```
-python -m dedo.rl_demo --env=HangBag-v1  --logdir=/tmp/dedo --max_episode_len=200
-```
-
-#### HangGarment
-Versions that are ready: `HangGarment-v1`,`HangGarment-v2`,
-`HangGarment-v3`,`HangGarment-v4`,`HangGarment-v5`
-
-```
-python -m dedo.rl_demo --env=HangGarment-v5  --logdir=/tmp/dedo --max_episode_len=200
-```
-
-#### Lasso
-Versions that are ready: `Lasso-v1`
-
-```
-python -m dedo.rl_demo --env=Lasso-v1  --logdir=/tmp/dedo --max_episode_len=200
-```
-
-#### Hoop
-Versions that are ready: `Hoop-v1`
-
-```
-python -m dedo.rl_demo --env=Hoop-v1  --logdir=/tmp/dedo --max_episode_len=200
-```
-
-#### Dress
-Versions that are ready: `Dress-v1`, `Dress-v2`, `Dress-v3`, `Dress-v4`, `Dress-v5`, `Dress-v6`, `Dress-v7`, `Dress-v8`, `Dress-v9`, `Dress-v10`
-
-```
-python -m dedo.rl_demo --env=Dress-v5  --logdir=/tmp/dedo --max_episode_len=600
-```
-
-#### Mask
-Versions that are ready: `Mask-v1`
-
-```
-python -m dedo.rl_demo --env=Mask-v1 --logdir=/tmp/dedo 
-```
-
-#### Buttoning
-
-Versions that are ready: `ButtonSimple-v1`
-
-```
-python -m dedo.rl_demo --env=ButtonSimple-v1 --logdir=/tmp/dedo
-```
-
