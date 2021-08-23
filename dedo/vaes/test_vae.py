@@ -12,9 +12,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import torch
-import torchvision
 
 from dedo.vaes.svae import SVAE
+from dedo.vaes.datasets import DeformEnvDataset
+from dedo.utils.args import get_args
 
 
 def plot_recon(svae, train_data, test_data, fig):
@@ -22,10 +23,10 @@ def plot_recon(svae, train_data, test_data, fig):
     n_rows, n_cols = 4, 2
     for row in range(n_rows):
         data = train_data if row < 2 else test_data
-        rnd_idx = torch.randint(len(data), size=(1,)).item()
-        x, label = data[rnd_idx]
-        inp_dim = np.prod(x.shape[1:])
-        x_hat_distr, _ = svae.reconstruct(x.view(x.shape[0], 1, inp_dim))
+
+        x = next(data)
+        inp_dim = np.prod(x.shape[:])
+        x_hat_distr, _ = svae.reconstruct(x.view(1, inp_dim))
         x_hat = x_hat_distr.sample_().view(x.shape)
         plt.axis('off')
         fig.add_subplot(n_rows, n_cols, 1+row*n_cols)
@@ -40,26 +41,22 @@ def plot_recon(svae, train_data, test_data, fig):
     plt.show()
 
 
-def test_vae():
-    tranform = torchvision.transforms.ToTensor()
-    train_dataset = torchvision.datasets.MNIST(
-        './tmp_data', transform=tranform, download=True, train=True)
-    test_dataset = torchvision.datasets.MNIST(
-        './tmp_data', transform=tranform, download=True, train=False)
-    print(f'Loaded {len(train_dataset):d} train {len(test_dataset):d} test')
-    x, y = train_dataset[0]
+def test_vae(args):
+    train_dataset = DeformEnvDataset(args)
+    # test_dataset = DeformEnvDataset(args)
+    x = next(train_dataset)
     inp_dim = np.prod(x.shape[1:])
     svae = SVAE(inp_dim=inp_dim, inp_seq_len=1, out_dim=inp_dim)
     train_data_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=128, shuffle=True)
+        train_dataset, num_workers=8, batch_size=128, shuffle=False)
     optim = torch.optim.Adam(svae.parameters(), lr=1e-3)
     n_epochs = 100
     fig = plt.figure(figsize=(6, 6))
     plot_loss_lst = []
     for epoch in range(n_epochs):
-        plot_recon(svae, train_dataset, test_dataset, fig)
+        # plot_recon(svae, train_dataset, train_dataset, fig)
         plot_loss_accum = 0
-        for x, y in train_data_loader:
+        for x in train_data_loader:
             x = x.view(x.shape[0], 1, inp_dim)
             recon_tgt = x.view(x.shape[0], inp_dim)
             optim.zero_grad()
@@ -73,4 +70,4 @@ def test_vae():
 
 
 if __name__ == '__main__':
-    test_vae()
+    test_vae(get_args())
