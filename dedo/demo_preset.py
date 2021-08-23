@@ -39,7 +39,8 @@ def play(env, num_episodes, args):
 
     if WRITE_TO_VID:
         savepath = os.path.join(args.logdir, f'{args.env}.mp4')
-        vidwriter = cv2.VideoWriter(savepath, cv2.VideoWriter_fourcc(*'mp4v'), 24, (640, 480))
+        vidwriter = cv2.VideoWriter(
+            savepath, cv2.VideoWriter_fourcc(*'mp4v'), 24, (640, 480))
         print('saving to ', savepath)
 
     for epsd in range(num_episodes):
@@ -74,10 +75,12 @@ def play(env, num_episodes, args):
         if WRITE_TO_VID:
             vidwriter.release()
 
+
 def viz_waypoints(sim, waypoints, rgba):
     waypoints = np.array(waypoints)
     for waypoint in waypoints:
         create_anchor_geom(sim, waypoint[:3], mass=0, rgba=rgba, use_collision=False)
+
 
 def merge_traj(traj_a, traj_b):
     if traj_a.shape[0] != traj_b.shape[0]:  # padding is required
@@ -100,7 +103,7 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq):
     steps = (wp[:, -1] * ctrl_freq).round().astype(np.int32)  # seconds -> ctrl steps
     pos = create_trajectory(init_anc_pos, wp[:, :3], steps, ctrl_freq)  # [:,3:]
     traj = pos[:, 3:]
-
+    #
     # Using the savgol_filter
     # wp_pos = interpolate_waypts(wp, 1000)
     # traj = wp_pos[1:] - wp_pos[:-1]

@@ -190,10 +190,12 @@ for v in range(1, TOTE_MAJOR_VERSIONS):
         preset_traj[f'bags/totes/bag{v:d}_{vv:d}.obj'] = bag_waypts
 backpack_waypts = preset_traj['bags/backpack_0.obj']
 apron_waypts = preset_traj['cloth/apron_0.obj']
+shirt_waypts = preset_traj['cloth/shirt_0.obj']
 mask_waypts = preset_traj['cloth/mask_0.obj']
 vest_waypts = preset_traj['cloth/vest_0.obj']
 for v in range(1, MESH_MAJOR_VERSIONS):
     preset_traj['bags/backpack_' + str(v) + '.obj'] = backpack_waypts
     preset_traj['cloth/apron_' + str(v) + '.obj'] = apron_waypts
+    preset_traj['cloth/shirt_' + str(v) + '.obj'] = shirt_waypts
     preset_traj['cloth/vest_' + str(v) + '.obj'] = vest_waypts
     preset_traj['cloth/mask_' + str(v) + '.obj'] = mask_waypts

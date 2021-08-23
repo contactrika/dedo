@@ -34,9 +34,15 @@ in `v0`).
 
 ![misc/imgs/hang_garments.png](misc/imgs/hang_garments_0.jpg)
 
-`HangGarment-v[1-5]`: 5 apron meshes shown below with tall images:
+`HangGarment-v[1-5]`: 5 apron meshes and texture combos shown below:
 
 ![misc/imgs/hang_garments.png](misc/imgs/hang_garments_5.jpg)
+
+
+`HangGarment-v[6-10]`: 5 shirt meshes and texture combos shown below:
+
+![misc/imgs/shirts.png](misc/imgs/shirts.jpg)
+
 
 ### HangProcCloth
 
@@ -75,15 +81,21 @@ procedurally generated cloth with 1 and 2 holes.
 
 ### Dress
 
-`DressBag-v0`, `DressBag-v[1-5]`
+`DressBag-v0`, `DressBag-v[1-5]`: demo for `-v1` shown below
 
-`DressGarment-v0`, `DressGarment-v[1-5]`
+![misc/imgs/dress_bag.png](misc/imgs/dress_bag.jpg)
 
-![misc/imgs/dress.png](misc/imgs/dress.jpg)
+Visualizations of the 5 backpack mesh and texture variants for `DressBag-v[1-5]`:
+
+![misc/imgs/backpack_meshes.png](misc/imgs/backpack_meshes.jpg)
+
+`DressGarment-v0`, `DressGarment-v[1-5]`: demo for `-v1` shown below
+
+![misc/imgs/dress_garment.png](misc/imgs/dress_garment.jpg)
 
 ### Mask
 
-`Mask-v0`, `Mask-v[1-5]`
+`Mask-v0`, `Mask-v[1-5]`: a few texture variants shown below:
 
 ![misc/imgs/mask.png](misc/imgs/mask.jpg)
 
