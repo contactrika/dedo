@@ -92,24 +92,11 @@ def create_anchor(sim, anchor_pos, anchor_idx, preset_vertices, mesh,
 def command_anchor_velocity(sim, anchor_bullet_id, tgt_vel,  debug=False):
     anc_linvel, _ = sim.getBaseVelocity(anchor_bullet_id)
     vel_diff = tgt_vel - np.array(anc_linvel)
-    force = CTRL_PD_KD * vel_diff
-    force = np.clip(force, -1.0 * CTRL_MAX_FORCE, CTRL_MAX_FORCE)
+    raw_force = CTRL_PD_KD * vel_diff
+    force = np.clip(raw_force, -1.0 * CTRL_MAX_FORCE, CTRL_MAX_FORCE)
     sim.applyExternalForce(
         anchor_bullet_id, -1, force.tolist(), [0, 0, 0], pybullet.LINK_FRAME)
-    # If we were using a robot (e.g. Yumi or other robot with precise
-    # non-compliant velocity control interface) - then we could simply command
-    # that velocity to the robot. For a free-floating anchor - one option would
-    # be to use PD control and applyExternalForce(). However, it is likely that
-    # PD gains would need to be tuned for various objects (different mass,
-    # stiffness, etc). So to simplify things we use a reset here. This should
-    # be ok for use cases when anchors are mostly free to move.
-    # For cases where the anchors are very much constrained by the cloth
-    # (e.g. deformable is attached to a fixed object on multiple sides) -
-    # other control methods would be more appropriate.
-    # sim.resetBaseVelocity(anchor_bullet_id, linearVelocity=tgt_vel.tolist(),
-    #                       angularVelocity=[0, 0, 0])
-    # _, ori = sim.getBasePositionAndOrientation(anchor_bullet_id)
-    # sim.resetBasePositionAndOrientation(anchor_bullet_id, tgt_vel, ori)
+    return raw_force
 
 
 def attach_anchor(sim, anchor_id, anchor_vertices, deform_id, change_color=False):

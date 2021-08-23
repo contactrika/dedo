@@ -30,9 +30,10 @@ from dedo.utils.rl_utils import CustomCallback
 
 def main(args):
     np.set_printoptions(precision=4, linewidth=150, suppress=True)
-    rl_tot_steps = int(1e6)
     if args.rl_algo is None:
         args.rl_algo = 'PPO'  # default to PPO if RL algo not specified
+    if args.cam_resolution > 0:
+        args.uint8_pixels = True  # for CnnPolicy
     logdir = None
     if args.logdir is not None:
         tstamp = datetime.strftime(datetime.today(), '%y%m%d_%H%M%S')
@@ -58,17 +59,19 @@ def main(args):
     print('Created', args.task, 'with observation_space',
           vec_env.observation_space.shape, 'action_space',
           vec_env.action_space.shape)
-    rl_kwargs = {'device': args.device, 'tensorboard_log': logdir, 'verbose': 1}
+    rl_kwargs = {'learning_rate': args.rl_lr, 'device': args.device,
+                 'tensorboard_log': logdir, 'verbose': 1}
     num_steps_between_play = 10000 if on_policy else 1000
     if not on_policy:
         if args.cam_resolution > 0:
             rl_kwargs['buffer_size'] = 10000  # storing RGB frames in replay
-    rl_agent = eval(args.rl_algo)('MlpPolicy', vec_env, **rl_kwargs)
+    policy_name = 'CnnPolicy' if args.cam_resolution > 0 else 'MlpPolicy'
+    rl_agent = eval(args.rl_algo)(policy_name, vec_env, **rl_kwargs)
     cb = CustomCallback(eval_env, args.num_play_runs, logdir, n_envs, args,
                         num_steps_between_play=num_steps_between_play,
                         viz=args.viz, debug=args.debug)
     print('RL training start')
-    rl_agent.learn(total_timesteps=rl_tot_steps, callback=cb)
+    rl_agent.learn(total_timesteps=args.rl_total_env_steps, callback=cb)
     vec_env.close()
 
 

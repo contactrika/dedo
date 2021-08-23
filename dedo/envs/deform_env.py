@@ -32,6 +32,7 @@ class DeformEnv(gym.Env):
     NUM_ANCHORS = 2
     WORKSPACE_BOX_SIZE = 20.0  # workspace box limits (needs to be >=1)
     STEPS_AFTER_DONE = 500     # steps after releasing anchors at the end
+    FORCE_REWARD_MULT = 1e-4   # scaling for the force penalties
     FINAL_REWARD_MULT = 50     # multiply the final reward (for sparse rewards)
     SUCESS_REWARD_TRESHOLD = 2.5  # threshold to log task success/failure
 
@@ -53,7 +54,11 @@ class DeformEnv(gym.Env):
         if args.cam_resolution <= 0:  # report anchor positions as low-dim obs
             self.observation_space = gym.spaces.Box(
                 -1.0 * self.anchor_lims, self.anchor_lims)
-        else:  # RGB
+        elif args.uint8_pixels:  # RGB with [0, 255] uint8 vals
+           self.observation_space = gym.spaces.Box(
+               low=0, high=255, dtype=np.uint8, shape=(
+                   args.cam_resolution, args.cam_resolution, 3))
+        else:  # RGB with [0,1] floats
             self.observation_space = gym.spaces.Box(
                 np.zeros((args.cam_resolution, args.cam_resolution, 3)),
                 np.ones((args.cam_resolution, args.cam_resolution, 3)))
@@ -73,14 +78,11 @@ class DeformEnv(gym.Env):
 
     def get_texture_path(self, file_path):
         # Get either pre-specified texture file or a random one.
-
         if self.args.use_random_textures:
             parent = os.path.dirname(file_path)
             full_parent_path = os.path.join(self.args.data_path, parent)
             randfile = np.random.choice(list(os.listdir(full_parent_path)))
             file_path = os.path.join(parent,randfile)
-        print('self.args.use_random_textures', self.args.use_random_textures)
-        print('file_path', file_path)
         return file_path
 
     def load_objects(self, sim, args):
@@ -274,18 +276,26 @@ class DeformEnv(gym.Env):
             action *= DeformEnv.MAX_ACT_VEL
         action = action.reshape(DeformEnv.NUM_ANCHORS, 3)
         # Step through physics simulation.
+        raw_force_accum = 0.0
         for sim_step in range(self.args.sim_steps_per_action):
             for i in range(DeformEnv.NUM_ANCHORS):
-                command_anchor_velocity(self.sim, self.anchor_ids[i], action[i])
+                curr_force = command_anchor_velocity(
+                    self.sim, self.anchor_ids[i], action[i])
+                raw_force_accum += np.linalg.norm(curr_force)
             self.sim.stepSimulation()
+        mean_raw_force = raw_force_accum/self.args.sim_steps_per_action
+        force_penalty = DeformEnv.FORCE_REWARD_MULT*mean_raw_force
         # Get next obs, reward, done.
         next_obs, done = self.get_obs()
         reward = self.get_reward()
+        if self.args.reward_strategy > 0:
+            reward -= force_penalty
         self.episode_reward += reward
         done = (done or self.stepnum >= self.max_episode_len)
         info = {}
         if self.args.debug and self.stepnum % 10 == 0:
-            print(f'step {self.stepnum:d} reward {reward:0.4f}')
+            print(f'step {self.stepnum:d} reward {reward:0.4f}',
+                  f' force_penalty {force_penalty:0.4f}')
             if done:
                 print(f'episode reward {self.episode_reward:0.4f}')
 
@@ -294,13 +304,13 @@ class DeformEnv(gym.Env):
             # Release anchors
             release_anchor(self.sim, self.anchor_ids[0])
             release_anchor(self.sim, self.anchor_ids[1])
-            # if self.args.task.lower() == 'lasso':
-            #     self.STEPS_AFTER_DONE *= 2
             for sim_step in range(self.STEPS_AFTER_DONE):
-                # For lasso pull the string at the end to avoid dropping lasso.
+                # For lasso pull the string at the end to test lasso loop.
                 if self.args.task.lower() == 'lasso':
                     if sim_step % self.args.sim_steps_per_action == 0:
-                        action = [100,100,0]  # pull towards the end
+                        # pull the end away
+                        action = [10*DeformEnv.MAX_ACT_VEL,
+                                  10*DeformEnv.MAX_ACT_VEL, 0]
                         for i in range(DeformEnv.NUM_ANCHORS):
                             command_anchor_velocity(
                                 self.sim, self.anchor_ids[i], action)
@@ -333,7 +343,10 @@ class DeformEnv(gym.Env):
         if self.args.cam_resolution <= 0:
             obs = anc_obs
         else:
-            obs = self.render('rgb_array', self.args.cam_resolution, self.args.cam_resolution)
+            obs = self.render(mode='rgb_array', width=self.args.cam_resolution,
+                              height=self.args.cam_resolution)
+            if self.args.uint8_pixels:
+                obs = (255*obs).astype(np.uint8)
         return obs, done
 
     def get_reward(self):
@@ -351,13 +364,14 @@ class DeformEnv(gym.Env):
             cent_pts = pts[true_loop_vertices]
             cent_pts = cent_pts[~np.isnan(cent_pts).any(axis=1)]  # remove nans
             if len(cent_pts) == 0 or np.isnan(cent_pts).any():
-                # Record final reward (failed frame).
                 dist = DeformEnv.WORKSPACE_BOX_SIZE*num_holes_to_track
-                dist *= DeformEnv.FINAL_REWARD_MULT
+                if self.args.reward_strategy == 0:
+                    dist *= DeformEnv.FINAL_REWARD_MULT
                 # Save a screenshot for debugging.
-                obs = self.render('rgb_array', 300, 300)
-                fpath = f'{self.args.logdir}/nan_{self.args.env}_s{self.stepnum}.npy'
-                np.save(fpath, obs)
+                obs = self.render(mode='rgb_array', width=300, height=300)
+                np.save(os.path.join(
+                    self.args.logdir,
+                    f'nan_{self.args.env}_s{self.stepnum}.npy'), obs)
                 break
             cent_pos = cent_pts.mean(axis=0)
             dist.append(np.linalg.norm(cent_pos - goal_pos))
@@ -368,6 +382,7 @@ class DeformEnv(gym.Env):
             dist = np.mean(dist)
         rwd = -1.0 * dist / DeformEnv.WORKSPACE_BOX_SIZE
         return rwd
+
     @property
     def _cam_viewmat(self):
         dist, pitch, yaw, pos_x, pos_y, pos_z = self.args.cam_viewmat

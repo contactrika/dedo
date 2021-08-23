@@ -101,6 +101,15 @@ def get_args():
                         help='Generate the view matrix for rendering camera'
                              '(not the debug camera). '
                              '[distance, pitch, yaw, posX, posY, posZ')
+    # Training args.
+    parser.add_argument('--rl_total_env_steps',  type=int, default=int(10e6),
+                        help='Total number of env steps for RL training')
+    parser.add_argument('--rl_lr',  type=int, default=int(1e-4),
+                        help='Learning rate for RL training')
+    parser.add_argument('--reward_strategy',  type=int, default=0,
+                        help='Which reward strategy to use')
+    parser.add_argument('--uint8_pixels', action='store_true',
+                        help='Whether to report pixels as uint8 in [0,255]')
     # Parse args and do sanity checks.
     args = parser.parse_args()
     env_parts = args.env.split('-v')

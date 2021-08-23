@@ -148,6 +148,10 @@ def main(args):
     checkpt = os.path.join(args.logdir, 'agent.zip')
     print('Loading checkpoint from', checkpt)
     args = pickle.load(open(os.path.join(args.logdir, 'args.pkl'), 'rb'))
+    if not hasattr(args, 'reward_strategy'):
+        args.reward_strategy = 0
+    if not hasattr(args, 'uint8_pixels'):
+        args.uint8_pixels = False
     args.debug = True
     args.viz = True
     eval_env = gym.make(args.env, args=args)
