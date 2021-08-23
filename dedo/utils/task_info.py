@@ -292,7 +292,7 @@ DEFORM_INFO = {
         'deform_bending_stiffness': 10,
         'deform_damping_stiffness': 0.01,
         'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
-'max_episode_len':700,
+        'max_episode_len': 700,
         'disable_self_collision': True,
         'deform_anchor_vertices': [
 
@@ -324,7 +324,7 @@ DEFORM_INFO = {
         'deform_bending_stiffness': 10,
         'deform_damping_stiffness': 0.01,
         'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
-'max_episode_len':700,
+        'max_episode_len': 700,
         'disable_self_collision': True,
         'deform_anchor_vertices': [
             [535, ],
@@ -357,7 +357,7 @@ DEFORM_INFO = {
         'deform_damping_stiffness': 0.01,
         'disable_self_collision': True,
         'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
-'max_episode_len':700,
+        'max_episode_len': 700,
         'deform_anchor_vertices': [
             [538, ],
             [261, ],
@@ -386,7 +386,7 @@ DEFORM_INFO = {
         'deform_bending_stiffness': 10,
         'deform_damping_stiffness': 0.01,
         'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
-'max_episode_len':700,
+        'max_episode_len': 700,
         'disable_self_collision': True,
         'deform_anchor_vertices': [
             [525, ],
@@ -417,7 +417,7 @@ DEFORM_INFO = {
         'deform_damping_stiffness': 0.01,
         'disable_self_collision': True,
         'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
-'max_episode_len':700,
+        'max_episode_len': 700,
         'deform_anchor_vertices': [
             [542, ],
             [249, ],
@@ -433,6 +433,134 @@ DEFORM_INFO = {
         'plane_texture_file': 'textures/plane/black_tile.jpg',
         'rigid_texture_file': "textures/rigid/darkbrownwood.jpg",
         'deform_texture_file': 'textures/deform/pb_white_knit.jpg',
+    },
+    'cloth/vest_0.obj': {
+        'deform_init_pos': [0, 2, 5],
+        'deform_init_ori': [np.pi / 2, 0, 0],
+        'deform_scale': 3,
+        'deform_elastic_stiffness': 80,
+        # 'deform_bending_stiffness': 5,
+        'deform_bending_stiffness': 0.1,
+        'deform_damping_stiffness': 0.01,
+        'deform_anchor_vertices': [
+            [42],
+            [230],
+        ],
+        'deform_true_loop_vertices': [
+            [200, 201, 203, 247, 248, 285, 288, 293, 296, 299, 358, 359, 360,
+             361, 366, 368, 369],
+            [6, 8, 9, 10, 57, 59, 93, 95, 96, 99, 102, 104, 172, 173, 174, 179,
+             180, 182, 183],
+
+        ],
+        'cam_viewmat': [4.2, -26, 151, 0.04, 0.17, 4.66],
+        'max_episode_len': 350,
+        'plane_texture_file': 'textures/plane/stonefloor.jpg',
+        'rigid_texture_file': "textures/rigid/birch.png",
+        'deform_texture_file': 'textures/deform/pb_camo.png',
+    },
+    'cloth/vest_1.obj': {
+        'deform_init_pos': [0, 2, 5],
+        'deform_init_ori': [np.pi / 2, 0, 0],
+        'deform_scale': 3,
+        'deform_elastic_stiffness': 80,
+        # 'deform_bending_stiffness': 5,
+        'deform_bending_stiffness': 0.1,
+        'deform_damping_stiffness': 0.01,
+        'deform_anchor_vertices': [
+            [0],
+            [195],
+        ],
+
+        'deform_true_loop_vertices': [
+            [200, 202, 203, 205, 249, 250, 289, 292, 297, 299, 300, 302, 362,
+             363, 364, 369, 371, 372],
+            [6, 8, 9, 10, 56, 58, 95, 97, 98, 101, 103, 104, 106, 175, 176, 181,
+             182, 184, 185],
+
+        ],
+        'cam_viewmat': [4.2, -26, 151, 0.04, 0.17, 4.66],
+        'max_episode_len': 350,
+        'plane_texture_file': 'textures/plane/brown_brick.jpg',
+        'rigid_texture_file': "textures/rigid/brown_brick.jpg",
+        'deform_texture_file': 'textures/deform/pb_greenleaves.png',
+    },
+    'cloth/vest_2.obj': {
+        'deform_init_pos': [0, 2, 5],
+        'deform_init_ori': [np.pi / 2, 0, 0],
+        'deform_scale': 3,
+        'deform_elastic_stiffness': 80,
+        # 'deform_bending_stiffness': 5,
+        'deform_bending_stiffness': 0.1,
+        'deform_damping_stiffness': 0.01,
+        'deform_anchor_vertices': [
+            [0],
+            [214],
+        ],
+
+        'deform_true_loop_vertices': [
+            [221, 222, 224, 267, 268, 308, 316, 320, 324, 325, 326, 386, 387,
+             388, 393, 395, 396],
+            [53, 54, 55, 56, 60, 62, 109, 114, 115, 119, 121, 194, 195, 201],
+
+        ],
+        'cam_viewmat': [4.2, -26, 151, 0.04, 0.17, 4.66],
+        'max_episode_len': 350,
+        'plane_texture_file': 'textures/plane/cobblestone.jpg',
+        'rigid_texture_file': "textures/rigid/brown_brick.jpg",
+        'deform_texture_file': 'textures/deform/orange_pattern.png',
+    },
+    'cloth/vest_3.obj': {
+        'deform_init_pos': [0, 2, 5],
+        'deform_init_ori': [np.pi / 2, 0, 0],
+        'deform_scale': 3,
+        'deform_elastic_stiffness': 80,
+        # 'deform_bending_stiffness': 5,
+        'deform_bending_stiffness': 0.1,
+        'deform_damping_stiffness': 0.01,
+        'deform_anchor_vertices': [
+            [0],
+            [198],
+        ],
+
+        'deform_true_loop_vertices': [
+            [206, 207, 209, 254, 255, 305, 310, 314, 315, 379, 380, 385, 387,
+             388],
+            [8, 9, 10, 57, 59, 97, 104, 108, 109, 111, 112, 165, 167, 180, 188,
+             190, 191, 192, 193],
+        ],
+        'cam_viewmat': [4.2, -26, 151, 0.04, 0.17, 4.66],
+        'max_episode_len': 350,
+        'plane_texture_file': 'textures/plane/grass.jpg',
+        'rigid_texture_file': "textures/rigid/brown_brick.jpg",
+        'deform_texture_file': 'textures/deform/pd_goldpattern.jpg',
+    },
+    'cloth/vest_4.obj': {
+        'deform_init_pos': [0, 2, 5],
+        'deform_init_ori': [np.pi / 2, 0, 0],
+        'deform_scale': 3,
+        'deform_elastic_stiffness': 80,
+        # 'deform_bending_stiffness': 5,
+        'deform_bending_stiffness': 0.1,
+        'deform_damping_stiffness': 0.01,
+        'deform_anchor_vertices': [
+            [0],
+            [200],
+        ],
+
+        'deform_true_loop_vertices': [
+            [206, 208, 209, 211, 255, 256, 296, 304, 305, 307, 308, 310, 370,
+             371, 372, 377, 379, 380],
+            [8, 9, 10, 56, 58, 96, 103, 107, 111, 112, 113, 182, 183, 184, 189,
+             191, 192],
+
+        ],
+        'cam_viewmat': [4.2, -26, 151, 0.04, 0.17, 4.66],
+        'max_episode_len': 350,
+        'plane_texture_file': 'textures/plane/lightwood.jpg',
+        'rigid_texture_file': "textures/rigid/brown_brick.jpg",
+        'deform_texture_file': 'textures/deform/pb_whitered_checker.jpg',
+
     },
     'cloth/apron_0.obj': {
         'deform_init_pos': [0, 5, 8],
@@ -581,6 +709,7 @@ DEFORM_INFO = {
             [3],
 
         ],
+        'max_episode_len': 300,
         'deform_true_loop_vertices': [
             [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 237, 292, 294, 296, 298, 300, 303, 305, 307, 309, 311, 312, 519],
         ],
@@ -602,6 +731,7 @@ DEFORM_INFO = {
             [3],
 
         ],
+        'max_episode_len': 300,
         'deform_true_loop_vertices': [
             [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 238, 292, 294, 296, 298, 300, 303, 305, 307, 309, 311, 312, 520],
         ],
@@ -623,6 +753,7 @@ DEFORM_INFO = {
             [3],
 
         ],
+        'max_episode_len': 300,
         'deform_true_loop_vertices': [
             [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 238, 292, 294, 296, 298, 300, 303, 305, 307, 309, 311, 312, 519],
         ],
@@ -644,6 +775,7 @@ DEFORM_INFO = {
             [3],
 
         ],
+        'max_episode_len': 300,
         'deform_true_loop_vertices': [
             [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 238, 292, 294, 296, 298, 300, 303, 305, 307, 309, 311, 312, 520],
         ],
@@ -665,6 +797,7 @@ DEFORM_INFO = {
             [3],
 
         ],
+        'max_episode_len': 300,
         'deform_true_loop_vertices': [
             [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 238, 292, 294, 296, 298, 300, 303, 305, 307, 309, 311, 312, 520],
         ],
@@ -786,134 +919,7 @@ DEFORM_INFO = {
         'rigid_texture_file': "textures/rigid/darkwood.jpg",
 
     },
-    'cloth/vest_0.obj': {
-        'deform_init_pos': [0, 2, 5],
-        'deform_init_ori': [np.pi / 2, 0, 0],
-        'deform_scale': 3,
-        'deform_elastic_stiffness': 80,
-        # 'deform_bending_stiffness': 5,
-        'deform_bending_stiffness': 0.1,
-        'deform_damping_stiffness': 0.01,
-        'deform_anchor_vertices': [
-            [42],
-            [230],
-        ],
-        'deform_true_loop_vertices': [
-            [200, 201, 203, 247, 248, 285, 288, 293, 296, 299, 358, 359, 360,
-             361, 366, 368, 369],
-            [6, 8, 9, 10, 57, 59, 93, 95, 96, 99, 102, 104, 172, 173, 174, 179,
-             180, 182, 183],
 
-        ],
-        'cam_viewmat': [4.2, -26, 151, 0.04, 0.17, 4.66],
-'max_episode_len':350,
-        'plane_texture_file': 'textures/plane/stonefloor.jpg',
-        'rigid_texture_file': "textures/rigid/birch.png",
-        'deform_texture_file': 'textures/deform/pb_camo.png',
-    },
-    'cloth/vest_1.obj': {
-        'deform_init_pos': [0, 2, 5],
-        'deform_init_ori': [np.pi / 2, 0, 0],
-        'deform_scale': 3,
-        'deform_elastic_stiffness': 80,
-        # 'deform_bending_stiffness': 5,
-        'deform_bending_stiffness': 0.1,
-        'deform_damping_stiffness': 0.01,
-        'deform_anchor_vertices': [
-            [0],
-            [195],
-        ],
-
-        'deform_true_loop_vertices': [
-            [200, 202, 203, 205, 249, 250, 289, 292, 297, 299, 300, 302, 362,
-             363, 364, 369, 371, 372],
-            [6, 8, 9, 10, 56, 58, 95, 97, 98, 101, 103, 104, 106, 175, 176, 181,
-             182, 184, 185],
-
-        ],
-        'cam_viewmat': [4.2, -26, 151, 0.04, 0.17, 4.66],
-'max_episode_len':350,
-        'plane_texture_file': 'textures/plane/brown_brick.jpg',
-        'rigid_texture_file': "textures/rigid/brown_brick.jpg",
-        'deform_texture_file': 'textures/deform/pb_greenleaves.png',
-    },
-    'cloth/vest_2.obj': {
-        'deform_init_pos': [0, 2, 5],
-        'deform_init_ori': [np.pi / 2, 0, 0],
-        'deform_scale': 3,
-        'deform_elastic_stiffness': 80,
-        # 'deform_bending_stiffness': 5,
-        'deform_bending_stiffness': 0.1,
-        'deform_damping_stiffness': 0.01,
-        'deform_anchor_vertices': [
-            [0],
-            [214],
-        ],
-
-        'deform_true_loop_vertices': [
-            [221, 222, 224, 267, 268, 308, 316, 320, 324, 325, 326, 386, 387,
-             388, 393, 395, 396],
-            [53, 54, 55, 56, 60, 62, 109, 114, 115, 119, 121, 194, 195, 201],
-
-        ],
-        'cam_viewmat': [4.2, -26, 151, 0.04, 0.17, 4.66],
-'max_episode_len':350,
-        'plane_texture_file': 'textures/plane/cobblestone.jpg',
-        'rigid_texture_file': "textures/rigid/brown_brick.jpg",
-        'deform_texture_file': 'textures/deform/orange_pattern.png',
-    },
-    'cloth/vest_3.obj': {
-        'deform_init_pos': [0, 2, 5],
-        'deform_init_ori': [np.pi / 2, 0, 0],
-        'deform_scale': 3,
-        'deform_elastic_stiffness': 80,
-        # 'deform_bending_stiffness': 5,
-        'deform_bending_stiffness': 0.1,
-        'deform_damping_stiffness': 0.01,
-        'deform_anchor_vertices': [
-            [0],
-            [198],
-        ],
-
-        'deform_true_loop_vertices': [
-            [206, 207, 209, 254, 255, 305, 310, 314, 315, 379, 380, 385, 387,
-             388],
-            [8, 9, 10, 57, 59, 97, 104, 108, 109, 111, 112, 165, 167, 180, 188,
-             190, 191, 192, 193],
-        ],
-        'cam_viewmat': [4.2, -26, 151, 0.04, 0.17, 4.66],
-'max_episode_len':350,
-        'plane_texture_file': 'textures/plane/grass.jpg',
-        'rigid_texture_file': "textures/rigid/brown_brick.jpg",
-        'deform_texture_file': 'textures/deform/pd_goldpattern.jpg',
-    },
-    'cloth/vest_4.obj': {
-        'deform_init_pos': [0, 2, 5],
-        'deform_init_ori': [np.pi / 2, 0, 0],
-        'deform_scale': 3,
-        'deform_elastic_stiffness': 80,
-        # 'deform_bending_stiffness': 5,
-        'deform_bending_stiffness': 0.1,
-        'deform_damping_stiffness': 0.01,
-        'deform_anchor_vertices': [
-            [0],
-            [200],
-        ],
-
-        'deform_true_loop_vertices': [
-            [206, 208, 209, 211, 255, 256, 296, 304, 305, 307, 308, 310, 370,
-             371, 372, 377, 379, 380],
-            [8, 9, 10, 56, 58, 96, 103, 107, 111, 112, 113, 182, 183, 184, 189,
-             191, 192],
-
-        ],
-        'cam_viewmat': [4.2, -26, 151, 0.04, 0.17, 4.66],
-'max_episode_len':350,
-        'plane_texture_file': 'textures/plane/lightwood.jpg',
-        'rigid_texture_file': "textures/rigid/brown_brick.jpg",
-        'deform_texture_file': 'textures/deform/pb_whitered_checker.jpg',
-
-    },
     'cloth/mask_0.obj': {
         'deform_init_pos': [-0.2, 2, 6.2],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
