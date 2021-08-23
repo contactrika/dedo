@@ -948,6 +948,7 @@ DEFORM_INFO = {
         'deform_bending_stiffness': 1,
         'deform_damping_stiffness': 0.1,
         'deform_friction_coeff': 0.5,
+        'disable_self_collision': True,
         'deform_anchor_vertices': [
             [221, ],
             [131, ],
