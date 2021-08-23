@@ -779,7 +779,7 @@ DEFORM_INFO = {
         ],
         'plane_texture_file': 'textures/plane/white_brick.jpg',
         'rigid_texture_file': "textures/rigid/concrete.jpg",
-        'deform_texture_file': 'textures/deform/pb_pink_fur.jpg',
+        'deform_texture_file': 'textures/deform/pb_canvas.jpg',
     },
     'cloth/shirt_4.obj': {
         'deform_init_pos': [0, 3, 4],  # [0, 0, 6]
