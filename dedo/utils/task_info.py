@@ -311,9 +311,7 @@ DEFORM_INFO = {
 
         'plane_texture_file': 'textures/plane/red_brick.jpg',
         'rigid_texture_file': "textures/rigid/darkbrownwood.jpg",
-
         'deform_texture_file': 'textures/deform/pb_whitered_checker.jpg',
-
     },
     'bags/backpack_1.obj': {
         'deform_init_pos': [-0.2, 2, 4],
@@ -582,9 +580,9 @@ DEFORM_INFO = {
              148, 149, 152, 153, 235, 236, 237, 238, 258, 260, 266, 267, 268,
              269, 270, 271, 272, 273, 276, 278, 280, 281, 282, 287, 288]
         ],
-        'plane_texture_file': 'textures/plane/cobblestone.jpg',
-        'rigid_texture_file': "textures/rigid/darkbrownwood.jpg",
-        'deform_texture_file': 'textures/deform/pd_gold.jpg',
+        'plane_texture_file': 'textures/plane/brown_yellow_carpet.jpg',
+        'rigid_texture_file': "textures/rigid/red_leather.jpg",
+        'deform_texture_file': 'textures/deform/pb_lightblue_rings.png',
     },
     'cloth/apron_1.obj': {
         'deform_init_pos': [0, 5, 5.5],
@@ -608,9 +606,9 @@ DEFORM_INFO = {
              241, 242, 263, 264, 270, 271, 272, 273, 274, 276, 277, 278, 279,
              285, 286, 288, 293],
         ],
-        'plane_texture_file': 'textures/plane/grey_tile.jpg',
+        'plane_texture_file': 'textures/plane/blue_carpet.jpg',
         'rigid_texture_file': "textures/rigid/birch.png",
-        'deform_texture_file': 'textures/deform/pb_pink_silk.jpg',
+        'deform_texture_file': 'textures/deform/pd_goldpattern.jpg',
     },
     'cloth/apron_2.obj': {
         'deform_init_pos': [0, 5, 5.5],
@@ -633,9 +631,9 @@ DEFORM_INFO = {
              244, 264, 265, 271, 272, 273, 274, 275, 277, 278, 279, 280, 282,
              283, 286, 287, 293],
         ],
-        'plane_texture_file': 'textures/plane/blue_carpet.jpg',
+        'plane_texture_file': 'textures/plane/grey_tile.jpg',
         'rigid_texture_file': "textures/rigid/birch.png",
-        'deform_texture_file': 'textures/deform/pd_goldpattern.jpg',
+        'deform_texture_file': 'textures/deform/pb_pink_silk.jpg',
     },
     'cloth/apron_3.obj': {
         'deform_init_pos': [0, 5, 5.5],
@@ -664,9 +662,9 @@ DEFORM_INFO = {
              465, 466, 491, 498, 499, 534, 538, 554, 564, 566, 582,
              583, 589, 590, 602, 603],
         ],
-        'plane_texture_file': 'textures/plane/brown_yellow_carpet.jpg',
-        'rigid_texture_file': "textures/rigid/red_leather.jpg",
-        'deform_texture_file': 'textures/deform/pb_lightblue_rings.png',
+        'plane_texture_file': 'textures/plane/cobblestone.jpg',
+        'rigid_texture_file': "textures/rigid/darkbrownwood.jpg",
+        'deform_texture_file': 'textures/deform/pd_gold.jpg',
     },
     'cloth/apron_4.obj': {
         'deform_init_pos': [0, 5, 5.5],
@@ -757,7 +755,7 @@ DEFORM_INFO = {
         'deform_true_loop_vertices': [
             [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 238, 292, 294, 296, 298, 300, 303, 305, 307, 309, 311, 312, 519],
         ],
-        'deform_texture_file': 'textures/deform/pb_leopard.png',
+        'deform_texture_file': 'textures/deform/pb_jeans.jpg',
         'plane_texture_file': 'textures/plane/grey_tile.jpg',
         'rigid_texture_file': "textures/rigid/marble.png",
     },
