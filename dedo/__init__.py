@@ -17,10 +17,9 @@ for task, versions in TASK_INFO.items():
                 versions.append(obj_name)
         assert(len(TASK_INFO['HangBag']) ==
                TOTE_MAJOR_VERSIONS*TOTE_VARS_PER_VERSION)  # sanity check
-    # Add v2 for HangProcCloth.
     if task == 'HangProcCloth':
-        versions += versions
-    if task == 'Berkeley':
+        versions += versions  # add v2 for HangProcCloth
+    if task == 'BGarments':
         bp = os.path.dirname(__file__)
         garm_dir = os.path.join(bp, 'data/berkeley_garments')
         for fn in sorted(os.listdir(garm_dir)):

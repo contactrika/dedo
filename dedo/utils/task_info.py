@@ -50,8 +50,8 @@ TASK_INFO = {
              'cloth/mask_3.obj',
              'cloth/mask_4.obj',
              ],
-    'Berkeley':['berkeley_garments'],
     'HangProcCloth': ['procedural_hang_cloth', ],
+    'BGarments':['berkeley_garments'],
     'Debug': ['cloth/apron_0_large.obj',
               'bags/backpack_0.obj',
               ]
@@ -1165,16 +1165,16 @@ DEFORM_INFO = {
     'berkeley_garments': {
         'deform_init_pos': [0, 5, 8],
         'deform_init_ori': [np.pi/2, 0, 0],
-        'deform_scale': 10,
+        'deform_scale': 5,
         'anchor_init_pos': [1, 4.4722, 10.4271],
         'other_anchor_init_pos': [-1,  4.4708, 10.4309],
-        'deform_elastic_stiffness': 10,
-        'deform_bending_stiffness': 0.1,
+        'deform_elastic_stiffness': 10.0,
+        'deform_bending_stiffness': 0.05,
         'deform_damping_stiffness': 0.01,
         'cam_viewmat': [8.8, -12.6, 314, -0.4, 0.6, 5.3],
         'plane_texture_file': 'textures/plane/brown_yellow_carpet.jpg',
         'rigid_texture_file': "textures/rigid/lightwood.jpg",
-        'deform_texture_file': 'textures/deform/pb_whitered_checker.jpg',
+        'deform_texture_file': 'textures/deform/pb_jeans.jpg',
     },
 }
 
