@@ -57,7 +57,7 @@ def play(env, num_episodes, args):
             noise_act = 0.1*act
             act = policy_simple(obs, noise_act, args.task, step)
             next_obs, rwd, done, info = env.step(act)
-            if args.viz and (args.cam_resolution > 0) and step%100 == 0:
+            if args.viz and (args.cam_resolution > 0) and step%10 == 0:
                 plt.imshow(next_obs)
             if done:
                 break
