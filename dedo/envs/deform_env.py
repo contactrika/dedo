@@ -19,7 +19,8 @@ from ..utils.init_utils import (
     load_deform_object, load_rigid_object, reset_bullet, get_preset_properties)
 from ..utils.mesh_utils import get_mesh_data
 from ..utils.task_info import (
-    DEFAULT_CAM_PROJECTION, DEFORM_INFO, SCENE_INFO, TASK_INFO)
+    DEFAULT_CAM_PROJECTION, DEFORM_INFO, SCENE_INFO, TASK_INFO,
+    TOTE_MAJOR_VERSIONS, TOTE_VARS_PER_VERSION)
 from ..utils.procedural_utils import (
     gen_procedural_hang_cloth, gen_procedural_button_cloth)
 
@@ -83,9 +84,11 @@ class DeformEnv(gym.Env):
         if scene_name.startswith('hanggarment'):
            scene_name = 'hangcloth'  # same hanger for garments and cloths
         if scene_name.startswith('button'):
-            scene_name = 'button'  # same human figure for dress and mask tasks
+            scene_name = 'button'
         elif scene_name.startswith('hangproccloth'):
             scene_name = 'hangcloth'
+        if scene_name.startswith('dress'):
+            scene_name = 'dress'  # same human figure for dress and mask tasks
 
         # Make v0 the random version
         if args.version == 0:
@@ -95,32 +98,23 @@ class DeformEnv(gym.Env):
         args.data_path = data_path
         sim.setAdditionalSearchPath(data_path)
 
-        # Setup Hangbag task's 100+ objects
-        if args.version == 0:
-            _do = np.random.choice(TASK_INFO[args.task])
-        else:
-            _do = TASK_INFO[args.task][args.version-1]
-        if args.task == 'HangBag' and _do not in DEFORM_INFO:
-            bn = os.path.basename(_do)
-            if bn.startswith('bag1'):
-                DEFORM_INFO[_do] = DEFORM_INFO['bags/bags_zehang/bag1_0.obj'].copy()
-            elif bn.startswith('bag2'):
-                DEFORM_INFO[_do] = DEFORM_INFO['bags/bags_zehang/bag2_0.obj'].copy()
-            elif bn.startswith('bag3'):
-                DEFORM_INFO[_do] = DEFORM_INFO['bags/bags_zehang/bag3_0.obj'].copy()
-
-
         if args.override_deform_obj is not None:
             deform_obj = args.override_deform_obj
         else:
             assert (args.task in TASK_INFO)  # already checked in args
-            assert (args.version < len(TASK_INFO[args.task]) + 1)  # checked in args
+            assert (args.version <= len(TASK_INFO[args.task]))
             if args.version == 0:
                 deform_obj = np.random.choice(TASK_INFO[args.task])
+                if args.task == 'HangBag':  # select from 100+ obj mesh variants
+                    tmp_id0 = np.random.randint(TOTE_MAJOR_VERSIONS)
+                    tmp_id1 = np.random.randint(TOTE_VARS_PER_VERSION)
+                    deform_obj = f'bags/totes/bag{tmp_id0:d}_{tmp_id1:d}.obj'
+                    if deform_obj not in DEFORM_INFO:
+                        tmp_key = f'bags/totes/bag{tmp_id0:d}_0.obj'
+                        assert(tmp_key in DEFORM_INFO)
+                        DEFORM_INFO[deform_obj] = DEFORM_INFO[tmp_key].copy()
             else:
                 deform_obj = TASK_INFO[args.task][args.version-1]
-            # deform_obj = self.TASK_INFO[args.task][args.version]
-
 
             for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
                 setattr(args, arg_nm, arg_val)
@@ -156,10 +150,8 @@ class DeformEnv(gym.Env):
             buttons = SCENE_INFO['button']
             buttons['entities']['urdf/button_fixed.urdf']['basePosition'] = (h1[0], 0.2, h1[2])
             buttons['entities']['urdf/button_fixed2.urdf']['basePosition'] = (h2[0], 0.2, h2[2])
-
             # goal pos
-            buttons['goal_pos'] = [h1, h2]
-            # TODO Add noise to the pos of buttons
+            buttons['goal_pos'] = [h1, h2]  # TODO: add noise to button pos
 
         #
         # Load rigid objects.
@@ -298,7 +290,7 @@ class DeformEnv(gym.Env):
                 # For lasso pull the string at the end to avoid dropping lasso.
                 if self.args.task.lower() == 'lasso':
                     if sim_step % self.args.sim_steps_per_action == 0:
-                        action = [100,100,0] # pull towards the end
+                        action = [100,100,0]  # pull towards the end
                         for i in range(DeformEnv.NUM_ANCHORS):
                             command_anchor_velocity(
                                 self.sim, self.anchor_ids[i], action)

@@ -8,35 +8,37 @@ import numpy as np
 
 # Task information dictionary/map from task names to mesh file names lists.
 TASK_INFO = {
-    'HangBag': ['bags/bags_zehang/bag1_0.obj',
-                'bags/bags_zehang/bag2_0.obj',
-                'bags/bags_zehang/bag3_0.obj',
+    'HangBag': ['bags/totes/bag0_0.obj',
+                'bags/totes/bag1_0.obj',
+                'bags/totes/bag2_0.obj',
                 ],
     'HangGarment': ['cloth/apron_0.obj',
-                   'cloth/apron_1.obj',
-                   'cloth/apron_2.obj',
-                   'cloth/apron_3.obj',
-                   'cloth/apron_4.obj',
+                    'cloth/apron_1.obj',
+                    'cloth/apron_2.obj',
+                    'cloth/apron_3.obj',
+                    'cloth/apron_4.obj',
 
-                   'cloth/shirt_0.obj',
-                   'cloth/tshirt_1.obj',
-                   'cloth/tshirt_2.obj',
-                   'cloth/tshirt_3.obj',
-                   'cloth/tshirt_4.obj',
+                    'cloth/shirt_0.obj',
+                    'cloth/tshirt_1.obj',
+                    'cloth/tshirt_2.obj',
+                    'cloth/tshirt_3.obj',
+                    'cloth/tshirt_4.obj',
                    ],
     'ButtonSimple': ['cloth/button_cloth.obj'],
     'ButtonProc': ['proc_button_cloth'],
-    'Dress': [
+    'DressBag': [
         'bags/backpack_0.obj',
         'bags/backpack_1.obj',
-        'bags/backpack_2.obj',
-        'bags/backpack_3.obj',
-        'bags/backpack_4.obj',  # TODO object issue
-        'cloth/cardigan_0.obj',
-        'cloth/cardigan_1.obj',
-        'cloth/cardigan_2.obj',
-        'cloth/cardigan_3.obj',
-        'cloth/cardigan_4.obj',
+        'bags/backpack_2.obj',  # TODO: fix object issue
+        'bags/backpack_3.obj',  # TODO: fix object issue
+        'bags/backpack_4.obj',  # TODO: fix object issue
+    ],
+    'DressGarment': [
+        'cloth/vest_0.obj',
+        'cloth/vest_1.obj',
+        'cloth/vest_2.obj',
+        'cloth/vest_3.obj',
+        'cloth/vest_4.obj',
     ],
     'Hoop': ['ropes/hoop3d_0.obj'],
     'Lasso': [
@@ -53,6 +55,9 @@ TASK_INFO = {
               'bags/backpack_0.obj',
               ]
 }
+TOTE_VARS_PER_VERSION = 36  # num. tote mesh variants per major mesh version
+TOTE_MAJOR_VERSIONS = 3  # num. major mesh versions for totes (108 meshes total)
+MESH_MAJOR_VERSIONS = 5  # num. major mesh versions for all items except totes
 
 # Information about rigid objects to load into the scene.
 SCENE_INFO = {
@@ -202,7 +207,7 @@ SCENE_INFO = {
 
 # Information about deformable objects.
 DEFORM_INFO = {
-    'procedural_hang_cloth': {  # This used to be apron_zehang
+    'procedural_hang_cloth': {
         'deform_init_pos': [0, 5, 8],
         'deform_init_ori': [-np.pi / 2, 0, 3*np.pi / 2],
         'deform_scale': 3,
@@ -214,7 +219,7 @@ DEFORM_INFO = {
         'rigid_texture_file': "textures/rigid/lightwood.jpg",
         'deform_texture_file': 'textures/deform/pb_greenleaves.png',
     },
-    'bags/bags_zehang/bag1_0.obj': {
+    'bags/totes/bag0_0.obj': {
         'deform_init_pos': [0, 8, 2],
         'deform_init_ori': [np.pi / 2, 0, 0],
         'deform_scale': 1,
@@ -234,7 +239,7 @@ DEFORM_INFO = {
         'rigid_texture_file': "textures/rigid/darkwood.jpg",
         'deform_texture_file': 'textures/deform/pb_bluegold_pattern.jpg',
     },
-    'bags/bags_zehang/bag2_0.obj': {
+    'bags/totes/bag1_0.obj': {
         'deform_init_pos': [0, 8, 2],
         'deform_init_ori': [np.pi / 2, 0, 0],
         'deform_scale': 1,
@@ -256,7 +261,7 @@ DEFORM_INFO = {
         'rigid_texture_file': "textures/rigid/marble.png",
         'deform_texture_file': 'textures/deform/pb_jeans.jpg',
     },
-    'bags/bags_zehang/bag3_0.obj': {
+    'bags/totes/bag2_0.obj': {
         'deform_init_pos': [0, 8, 2],
         'deform_init_ori': [np.pi / 2, 0, 0],
         'deform_scale': 1,
@@ -338,7 +343,7 @@ DEFORM_INFO = {
 'deform_texture_file': 'textures/deform/pb_pink_fur.jpg',
 
     },
-    'bags/backpack_2.obj': {
+    'bags/backpack_2.obj': {  # TODO: fix mesh issues
         'deform_init_pos': [-0.2, 2, 4],
         'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
         'deform_scale': 3,
@@ -366,7 +371,7 @@ DEFORM_INFO = {
         'rigid_texture_file': "textures/rigid/darkbrownwood.jpg",
         'deform_texture_file': 'textures/deform/pd_gold.jpg',
     },
-    'bags/backpack_3.obj': {
+    'bags/backpack_3.obj': {  # TODO: fix mesh issues
         'deform_init_pos': [-0.2, 2, 4],
         'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
         'deform_scale': 3,
@@ -394,7 +399,7 @@ DEFORM_INFO = {
         'deform_texture_file': 'textures/deform/pb_pink_silk.jpg',
 
     },
-    'bags/backpack_4.obj': {  # TODO Broken still
+    'bags/backpack_4.obj': {  # TODO: fix mesh issues
         'deform_init_pos': [-0.2, 2, 4],
         'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
         'deform_scale': 3,
@@ -419,7 +424,7 @@ DEFORM_INFO = {
         'rigid_texture_file': "textures/rigid/darkbrownwood.jpg",
         'deform_texture_file': 'textures/deform/pb_white_knit.jpg',
     },
-    'cloth/apron_0.obj': {  # This used to be apron_zehang
+    'cloth/apron_0.obj': {
         'deform_init_pos': [0, 5, 8],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 3,
@@ -443,7 +448,7 @@ DEFORM_INFO = {
         'rigid_texture_file': "textures/rigid/darkbrownwood.jpg",
         'deform_texture_file': 'textures/deform/pd_gold.jpg',
     },
-    'cloth/apron_1.obj': {  # This used to be apron_zehang
+    'cloth/apron_1.obj': {
         'deform_init_pos': [0, 5, 5.5],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 3,
@@ -494,7 +499,7 @@ DEFORM_INFO = {
         'rigid_texture_file': "textures/rigid/birch.png",
         'deform_texture_file': 'textures/deform/pd_goldpattern.jpg',
     },
-    'cloth/apron_3.obj': {  # This used to be apron_zehang
+    'cloth/apron_3.obj': {
         'deform_init_pos': [0, 5, 5.5],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 3,
@@ -687,7 +692,7 @@ DEFORM_INFO = {
         'rigid_texture_file': "textures/rigid/darkwood.jpg",
 
     },
-    'cloth/cardigan_0.obj': {
+    'cloth/vest_0.obj': {
         'deform_init_pos': [0, 2, 5],
         'deform_init_ori': [np.pi / 2, 0, 0],
         'deform_scale': 3,
@@ -711,7 +716,7 @@ DEFORM_INFO = {
         'rigid_texture_file': "textures/rigid/birch.png",
         'deform_texture_file': 'textures/deform/pb_camo.png',
     },
-    'cloth/cardigan_1.obj': {
+    'cloth/vest_1.obj': {
         'deform_init_pos': [0, 2, 5],
         'deform_init_ori': [np.pi / 2, 0, 0],
         'deform_scale': 3,
@@ -736,7 +741,7 @@ DEFORM_INFO = {
         'rigid_texture_file': "textures/rigid/brown_brick.jpg",
         'deform_texture_file': 'textures/deform/pb_greenleaves.png',
     },
-    'cloth/cardigan_2.obj': {
+    'cloth/vest_2.obj': {
         'deform_init_pos': [0, 2, 5],
         'deform_init_ori': [np.pi / 2, 0, 0],
         'deform_scale': 3,
@@ -760,7 +765,7 @@ DEFORM_INFO = {
         'rigid_texture_file': "textures/rigid/brown_brick.jpg",
         'deform_texture_file': 'textures/deform/orange_pattern.png',
     },
-    'cloth/cardigan_3.obj': {
+    'cloth/vest_3.obj': {
         'deform_init_pos': [0, 2, 5],
         'deform_init_ori': [np.pi / 2, 0, 0],
         'deform_scale': 3,
@@ -784,7 +789,7 @@ DEFORM_INFO = {
         'rigid_texture_file': "textures/rigid/brown_brick.jpg",
         'deform_texture_file': 'textures/deform/pd_goldpattern.jpg',
     },
-    'cloth/cardigan_4.obj': {
+    'cloth/vest_4.obj': {
         'deform_init_pos': [0, 2, 5],
         'deform_init_ori': [np.pi / 2, 0, 0],
         'deform_scale': 3,
@@ -1049,8 +1054,6 @@ DEFORM_INFO = {
         'deform_texture_file': 'textures/deform/pb_white_knit.jpg',
     },
 }
-
-
 
 DEFAULT_CAM = [11.4, -22.4, 257, -0.08, -0.29, 1.8,]
 

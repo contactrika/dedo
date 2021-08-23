@@ -71,7 +71,7 @@ To load custom object you would first have to fill an entry in `DEFORM_INFO` in
 DEFORM_INFO = {
 ...
     # An example of info for a custom item.
-    'bags/bags_zehang/obj/normal/bag1-1.obj': {
+    'bags/custom.obj': {
         'deform_init_pos': [0, 0.47, 0.47],
         'deform_init_ori': [np.pi/2, 0, 0],
         'deform_scale': 0.1,
@@ -87,10 +87,8 @@ Then you can use `--override_deform_obj` flag:
 
 ```
 python -m dedo.demo --env=HangBag-v0 --cam_resolution 200 --viz --debug \
-    --override_deform_obj bags/bags_zehang/obj/normal/bag1-1.obj
+    --override_deform_obj bags/custom.obj
 ```
-
-![misc/imgs/bag_zehang.png](misc/imgs/bag_zehang.png)
 
 
 For items not in `DEFORM_DICT` you will need to specify sensible defaults,

@@ -1,3 +1,14 @@
+# Preset waypoints info.
+#
+# @pyshi
+#
+# TODO(later): replace slashes for Windows users and test on Windows.
+#
+
+from .task_info import (
+    MESH_MAJOR_VERSIONS, TOTE_MAJOR_VERSIONS, TOTE_VARS_PER_VERSION)
+
+
 preset_traj = {
     # TODO add constraint to scene name
     'cloth/apron_0.obj': {  # HangGarment-v0, 600 steps
@@ -57,7 +68,7 @@ preset_traj = {
             ]
         },
     },
-    'bags/bags_zehang/bag1_0.obj': {  # HangBag-v0, 1500 steps
+    'bags/totes/bag0_0.obj': {  # HangBag-v0, 1500 steps
         'waypoints': {
             'a': [
                 [0.2, 2, 10.4, 3],
@@ -69,7 +80,7 @@ preset_traj = {
             ]
         },
     },
-    'cloth/cardigan_0.obj': {  # Dress-v5 #
+    'cloth/vest_0.obj': {  # Dress-v5 #
         'waypoints': {
             'a': [
                 # [-0.278 ,  1.7888,  6.245 ],
@@ -111,8 +122,8 @@ preset_traj = {
                 [3.7, -1, 6.945, 3],
                 [0, -3, 7.245, 2],
                 [-3, -1, 6.845, 0.6],
-                [-2, 2, 6.845, 0.8],
-                [-2, 1, 6.845, 0.6],
+                [-1.5, 2, 6.845, 0.8],
+                [-1.5, 1, 6.845, 0.6],
 
             ]
         },
@@ -175,3 +186,18 @@ preset_traj = {
         },
     }
 }
+
+# Populate presents for all mesh versions.
+bag_waypts = preset_traj['bags/totes/bag0_0.obj']
+for v in range(1, TOTE_MAJOR_VERSIONS):
+    for vv in range(0, TOTE_VARS_PER_VERSION):
+        preset_traj[f'bags/totes/bag{v:d}_{vv:d}.obj'] = bag_waypts
+backpack_waypts = preset_traj['bags/backpack_0.obj']
+apron_waypts = preset_traj['cloth/apron_0.obj']
+mask_waypts = preset_traj['cloth/mask_0.obj']
+vest_waypts = preset_traj['cloth/vest_0.obj']
+for v in range(1, MESH_MAJOR_VERSIONS):
+    preset_traj['bags/backpack_'+str(v)+'.obj'] = backpack_waypts
+    preset_traj['cloth/apron_'+str(v)+'.obj'] = apron_waypts
+    preset_traj['cloth/vest_'+str(v)+'.obj'] = vest_waypts
+    preset_traj['cloth/mask_'+str(v)+'.obj'] = mask_waypts

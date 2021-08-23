@@ -1,5 +1,5 @@
-##  Helper script for annotating objects in blender. This file should be separated into four separate scripts inside
-## blender.
+##  Helper script for annotating objects in blender.
+## This file should be separated into four separate scripts inside blender.
 
 
 ## Script one: Loading_file

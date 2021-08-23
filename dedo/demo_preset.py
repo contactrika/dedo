@@ -33,11 +33,8 @@ def play(env, num_episodes, args):
     else:
         deform_obj = env.deform_obj
 
-
     assert deform_obj in preset_traj, \
-        f'The preset for "{args.env}" does not exist. Only v1 (and v6, if exists) of each task contains preset. ' \
-        f'Procedurally generated tasks are supported, but use same traj as HangGarment and ButtonSimple.' \
-        f'Available keys: {preset_traj.keys()}'
+        f'deform_obj {deform_obj:s} not in presets {preset_traj.keys()}'
     preset_wp = preset_traj[deform_obj]['waypoints']
 
     if WRITE_TO_VID:
