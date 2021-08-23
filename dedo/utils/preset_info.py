@@ -8,21 +8,17 @@
 from .task_info import (
     MESH_MAJOR_VERSIONS, TOTE_MAJOR_VERSIONS, TOTE_VARS_PER_VERSION)
 
-
 preset_traj = {
-    # TODO add constraint to scene name
     'cloth/apron_0.obj': {  # HangGarment-v0, 600 steps
         'waypoints': {
             'a': [
                 # [ x, y, z, seconds(time)]
-                # [2, 3.5, 11, 1],  # waypoint 0
                 # [2, 2, 10.5, 1],  # waypoint 0
                 [2, -0.5, 9.5, 1],
                 [2, -1, 8, 1],
             ],
             'b': [
                 # [ x, y, z, seconds(time)]
-                # [-2, 3.5, 11, 1],  # waypoint 0
                 # [-2, 2, 10.5, 1],  # waypoint 0
                 [-2, -0.5, 9.5, 1],
                 [-2, -1, 8, 1],
@@ -197,7 +193,7 @@ apron_waypts = preset_traj['cloth/apron_0.obj']
 mask_waypts = preset_traj['cloth/mask_0.obj']
 vest_waypts = preset_traj['cloth/vest_0.obj']
 for v in range(1, MESH_MAJOR_VERSIONS):
-    preset_traj['bags/backpack_'+str(v)+'.obj'] = backpack_waypts
-    preset_traj['cloth/apron_'+str(v)+'.obj'] = apron_waypts
-    preset_traj['cloth/vest_'+str(v)+'.obj'] = vest_waypts
-    preset_traj['cloth/mask_'+str(v)+'.obj'] = mask_waypts
+    preset_traj['bags/backpack_' + str(v) + '.obj'] = backpack_waypts
+    preset_traj['cloth/apron_' + str(v) + '.obj'] = apron_waypts
+    preset_traj['cloth/vest_' + str(v) + '.obj'] = vest_waypts
+    preset_traj['cloth/mask_' + str(v) + '.obj'] = mask_waypts

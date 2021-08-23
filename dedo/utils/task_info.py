@@ -23,7 +23,7 @@ TASK_INFO = {
                     'cloth/tshirt_2.obj',
                     'cloth/tshirt_3.obj',
                     'cloth/tshirt_4.obj',
-                   ],
+                    ],
     'ButtonSimple': ['cloth/button_cloth.obj'],
     'ButtonProc': ['proc_button_cloth'],
     'DressBag': [
@@ -209,7 +209,7 @@ SCENE_INFO = {
 DEFORM_INFO = {
     'procedural_hang_cloth': {
         'deform_init_pos': [0, 5, 8],
-        'deform_init_ori': [-np.pi / 2, 0, 3*np.pi / 2],
+        'deform_init_ori': [-np.pi / 2, 0, 3 * np.pi / 2],
         'deform_scale': 3,
         'deform_elastic_stiffness': 50,
         'deform_bending_stiffness': 1,
@@ -292,6 +292,7 @@ DEFORM_INFO = {
         'deform_bending_stiffness': 10,
         'deform_damping_stiffness': 0.01,
         'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
+        'disable_self_collision': True,
         'deform_anchor_vertices': [
 
             [549],
@@ -310,7 +311,7 @@ DEFORM_INFO = {
         'plane_texture_file': 'textures/plane/red_brick.jpg',
         'rigid_texture_file': "textures/rigid/darkbrownwood.jpg",
 
-'deform_texture_file': 'textures/deform/pb_whitered_checker.jpg',
+        'deform_texture_file': 'textures/deform/pb_whitered_checker.jpg',
 
     },
     'bags/backpack_1.obj': {
@@ -322,6 +323,7 @@ DEFORM_INFO = {
         'deform_bending_stiffness': 10,
         'deform_damping_stiffness': 0.01,
         'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
+        'disable_self_collision': True,
         'deform_anchor_vertices': [
             [535, ],
             [260, ],
@@ -338,9 +340,9 @@ DEFORM_INFO = {
              583, 589],
         ],
 
-'plane_texture_file': 'textures/plane/white_marble.jpg',
+        'plane_texture_file': 'textures/plane/white_marble.jpg',
         'rigid_texture_file': "textures/rigid/darkbrownwood.jpg",
-'deform_texture_file': 'textures/deform/pb_pink_fur.jpg',
+        'deform_texture_file': 'textures/deform/pb_pink_fur.jpg',
 
     },
     'bags/backpack_2.obj': {  # TODO: fix mesh issues
@@ -351,6 +353,7 @@ DEFORM_INFO = {
         # 'deform_bending_stiffness': 5,
         'deform_bending_stiffness': 10,
         'deform_damping_stiffness': 0.01,
+        'disable_self_collision': True,
         'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
         'deform_anchor_vertices': [
             [538, ],
@@ -380,6 +383,7 @@ DEFORM_INFO = {
         'deform_bending_stiffness': 10,
         'deform_damping_stiffness': 0.01,
         'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
+        'disable_self_collision': True,
         'deform_anchor_vertices': [
             [525, ],
             [265, ],
@@ -407,6 +411,7 @@ DEFORM_INFO = {
         # 'deform_bending_stiffness': 5,
         'deform_bending_stiffness': 10,
         'deform_damping_stiffness': 0.01,
+        'disable_self_collision': True,
         'cam_viewmat': [7, -32, 499, 0.15, -0.25, 3.1],
         'deform_anchor_vertices': [
             [542, ],
@@ -1033,7 +1038,7 @@ DEFORM_INFO = {
     },
     'proc_button_cloth': {
         'deform_init_pos': [0, 0.05, 2],  # [-0.13, 0.16, 0.21],
-        'deform_init_ori': [np.pi, np.pi, 0 ],
+        'deform_init_ori': [np.pi, np.pi, 0],
         'anchor_init_pos': [-0.6, 3, 4],
         'other_anchor_init_pos': [-0.6, 3, 0.4],
 
@@ -1052,10 +1057,11 @@ DEFORM_INFO = {
         'plane_texture_file': 'textures/plane/grass.jpg',
         'rigid_texture_file': "textures/rigid/lightwood.jpg",
         'deform_texture_file': 'textures/deform/pb_white_knit.jpg',
+
     },
 }
 
-DEFAULT_CAM = [11.4, -22.4, 257, -0.08, -0.29, 1.8,]
+DEFAULT_CAM = [11.4, -22.4, 257, -0.08, -0.29, 1.8, ]
 
 # Info for camera rendering without debug visualizer.
 # projectionMatrix is output 3 from pybullet.getDebugVisualizerCamera()
