@@ -84,15 +84,11 @@ class DeformEnv(gym.Env):
 
     def load_objects(self, sim, args):
         scene_name = self.args.task.lower()
-        if scene_name.startswith('hanggarment'):
+        if scene_name in ['hanggarment', 'bgarments', 'sewing','hangproccloth']:
            scene_name = 'hangcloth'  # same hanger for garments and cloths
-        if scene_name.startswith('bgarments'):
-           scene_name = 'hangcloth'  # same hanger for Berkeley garments
-        if scene_name.startswith('button'):
+        elif scene_name.startswith('button'):
             scene_name = 'button'
-        elif scene_name.startswith('hangproccloth'):
-            scene_name = 'hangcloth'
-        if scene_name.startswith('dress'):
+        elif scene_name.startswith('dress'):
             scene_name = 'dress'  # same human figure for dress and mask tasks
 
         # Make v0 the random version
@@ -146,7 +142,7 @@ class DeformEnv(gym.Env):
                 deform_obj = np.random.choice(TASK_INFO[args.task])
             else:
                 deform_obj = TASK_INFO[args.task][args.version-1]
-            DEFORM_INFO[deform_obj] = DEFORM_INFO['berkeley_garments'].copy()
+            DEFORM_INFO[deform_obj] = DEFORM_INFO['sewing_garments'].copy()
         else:
             assert (args.task in TASK_INFO)  # already checked in args
             assert (args.version <= len(TASK_INFO[args.task]))
