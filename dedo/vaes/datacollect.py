@@ -1,12 +1,12 @@
 """
-A simple demo with an example of RL training using Stable Baselines.
+A data colleciton script for storing trajectories into numpy files with a very basic preset trajectory
 
-python -m dedo.rl_demo --env=HangGarment-v1 --rl_algo PPO --logdir=/tmp/dedo
+examples:
+python -m dedo.vae.datacollect --env=ProcHangCloth-v0 --logdir=/tmp/
+python -m dedo.vae.datacollect --cam_resolution=400 --env=ProcHangCloth-v0 --max_episode_len=999 --logdir=/tmp/  --dtype='float16'
+python -m dedo.vae.datacollect --cam_resolution=400 --env=Sewing-v0 --max_episode_len=999 --logdir=/tmp/ --bundle_size=128 --action_noise=0.01 --dtype='float16'
 
-tensorboard --logdir=/tmp/dedo --bind_all --port 6006
-
-
-@contactrika
+@yonkshi
 
 """
 from copy import deepcopy
@@ -85,7 +85,7 @@ def args_setup():
     parser = argparse.ArgumentParser(
         description="CollectData", parents=[main_parser], add_help=False)
 
-    parser.add_argument('--bundle_size', type=int, default=32,
+    parser.add_argument('--bundle_size', type=int, default=128,
                         help='size of each numpy file bundle')
     parser.add_argument('--max_episodes', type=int, default=1000,
                         help='Maximum number episodes to collect')
