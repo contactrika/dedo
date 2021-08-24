@@ -290,15 +290,10 @@ class DeformEnv(gym.Env):
         reward = self.get_reward()
         if self.args.reward_strategy > 0:
             reward -= force_penalty
-        self.episode_reward += reward
+        if done:  # if terminating early use reward from current step for rest
+            reward *= (self.max_episode_len - self.stepnum)
         done = (done or self.stepnum >= self.max_episode_len)
         info = {}
-        if self.args.debug and self.stepnum % 10 == 0:
-            print(f'step {self.stepnum:d} reward {reward:0.4f}',
-                  f' force_penalty {force_penalty:0.4f}')
-            if done:
-                print(f'episode reward {self.episode_reward:0.4f}')
-
         # Compute final reward by releasing anchor and letting the object fall.
         if done:
             # Release anchors
@@ -316,14 +311,17 @@ class DeformEnv(gym.Env):
                                 self.sim, self.anchor_ids[i], action)
                 self.sim.stepSimulation()
             reward = self.get_reward() * DeformEnv.FINAL_REWARD_MULT
-            # Log stats.
             info['is_success'] = np.abs(reward) < self.SUCESS_REWARD_TRESHOLD
-            if self.args.debug:
-                print('is success', info['is_success'])
-                print('final reward ', reward)
+
+        self.episode_reward += reward  # update episode reward
+
+        if self.args.debug and self.stepnum % 10 == 0:
+            print(f'step {self.stepnum:d} reward {reward:0.4f}',
+                  f' force_penalty {force_penalty:0.4f}')
+            if done:
+                print(f'episode reward {self.episode_reward:0.4f}')
 
         self.stepnum += 1
-
         return next_obs, reward, done, info
 
     def get_obs(self):
