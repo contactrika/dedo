@@ -17,7 +17,7 @@ def get_args():
     parser = argparse.ArgumentParser(description='args', add_help=True)
     # Main/demo args.
     parser.add_argument('--env', type=str,
-                        default='HangBag-v0', help='Env name')
+                        default='HangBag-v1', help='Env name')
     parser.add_argument('--max_episode_len', type=int,
                         default=200, help='Max steps per episode')
     parser.add_argument('--seed', type=int, default=0, help='Random seed')
@@ -102,14 +102,19 @@ def get_args():
                              '(not the debug camera). '
                              '[distance, pitch, yaw, posX, posY, posZ')
     # Training args.
-    parser.add_argument('--rl_total_env_steps',  type=int, default=int(10e6),
-                        help='Total number of env steps for RL training')
-    parser.add_argument('--rl_lr',  type=float, default=1e-4,
-                        help='Learning rate for RL training')
+    parser.add_argument('--total_env_steps',  type=int, default=int(10e6),
+                        help='Total number of env steps for training')
+    parser.add_argument('--lr',  type=float, default=1e-4,
+                        help='Learning rate for training')
     parser.add_argument('--reward_strategy',  type=int, default=0,
                         help='Which reward strategy to use')
     parser.add_argument('--uint8_pixels', action='store_true',
                         help='User CNNs for RL and uint8 in [0,255] for pixels')
+    parser.add_argument('--unsup_algo', type=str, default='SVAE',
+                        choices=['SVAE', 'DSA'],
+                        help='Unsupervised learner')
+    parser.add_argument('--unsup_algo_params', type=str, default='PARAMS_PRED',
+                        help='Unsupervised learner params')
     # Parse args and do sanity checks.
     args = parser.parse_args()
     env_parts = args.env.split('-v')

@@ -74,9 +74,12 @@ def test_vae(args):
         plot_loss_lst.append(plot_loss_accum/len(train_dataset)/inp_dim)
         print(f'Epoch {epoch:d} loss {plot_loss_lst[-1]:0.4f}')
     fig.close()
+
+
 def show(x):
     plt.imshow(x)
     plt.show()
+
 
 if __name__ == '__main__':
     test_vae(get_args())

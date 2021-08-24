@@ -13,6 +13,17 @@ import torch
 LOGVAR_LIMIT = 10  # STD = sqrt(exp(-10)) = 0.0067  # avoid variance collapse
 
 
+def get_log_lik(tgt_xs, recon_xs, lp=2):
+    batch_size, seq_len, clr_chnls, data_h, data_w = tgt_xs.size()
+    # log ( \prod_{t=1}^T p(x_t|z_t) )
+    # We omit the constants log(2*pi) and log(|Sigma|), these are 'const',
+    # since recon_x includes only the 'mean', var not modelled.
+    log_lik = -0.5*torch.abs(tgt_xs - recon_xs)**lp
+    log_lik = log_lik.sum(dim=[2,3,4])  # sum px
+    log_lik = log_lik.mean(dim=1)   # mean over t
+    return log_lik
+
+
 class GaussianDiagDistr(object):
     """
     Multivariate Gaussian with diagonal covariance.
@@ -122,7 +133,7 @@ class GaussianDiagDistr(object):
         return kl
 
     @staticmethod
-    def kl_to_sandard_normal(mu, logvar):
+    def kl_to_standard_normal(mu, logvar):
         # KL(q||p), with p being standard Normal.
         # From Appendix B of VAE "Auto-Encoding Variational Bayes", ICLR2014.
         # https://arxiv.org/abs/1312.6114
@@ -158,5 +169,5 @@ class GaussianDiagDistr(object):
             return GaussianDiagDistr.kl_to_other(
                 self.mu, self.logvar, other_distr.mu, other_distr.logvar)
 
-    def kl_to_sandard_normal_(self):
-        return GaussianDiagDistr.kl_to_sandard_normal(self.mu, self.logvar)
+    def kl_to_standard_normal_(self):
+        return GaussianDiagDistr.kl_to_standard_normal(self.mu, self.logvar)

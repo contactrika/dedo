@@ -54,14 +54,11 @@ class DeformEnv(gym.Env):
         if args.cam_resolution <= 0:  # report anchor positions as low-dim obs
             self.observation_space = gym.spaces.Box(
                 -1.0 * self.anchor_lims, self.anchor_lims)
-        elif args.uint8_pixels:  # RGB with [0, 255] uint8 vals
+        else:  # WxHxC RGB
            self.observation_space = gym.spaces.Box(
-               low=0, high=255, dtype=np.uint8, shape=(
-                   args.cam_resolution, args.cam_resolution, 3))
-        else:  # RGB with [0,1] floats
-            self.observation_space = gym.spaces.Box(
-                np.zeros((args.cam_resolution, args.cam_resolution, 3)),
-                np.ones((args.cam_resolution, args.cam_resolution, 3)))
+               low=0, high=255 if args.uint8_pixels else 1.0,
+               dtype=np.uint8 if args.uint8_pixels else np.float,
+               shape=(args.cam_resolution, args.cam_resolution, 3))
         self.action_space = gym.spaces.Box(  # [-1,1]
             -1.0 * np.ones(DeformEnv.NUM_ANCHORS * 3),
             np.ones(DeformEnv.NUM_ANCHORS * 3))
@@ -269,6 +266,7 @@ class DeformEnv(gym.Env):
     def step(self, action, unscaled_velocity=False):
         # action is num_anchors x 3 for 3D velocity for anchors/grippers;
         # assume action in [-1,1], we convert to [-MAX_ACT_VEL, MAX_ACT_VEL].
+        assert self.action_space.contains(action)
         if self.args.debug:
             print('action', action)
         if not unscaled_velocity:
@@ -296,7 +294,6 @@ class DeformEnv(gym.Env):
         info = {}
         # Compute final reward by releasing anchor and letting the object fall.
         if done:
-            # Release anchors
             release_anchor(self.sim, self.anchor_ids[0])
             release_anchor(self.sim, self.anchor_ids[1])
             for sim_step in range(self.STEPS_AFTER_DONE):
@@ -345,7 +342,10 @@ class DeformEnv(gym.Env):
             obs = self.render(mode='rgb_array', width=self.args.cam_resolution,
                               height=self.args.cam_resolution)
             if self.args.uint8_pixels:
-                obs = (255*obs).astype(np.uint8)
+                obs = obs.astype(np.uint8)  # already in [0,255]
+            else:
+                obs = obs.astype(np.float32)/255.0  # to [0,1]
+        assert self.observation_space.contains(obs)
         return obs, done
 
     def get_reward(self):

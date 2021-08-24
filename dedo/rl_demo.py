@@ -16,9 +16,8 @@ import platform
 if platform.system() == 'Linux':
     os.environ['IMAGEIO_FFMPEG_EXE'] = '/usr/bin/ffmpeg'
 
-import numpy as np
-
 import gym
+import numpy as np
 from stable_baselines3 import A2C, DDPG, HER, PPO, SAC, TD3  # used dynamically
 from stable_baselines3.common.env_util import (
     make_vec_env, DummyVecEnv, SubprocVecEnv)
@@ -57,7 +56,7 @@ def main(args):
     print('Created', args.task, 'with observation_space',
           vec_env.observation_space.shape, 'action_space',
           vec_env.action_space.shape)
-    rl_kwargs = {'learning_rate': args.rl_lr, 'device': args.device,
+    rl_kwargs = {'learning_rate': args.lr, 'device': args.device,
                  'tensorboard_log': logdir, 'verbose': 1}
     num_steps_between_play = 10000 if on_policy else 1000
     if not on_policy:
@@ -71,7 +70,7 @@ def main(args):
                         num_steps_between_play=num_steps_between_play,
                         viz=args.viz, debug=args.debug)
     print('RL training start')
-    rl_agent.learn(total_timesteps=args.rl_total_env_steps, callback=cb)
+    rl_agent.learn(total_timesteps=args.total_env_steps, callback=cb)
     vec_env.close()
 
 
