@@ -105,6 +105,8 @@ def main(args):
     rlt_len = 50
     num_inner_epochs = 200 if args.unsup_algo == 'VAE' else 50
     mini_batch_size = 96 if args.unsup_algo == 'VAE' else 24
+    if args.unsup_algo == 'PRED':
+        mini_batch_size = 16
     vec_env.reset()
     steps_done = 0
     epoch = 0
