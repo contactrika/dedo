@@ -39,8 +39,8 @@ def policy_simple(obs, act, task, step):
             act[:, 1] = -0.25  # decrease y
             act[:, 2] = -0.25  # decrease z
     elif obs[0, 2] > 0.50:
-        act[:, 1] = -0.10  # decrease y
-        act[:, 2] = -0.06  # decrease z
+        act[:, 1] = -0.30  # decrease y
+        act[:, 2] = 0.1  # decrease z
     return act.reshape(-1)
 
 
@@ -49,7 +49,7 @@ def play(env, num_episodes, args):
         print('------------ Play episode ', epsd, '------------------')
         obs = env.reset()
         step = 0
-        # input('Reset done; press enter to start episode')
+        input('Reset done; press enter to start episode')
         while True:
             assert(not isinstance(env.action_space, gym.spaces.Discrete))
             print('step', step)
