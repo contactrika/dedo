@@ -42,11 +42,11 @@ class SVAEParams():
         self.logvar_nl = torch.nn.Hardtanh(-logvar_limit, logvar_limit)
         self.debug = debug
 
-#                                   hid    st  dyn  hist past pred
-PARAMS_VAE              = SVAEParams(512,  0,  None,   1,  1,  0)
-PARAMS_SVAE             = SVAEParams(512,  0,  None,   8,  8,  0)
-PARAMS_PRED             = SVAEParams(512,  0,  None,   8,  8,  8)
-PARAMS_DSA              = SVAEParams(512, None, None,  8,  8,  0)
+#                                   hid    st   dyn  hist past pred
+PARAMS_VAE              = SVAEParams(512,   0,   64,   1,  1,  0)
+PARAMS_SVAE             = SVAEParams(512,   0,   64,   8,  8,  0)
+PARAMS_PRED             = SVAEParams(512,   0,   64,   8,  4,  4)
+PARAMS_DSA              = SVAEParams(512,  16,   32,   8,  8,  0)
 
 
 def extract_tgts(x_1toL, act_1toL, hist, past, pred):
@@ -75,3 +75,31 @@ def do_logging(epoch, debug_dict, debug_hist_dict, tb_writer, title_prefix):
         for k,v in debug_hist_dict.items():
             tb_writer.add_histogram(
                 title_prefix+'_'+k, v.clone().cpu().data.numpy(), epoch)
+
+
+def fill_seq_bufs_from_rollouts(x_1toT, act_1toT, mask_1toT,
+                                batch_size, seq_len, device):
+    num_rlts = x_1toT.shape[0]
+    rlt_len = x_1toT.shape[1]
+    frames_1toL = torch.zeros(batch_size, seq_len, *x_1toT.shape[2:]).to(device)
+    act_1toL = torch.zeros(batch_size, seq_len, *act_1toT.shape[2:]).to(device)
+    for i in range(batch_size):
+        bid = torch.randint(num_rlts, (1,))[0]
+        tid = torch.randint(rlt_len-seq_len, (1,))[0]
+        currbid_masks_1toL = mask_1toT[bid, tid:tid+seq_len].squeeze(-1)
+        assert(len(currbid_masks_1toL) == seq_len)
+        frames_1toL[i, :, :, :, :] = x_1toT[bid, tid:tid+seq_len, :, :, :]
+        act_1toL[i, :, :] = act_1toT[bid, tid:tid+seq_len, :]
+        # Mask should be 0 only at the start of the episode.
+        # The offset works out to be one less than the id of the first
+        # zero mask (one less because we want to replicate the frame just
+        # before the 1st occurrence of mask==0).
+        last_tid = None  # replicate last frame until the end
+        if (currbid_masks_1toL[1:] < 1).any():
+            tmp_done_2toL = torch.abs(1-currbid_masks_1toL[1:])
+            res = tmp_done_2toL.nonzero(as_tuple=True)[0]
+            next_episode_tid = 1 + res[0].item()
+            last_tid = next_episode_tid - 1
+        if last_tid is not None:
+            frames_1toL[i, last_tid:, :] = x_1toT[bid, tid+last_tid, :]
+    return frames_1toL.to(device), act_1toL.to(device)

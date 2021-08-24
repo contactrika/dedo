@@ -110,11 +110,9 @@ def get_args():
                         help='Which reward strategy to use')
     parser.add_argument('--uint8_pixels', action='store_true',
                         help='User CNNs for RL and uint8 in [0,255] for pixels')
-    parser.add_argument('--unsup_algo', type=str, default='SVAE',
-                        choices=['SVAE', 'DSA'],
+    parser.add_argument('--unsup_algo', type=str, default='VAE',
+                        choices=['VAE', 'SVAE', 'PRED', 'DSA'],
                         help='Unsupervised learner')
-    parser.add_argument('--unsup_algo_params', type=str, default='PARAMS_PRED',
-                        help='Unsupervised learner params')
     # Parse args and do sanity checks.
     args = parser.parse_args()
     env_parts = args.env.split('-v')

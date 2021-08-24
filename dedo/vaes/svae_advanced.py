@@ -16,14 +16,11 @@ from .prob import get_log_lik, GaussianDiagDistr
 
 
 class SVAE(nn.Module):
-    def __init__(self, im_sz, act_sz, latent_sz, params_class, device):
+    def __init__(self, im_sz, act_sz, params_class, device):
         super(SVAE, self).__init__()
         pr = eval('svae_utils.' + params_class)
         pr.im_sz = im_sz
         pr.act_sz = act_sz
-        pr.latent_sz = latent_sz
-        if pr.dynamic_sz is None:
-            pr.dynamic_sz = latent_sz*2  # low dim * 2
         self.pr = pr
         self.pr_name = params_class
         self.device = device
@@ -73,22 +70,18 @@ class SVAE(nn.Module):
 
 
 class DSA(nn.Module):
-    def __init__(self, im_sz, act_sz, latent_sz, params_class, device):
+    def __init__(self, im_sz, act_sz, params_class, device):
         super(DSA, self).__init__()
-        pr = eval('svae_params.'+params_class)
+        pr = eval('svae_utils.'+params_class)
         pr.im_sz = im_sz
         pr.act_sz = act_sz
-        if pr.static_sz is None:
-            assert(pr.dynamic_sz is None)
-            pr.static_sz = latent_sz
-            pr.dynamic_sz = latent_sz
-        if pr.dynamic_sz is None: pr.dynamic_sz = latent_sz*2  # low dim * 2
         self.pr = pr
         self.pr_name = params_class
         self.device = device
         self.conv_stack = nets.ConvStack(pr)
         self.encoder_static = nets.EncoderStatic(pr, nolstm=False)
-        self.encoder_dynamic = nets.EncoderDynamicRNN(pr, nolstm=False)
+        self.encoder_dynamic = nets.EncoderDynamicRNN(
+            pr, pr.dynamic_sz, nolstm=False)
         self.decoder = nets.ConvDecoder(pr, pr.static_sz + pr.dynamic_sz)
         self.static_prior = nets.LearnableGaussianDiagDistr(pr)
         self.dynamic_prior = nets.LearnableGaussianDiagCell(pr)
@@ -126,11 +119,10 @@ class DSA(nn.Module):
     def loss(self, x_1toL, act_1toL, kl_beta=1.0, debug=False):
         assert((type(x_1toL) == torch.Tensor) and (x_1toL.dim() == 5))
         batch_size, tot_seq_len, chnls, data_h, data_w = x_1toL.size()
-        res = extract_tgts(x_1toL, act_1toL,
-                           self.pr.hist, self.pr.past, self.pr.pred)
-        x_1toT, act_1toT, _, xs_tgt, acts_tgt, _ = res
-        res = self.recon(x_1toT, act_1toT)
-        recon_xs, f_smpl, static_post_q, z_smpls, dyn_post_q = res
+        x_1toT, act_1toT, xs_tgt, acts_tgt = extract_tgts(
+            x_1toL, act_1toL, self.pr.hist, self.pr.past, self.pr.pred)
+        recon_xs, f_smpl, static_post_q, z_smpls, dyn_post_q = self.recon(
+            x_1toT, act_1toT)
         recon_log_lik = get_log_lik(xs_tgt, recon_xs, lp=2)
         kl_static, kl_dynamic = self.compute_kl(
             act_1toT, f_smpl, static_post_q, z_smpls, dyn_post_q)
@@ -178,7 +170,8 @@ class DSA(nn.Module):
             pz_t_distr, h_t, c_t = self.dynamic_prior.forward(
                 z_t, h_t, c_t, f_smpl, act_1toT[:,t])
             z_t = pz_t_distr.sample_(require_grad=False, batch_size=batch_size)
-            if t==0 and z0 is not None: z_t = z0
+            if t==0 and z0 is not None:
+                z_t = z0
             x = self.decoder.forward(f_smpl, z_t)
             x_1toT_list.append(x)
             z_t_lst.append(z_t)

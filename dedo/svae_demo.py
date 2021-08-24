@@ -28,26 +28,30 @@ import wandb
 
 from dedo.utils.args import get_args
 from dedo.utils.rl_utils import object_to_str
-from dedo.vaes.svae_advanced import SVAE
-from dedo.vaes.svae_utils import do_logging
+from dedo.vaes.svae_advanced import SVAE, DSA
+from dedo.vaes.svae_utils import do_logging, fill_seq_bufs_from_rollouts
 from dedo.vaes.svae_viz import viz_samples
 
 
-def get_batch(env, rollout_len, device):
+def get_batch(env, rollout_len):
     x_1toT = []
     act_1toT = []
-    for tmp_i in range(rollout_len):
+    mask_1toT = []
+    for _ in range(rollout_len):
         act01 = np.random.rand(env.num_envs, env.action_space.shape[-1])
         act = act01*2 - 1.0  # [0,1] -> [-1,1]
         obs, rwd, done, next = env.step(act)
+        masks = np.array([[0.0] if done_ else [1.0] for done_ in done])
         x_1toT.append(obs)
         act_1toT.append(act)
-    x_1toT = torch.from_numpy(np.stack(x_1toT)).float().to(device)
-    act_1toT = torch.from_numpy(np.stack(act_1toT)).float().to(device)
+        mask_1toT.append(masks)
+    x_1toT = torch.from_numpy(np.stack(x_1toT)).float()
+    act_1toT = torch.from_numpy(np.stack(act_1toT)).float()
+    mask_1toT = torch.from_numpy(np.stack(mask_1toT)).float()
     x_1toT = x_1toT.transpose(0, 1).transpose(2, -1).transpose(-2, -1)
-    act_1toT = act_1toT.transpose(0, 1)
-    # TODO: add done masks
-    return x_1toT, act_1toT
+    act_1toT = act_1toT.transpose(0, 1)   # put bsz 0th, time 1st
+    mask_1toT = mask_1toT.transpose(0, 1)  # put bsz 0th, time 1st
+    return x_1toT, act_1toT, mask_1toT
 
 
 def main(args):
@@ -55,7 +59,7 @@ def main(args):
     logdir = None
     if args.logdir is not None:
         tstamp = datetime.strftime(datetime.today(), '%y%m%d_%H%M%S')
-        subdir = '_'.join([args.unsup_algo_params[7:], tstamp, args.env])
+        subdir = '_'.join([args.unsup_algo, tstamp, args.env])
         logdir = os.path.join(os.path.expanduser(args.logdir), subdir)
         if args.use_wandb:
             wandb.init(config=vars(args), project='dedo', name=logdir)
@@ -80,31 +84,46 @@ def main(args):
     #
     # Train unsupervised learner.
     #
-    svae = eval(args.unsup_algo)(
+    unsup_algo_params = 'PARAMS_'+args.unsup_algo
+    unsup_algo_class = 'SVAE'
+    if 'DSA' in args.unsu_algo:
+        unsup_algo_class = 'DSA'
+    svae = eval(unsup_algo_class)(
         im_sz=args.cam_resolution, act_sz=vec_env.action_space.shape[-1],
-        latent_sz=8, params_class=args.unsup_algo_params, device=args.device)
+        params_class=unsup_algo_params, device=args.device)
     optim = torch.optim.Adam(svae.parameters(), lr=args.lr)
+    seq_len = svae.pr.past+svae.pr.pred
+    rlt_len = 5*seq_len
+    num_inner_epochs = 10
+    viz_freq = 50 if args.unsup_algo == 'VAE' else 10
+    mini_batch_size = 32
     vec_env.reset()
     steps_done = 0
     epoch = 0
     while steps_done < args.total_env_steps:
-        do_log_viz = epoch % 100 == 0
-        x_1toT, act_1toT = get_batch(
-            vec_env, svae.pr.past+svae.pr.pred, args.device)
-        optim.zero_grad()
-        loss, debug_dict = svae.loss(x_1toT, act_1toT, debug=do_log_viz)
-        loss.backward()
-        optim.step()
-        if do_log_viz:
-            do_logging(epoch, debug_dict, {}, tb_writer, 'train')
-            viz_samples(svae, x_1toT, act_1toT, epoch, tb_writer, 'train')
-            test_x_1toT, test_act_1toT = get_batch(
-                vec_env, svae.pr.past+svae.pr.pred, args.device)
-            loss, debug_dict = svae.loss(
-                test_x_1toT, test_act_1toT, debug=do_log_viz)
-            do_logging(epoch, debug_dict, {}, tb_writer, 'test')
-            viz_samples(svae, test_x_1toT, test_act_1toT, epoch, tb_writer,
-                        'test')
+        all_x_1toT, all_act_1toT, all_mask_1toT = get_batch(vec_env, rlt_len)
+        steps_done += rlt_len*args.num_envs
+        for inner_epoch in range(num_inner_epochs):
+            do_log_viz = (epoch % viz_freq == 0) and (inner_epoch == 0)
+            x_1toT, act_1toT = fill_seq_bufs_from_rollouts(
+                all_x_1toT, all_act_1toT, all_mask_1toT,
+                mini_batch_size, seq_len, args.device)
+            optim.zero_grad()
+            loss, debug_dict = svae.loss(x_1toT, act_1toT, debug=do_log_viz)
+            loss.backward()
+            optim.step()
+            if do_log_viz:
+                do_logging(epoch, debug_dict, {}, tb_writer, 'train')
+                viz_samples(svae, x_1toT, act_1toT, epoch, tb_writer, 'train')
+                test_x_1toT, test_act_1toT, _ = get_batch(vec_env, seq_len)
+                steps_done += seq_len*args.num_envs
+                test_x_1toT = test_x_1toT.to(args.device)
+                test_act_1toT = test_act_1toT.to(args.device)
+                loss, debug_dict = svae.loss(
+                    test_x_1toT, test_act_1toT, debug=do_log_viz)
+                do_logging(epoch, debug_dict, {}, tb_writer, 'test')
+                viz_samples(svae, test_x_1toT, test_act_1toT, epoch, tb_writer,
+                            'test')
         epoch += 1
     #
     # Clean up.
