@@ -139,7 +139,13 @@ class DeformEnv(gym.Env):
             if args.version == 0:
                 deform_obj = np.random.choice(TASK_INFO[args.task])
             else:
-                deform_obj = TASK_INFO[args.task][args.version]
+                deform_obj = TASK_INFO[args.task][args.version-1]
+            DEFORM_INFO[deform_obj] = DEFORM_INFO['berkeley_garments'].copy()
+        elif self.args.task == 'Sewing':
+            if args.version == 0:
+                deform_obj = np.random.choice(TASK_INFO[args.task])
+            else:
+                deform_obj = TASK_INFO[args.task][args.version-1]
             DEFORM_INFO[deform_obj] = DEFORM_INFO['berkeley_garments'].copy()
         else:
             assert (args.task in TASK_INFO)  # already checked in args

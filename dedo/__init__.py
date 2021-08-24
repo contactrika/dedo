@@ -4,12 +4,18 @@ from gym.envs.registration import register
 from .envs.deform_env import DeformEnv
 from .utils.task_info import (
     TASK_INFO, TOTE_MAJOR_VERSIONS, TOTE_VARS_PER_VERSION, DEFORM_INFO)
-
+bp = os.path.dirname(__file__)
+sewing_dir = os.path.join(bp, 'data/sewing_dataset')
+if os.path.exists(sewing_dir):
+    versions = []
+    for file in os.listdir(sewing_dir):
+        versions.append(os.path.join('data/sewing_dataset',file))
+    TASK_INFO['Sewing'] = versions
 
 for task, versions in TASK_INFO.items():
     # Dynamically add all tote bags.
     if task == 'HangBag':
-        bp = os.path.dirname(__file__)
+
         bag_dir = os.path.join(bp, 'data/bags/totes')
         for fn in sorted(os.listdir(bag_dir)):
             obj_name = os.path.join('bags/totes/', fn)

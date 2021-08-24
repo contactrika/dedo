@@ -21,21 +21,21 @@
 
 LOG_PATH="${HOME}/slurm_logs/dedo/"
 ENV_NAME=$1
-MAX_STEPS=$2
+ALGO=$2
 USER=pyshi
 SLURM_ARRAY_TASK_ID=0
 # |shelob
 sbatch << HERE
 #!/usr/bin/env bash
-#SBATCH --output="${LOG_PATH}/%x%j.out"
-#SBATCH --error="${LOG_PATH}/%x%j.err"
+#SBATCH --output="${LOG_PATH}/%x.out"
+#SBATCH --error="${LOG_PATH}/%x.err"
 #SBATCH --mail-type=FAIL
-#SBATCH --constrain="balrog|smaug|shelob|khazadum|belegost|shire|gondor|rivendell"
+#SBATCH --constrain="balrog|smaug|shelob|khazadum|belegost|shire|rivendell"
 #SBATCH --mail-user="${USER}@kth.se"
-#SBATCH --gres=gpu:0
-#SBATCH --cpus-per-task=8
-#SBATCH --mem=30GB
-#SBATCH --job-name=${ENV_NAME}
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=12
+#SBATCH --mem=50GB
+#SBATCH --job-name=${ALGO}-${ENV_NAME}
 # Check job environment
 echo "JOB: \${SLURM_ARRAY_JOB_ID}"
 echo "JOB NAME: \${SLURM_ARRAY_JOB_ID}"
@@ -47,7 +47,7 @@ nvidia-smi
 source "${HOME}/miniconda3/etc/profile.d/conda.sh"
 conda activate DEDO
 # Train and save the exit code of the python script
-python -m dedo.rl_demo --env=${ENV_NAME} --logdir=${HOME}/experiment_logs/dedo --cam_resolution 100 --num_play_runs=1 --max_episode_len=${MAX_STEPS}
+python -m dedo.svae_demo --logdir=~/experiment_logs/dedo --unsup_algo ${ALGO} --use_wandb --env ${ENV_NAME}
 EXIT_CODE="\${?}"
 exit "\${EXIT_CODE}"
 HERE
