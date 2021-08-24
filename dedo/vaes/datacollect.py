@@ -12,11 +12,11 @@ tensorboard --logdir=/tmp/dedo --bind_all --port 6006
 from copy import deepcopy
 from datetime import datetime
 import os
+from os.path import join
 import platform
-if platform.system() == 'Linux':
-    os.environ['IMAGEIO_FFMPEG_EXE'] = '/usr/bin/ffmpeg'
-
+import argparse
 import numpy as np
+import torch
 
 import gym
 from stable_baselines3 import A2C, DDPG, HER, PPO, SAC, TD3  # used dynamically
@@ -24,46 +24,78 @@ from stable_baselines3.common.env_util import (
     make_vec_env, DummyVecEnv, SubprocVecEnv)
 import wandb
 
-from dedo.utils.args import get_args
+from dedo.utils.args import get_args_parser, args_postprocess
 from dedo.utils.rl_utils import CustomCallback
 import matplotlib.pyplot as plt
 
-
 def main(args):
-    np.set_printoptions(precision=4, linewidth=150, suppress=True)
-    rl_tot_steps = int(1e6)
-    if args.rl_algo is None:
-        args.rl_algo = 'PPO'  # default to PPO if RL algo not specified
-    logdir = None
-    if args.logdir is not None:
-        tstamp = datetime.strftime(datetime.today(), '%y%m%d_%H%M%S')
-        subdir = '_'.join([args.rl_algo, tstamp, args.env])
-        logdir = os.path.join(os.path.expanduser(args.logdir), subdir)
-        if args.use_wandb:
-            wandb.init(config=vars(args), project='dedo', name=logdir)
-            wandb.init(sync_tensorboard=False)
-            wandb.tensorboard.patch(tensorboardX=True, pytorch=True)
-    # Stable baselines only support vectorized envs for on-policy algos.
-    on_policy = args.rl_algo in ['A2C', 'PPO']
-    n_envs = args.num_envs if on_policy else 1
-    eval_env = gym.make(args.env, args=args)
-    eval_env.seed(args.seed)
-    train_args = deepcopy(args)
-    train_args.debug = False  # no debug during training
-    train_args.viz = False  # no viz during training
+    assert args.logdir is not None, '--logdir must be set for data collection'
+
+    n_runs = int(np.ceil(args.max_episodes / args.num_envs))
+    args.debug = False  # no debug during training
+    args.viz = False  # no viz during training
     vec_env = make_vec_env(
-        args.env, n_envs=n_envs,
-        vec_env_cls=SubprocVecEnv if n_envs > 1 else DummyVecEnv,
-        env_kwargs={'args': train_args})
+        args.env, n_envs=args.num_envs,
+        vec_env_cls=SubprocVecEnv if args.num_envs > 1 else DummyVecEnv,
+        env_kwargs={'args': args})
     vec_env.seed(args.seed)
-    obs = vec_env.reset()
-    # Policy
-    print('obs shape', obs.shape)
+    bundle = None
+    bundle_id = 0
+    for i_run in range(n_runs):
+        obs = vec_env.reset()
+
+        # TODO Add fuzzy Camera position
+        # TODO Add fuzzy Spawning  Noise
+        act = np.zeros((args.num_envs, 6,))
+
+        # Y-axis motion for both anchors
+        act_noise = np.random.uniform(-args.action_noise,args.action_noise, args.num_envs)
+        act[:, 1] = -0.1 + act_noise
+        act[:, 5] = -0.1 + act_noise
+
+        done = False
+        while not np.all(done):
+            next_obs, rwd, done, info = vec_env.step(act)
+
+
+        next_obs = next_obs.astype(args.dtype)
+        if bundle is None:
+            bundle = next_obs
+        else:
+            bundle = np.concatenate((bundle, next_obs), axis=0)
+
+        # Output
+        if bundle.shape[0] >= args.bundle_size:
+            # Clip bundle size
+            bundle = bundle[:args.bundle_size]
+
+            outfile = join(args.logdir, f'{args.env}_{bundle_id}.npy')
+            print('Saving bundle:', outfile)
+            np.save(outfile, bundle)
+
+            bundle_id += 1
+            bundle = None
+
+        print(f'Runs: {i_run}/{n_runs}')
+
     vec_env.close()
 
+def args_setup():
+    args, main_parser = get_args_parser()
+    parser = argparse.ArgumentParser(
+        description="CollectData", parents=[main_parser], add_help=False)
 
+    parser.add_argument('--bundle_size', type=int, default=32,
+                        help='size of each numpy file bundle')
+    parser.add_argument('--max_episodes', type=int, default=1000,
+                        help='Maximum number episodes to collect')
+    parser.add_argument('--dtype', type=str, default='float16',
+                        help='Saved numpy file type')
+    parser.add_argument('--action_noise', type=float, default=0,
+                        help='Noise in the direction of force applied to each garment instance (We recommend a range around 0.01)')
+
+    args, unknown = parser.parse_known_args()
+    args_postprocess(args)
+    return args
 if __name__ == "__main__":
-    # TODO Add out dir
-    # TODO Add options for camera angle shift
-    # TODO Add options for start position varation
-    main(get_args())
+    main(args_setup())

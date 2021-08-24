@@ -8,9 +8,7 @@ import logging
 import sys
 
 from .task_info import TASK_INFO
-
-
-def get_args():
+def get_args_parser():
     logging.basicConfig(
         level=logging.INFO, format='%(asctime)s %(message)s',
         handlers=[logging.StreamHandler(sys.stdout)])
@@ -20,7 +18,7 @@ def get_args():
                         default='HangBag-v1', help='Env name')
     parser.add_argument('--max_episode_len', type=int,
                         default=200, help='Max steps per episode')
-    parser.add_argument('--seed', type=int, default=0, help='Random seed')
+    parser.add_argument('--seed', type=int, default=None, help='Random seed')
     parser.add_argument('--logdir', type=str, default=None,
                         help='Path for logs')
     parser.add_argument('--device', type=str, default='cuda:0',
@@ -60,10 +58,10 @@ def get_args():
                         help='Load custom deformable (note that you have to'
                              'fill in DEFORM_INFO entry for new items)')
     parser.add_argument('--deform_init_pos', type=float, nargs=3,
-                        default=[0,0,0.42],
+                        default=[0, 0, 0.42],
                         help='Initial pos for the center of the deform object')
     parser.add_argument('--deform_init_ori', type=float, nargs=3,
-                        default=[0,0,0],
+                        default=[0, 0, 0],
                         help='Initial orientation for deform (in Euler angles)')
     parser.add_argument('--deform_scale', type=float, default=1.0,
                         help='Scaling for the deform object')
@@ -97,16 +95,16 @@ def get_args():
                              'height). Use none to get only anchor poses.')
     # TODO: move this flag to a separate utlity.
     parser.add_argument('--cam_viewmat', type=float, nargs=6,
-                        default=[10, -22, 260, 0, 0, 2,],
+                        default=[10, -22, 260, 0, 0, 2, ],
                         help='Generate the view matrix for rendering camera'
                              '(not the debug camera). '
                              '[distance, pitch, yaw, posX, posY, posZ')
     # Training args.
-    parser.add_argument('--total_env_steps',  type=int, default=int(10e6),
+    parser.add_argument('--total_env_steps', type=int, default=int(10e6),
                         help='Total number of env steps for training')
-    parser.add_argument('--lr',  type=float, default=1e-4,
+    parser.add_argument('--lr', type=float, default=1e-4,
                         help='Learning rate for training')
-    parser.add_argument('--reward_strategy',  type=int, default=0,
+    parser.add_argument('--reward_strategy', type=int, default=0,
                         help='Which reward strategy to use')
     parser.add_argument('--uint8_pixels', action='store_true',
                         help='User CNNs for RL and uint8 in [0,255] for pixels')
@@ -114,9 +112,13 @@ def get_args():
                         choices=['VAE', 'SVAE', 'PRED', 'DSA'],
                         help='Unsupervised learner')
     # Parse args and do sanity checks.
-    args = parser.parse_args()
+    args, _ = parser.parse_known_args()
+
+    return args, parser
+def args_postprocess(args):
+    ''' Post processing for args. Separating --env into --task and --version, also performs basic sanity checks on args'''
     env_parts = args.env.split('-v')
-    assert(len(env_parts) == 2 and env_parts[1].isdigit()), \
+    assert (len(env_parts) == 2 and env_parts[1].isdigit()), \
         '--env=[Task]-v[Version] (e.g. HangGarment-v1)'
     args.task = env_parts[0]
     args.version = int(env_parts[1])
@@ -127,4 +129,9 @@ def get_args():
         if args.version > len(TASK_INFO[args.task]):
             print('env version too high')
             exit(1)
+
+def get_args():
+    args, parser = get_args_parser()
+    args_postprocess(args)
     return args
+
