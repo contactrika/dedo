@@ -89,9 +89,11 @@ class ConvStack(nn.Module):
         # https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html
         nflt = pr.conv_nfilters
         in_knlsz = 4  # inner kernel size should be always 4
-        knlsz0 = 4 if pr.im_sz==64 else 8
-        strdsz0 = int(knlsz0/2); pdsz0 = int(strdsz0/2)
-        in_strdsz = int(in_knlsz/2); in_pdsz = int(in_strdsz/2)
+        knlsz0 = 4 if pr.im_sz == 64 else 8
+        strdsz0 = int(knlsz0/2)
+        pdsz0 = int(strdsz0/2)
+        in_strdsz = int(in_knlsz/2)
+        in_pdsz = int(in_strdsz/2)
         self.conv = nn.Sequential(  # in: 3x 64x64, 128x128 or 256x256
             nn.Conv2d(3, nflt, knlsz0, strdsz0, pdsz0, bias=False),
             nn.BatchNorm2d(nflt), pr.nl,
@@ -101,8 +103,8 @@ class ConvStack(nn.Module):
             nn.BatchNorm2d(nflt*2), pr.nl)
         if pr.im_sz == 256:
             self.conv.add_module(
-                'conv_more',
-                nn.Conv2d(nflt*2, nflt*2, pr.knl_sz, pr.strd_sz, pr.pd_sz, bias=False))
+                'conv_more', nn.Conv2d(nflt*2, nflt*2, pr.knl_sz, pr.strd_sz,
+                                       pr.pd_sz, bias=False))
             self.conv.add_module('conv_more_nl', pr.nl)
             self.conv.add_module('conv_mode_bn', nn.BatchNorm2d(nflt*2))
         self.conv.add_module('conv_head', nn.Conv2d(
@@ -135,18 +137,26 @@ class ConvDecoder(nn.Module):
         nflt = pr.conv_nfilters
         # https://discuss.pytorch.org/t/pytorch-equivalent-of-tensorflow-conv2d-transpose-filter-tensor/16853/3
         in_knlsz = 4  # inner kernel size should be always 4
-        in_strdsz = int(in_knlsz/2); in_pdsz = int(in_strdsz/2)
+        in_strdsz = int(in_knlsz/2)
+        in_pdsz = int(in_strdsz/2)
         self.deconv = nn.Sequential(
             nn.ConvTranspose2d(in_sz, nflt*4, in_knlsz, 1, 0, bias=False),
             pr.nl, nn.BatchNorm2d(nflt*4),
             nn.ConvTranspose2d(nflt*4, nflt*2, in_knlsz, in_strdsz, in_pdsz, bias=False),
             pr.nl, nn.BatchNorm2d(nflt*2),
             nn.ConvTranspose2d(nflt*2, nflt*2, pr.knl_sz, pr.strd_sz, pr.pd_sz, bias=False),
-            pr.nl, nn.BatchNorm2d(nflt*2))
+            pr.nl, nn.BatchNorm2d(nflt*2)
+        )
+        if pr.im_sz == 256:
+            self.deconv.add_module(
+                'deconv_more', nn.ConvTranspose2d(nflt*2, nflt*2, pr.knl_sz,
+                                                  pr.strd_sz, pr.pd_sz, bias=False))
+            self.deconv.add_module('deconv_more_nl', pr.nl)
+            self.deconv.add_module('deconv_mode_bn', nn.BatchNorm2d(nflt*2))
         self.deconv.add_module('deconv_head', nn.ConvTranspose2d(
             nflt*2, nflt, in_knlsz, in_strdsz, in_pdsz, bias=False))
         self.deconv.add_module('deconv_head_nl', pr.nl)
-        #self.deconv.add_module('deconv_head_bn', nn.BatchNorm2d(nflt))
+        # self.deconv.add_module('deconv_head_bn', nn.BatchNorm2d(nflt))
         knlsz0 = 4 if pr.im_sz==64 else 8
         strdsz0 = int(knlsz0/2); pdsz0 = int(strdsz0/2)
         self.deconv.add_module('deconv_end', nn.ConvTranspose2d(
@@ -443,7 +453,7 @@ class BackgroundDecoder(nn.Module):
     def __init__(self, pr):
         super(BackgroundDecoder, self).__init__()
         self.clr_chn = pr.clr_chn; self.im_sz = pr.im_sz
-        self.nn = nets.make_MLP(
+        self.nn = make_MLP(
             pr.comp_out_sz, self.clr_chn*self.im_sz*pr.im_sz,
             hidden=[256, 512, 1024], nl=nn.ReLU(), out_nl=nn.Sigmoid())
         print('Constructed BacgkroundDecoder', self.nn)
@@ -470,7 +480,7 @@ class ObjectEncoder(nn.Module):
         #    nn.Conv2d(128, 128, kernel_sz=4, stride=2, padding=0), nl,
         #    nn.Conv2d(128, 128, kernel_sz=2, stride=1, padding=0), nl,
         #    nn.Conv2d(128, outsz, kernel_sz=1, stride=1, padding=0))
-        self.nn = nets.make_MLP(
+        self.nn = make_MLP(
             self.clr_chn*self.obj_sz*pr.obj_sz, outsz,
             hidden=[1024, 512, 256], nl=nn.ReLU(), out_nl=None)
         print('Constructed ObjectEncoder', self.nn)
@@ -494,7 +504,7 @@ class ObjectDecoder(nn.Module):
         #    nn.ConvTranspose2d(128, 128, kernel_sz=4, stride=2, padding=0), nl,
         #    nn.ConvTranspose2d(128, pr.clr_chn+1, kernel_sz=8, stride=4, padding=0),
         #    nn.Sigmoid())
-        self.nn = nets.make_MLP(
+        self.nn = make_MLP(
             insz, (self.clr_chn+1)*self.obj_sz*pr.obj_sz,
             hidden=[256, 512, 1024], nl=nn.ReLU(), out_nl=nn.Sigmoid())
         print('Constructed ObjectDecoder', self.nn)

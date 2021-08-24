@@ -43,6 +43,7 @@ class SVAEParams():
         self.debug = debug
 
 #                                   hid    st  dyn  hist past pred
+PARAMS_VAE              = SVAEParams(512,  0,  None,   1,  1,  0)
 PARAMS_SVAE             = SVAEParams(512,  0,  None,   8,  8,  0)
 PARAMS_PRED             = SVAEParams(512,  0,  None,   8,  8,  8)
 PARAMS_DSA              = SVAEParams(512, None, None,  8,  8,  0)
@@ -62,15 +63,15 @@ def extract_tgts(x_1toL, act_1toL, hist, past, pred):
     return x_1toT, act_1toT, xs_tgt, acts_tgt
 
 
-def do_logging(epoch, debug_dict, debug_hist_dict, tb_writer):
-    dbg_str = 'Train epoch {:d}'.format(epoch)
+def do_logging(epoch, debug_dict, debug_hist_dict, tb_writer, title_prefix):
+    dbg_str = title_prefix+' epoch {:d}'.format(epoch)
     if 'recon_log_lik' in debug_dict.keys():
         dbg_str += ' recon_log_lik: {:.4f}'.format(debug_dict['recon_log_lik'])
     print(dbg_str)
     if tb_writer is not None:
         for k,v in debug_dict.items():
             vv = v.mean().item() if type(v)==torch.Tensor else v
-            tb_writer.add_scalar(k, vv, epoch)
+            tb_writer.add_scalar(title_prefix+'_'+k, vv, epoch)
         for k,v in debug_hist_dict.items():
             tb_writer.add_histogram(
-                k,v.clone().cpu().data.numpy(), epoch)
+                title_prefix+'_'+k, v.clone().cpu().data.numpy(), epoch)

@@ -88,7 +88,7 @@ def main(args):
     steps_done = 0
     epoch = 0
     while steps_done < args.total_env_steps:
-        do_log_viz = epoch % 10 == 0
+        do_log_viz = epoch % 100 == 0
         x_1toT, act_1toT = get_batch(
             vec_env, svae.pr.past+svae.pr.pred, args.device)
         optim.zero_grad()
@@ -96,8 +96,15 @@ def main(args):
         loss.backward()
         optim.step()
         if do_log_viz:
-            do_logging(epoch, debug_dict, {}, tb_writer)
+            do_logging(epoch, debug_dict, {}, tb_writer, 'train')
             viz_samples(svae, x_1toT, act_1toT, epoch, tb_writer, 'train')
+            test_x_1toT, test_act_1toT = get_batch(
+                vec_env, svae.pr.past+svae.pr.pred, args.device)
+            loss, debug_dict = svae.loss(
+                test_x_1toT, test_act_1toT, debug=do_log_viz)
+            do_logging(epoch, debug_dict, {}, tb_writer, 'test')
+            viz_samples(svae, test_x_1toT, test_act_1toT, epoch, tb_writer,
+                        'test')
         epoch += 1
     #
     # Clean up.

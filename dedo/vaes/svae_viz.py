@@ -204,4 +204,4 @@ def viz_samples(unsup, x_1toL, act_1toL, epoch,
         recon_swap(unsup, tmp_x_lst, acts_lst, f_smpl_lst, z_smpls_lst,
                    all_imgs, all_txts)
     final_img = compose_img(all_imgs, all_txts, nviz, data_h, data_w)
-    tb_writer.add_image('recon_'+title_prefix, final_img, epoch)
+    tb_writer.add_image(title_prefix+'_recon', final_img, epoch)

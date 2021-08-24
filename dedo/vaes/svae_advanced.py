@@ -126,7 +126,7 @@ class DSA(nn.Module):
     def loss(self, x_1toL, act_1toL, kl_beta=1.0, debug=False):
         assert((type(x_1toL) == torch.Tensor) and (x_1toL.dim() == 5))
         batch_size, tot_seq_len, chnls, data_h, data_w = x_1toL.size()
-        res = extract_tgts(x_1toL, act_1toL, None,
+        res = extract_tgts(x_1toL, act_1toL,
                            self.pr.hist, self.pr.past, self.pr.pred)
         x_1toT, act_1toT, _, xs_tgt, acts_tgt, _ = res
         res = self.recon(x_1toT, act_1toT)
