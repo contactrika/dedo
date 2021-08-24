@@ -44,9 +44,9 @@ class SVAEParams():
 
 #                                   hid    st   dyn  hist past pred
 PARAMS_VAE              = SVAEParams(512,   0,   64,   1,  1,  0)
-PARAMS_SVAE             = SVAEParams(512,   0,   64,   8,  8,  0)
-PARAMS_PRED             = SVAEParams(512,   0,   64,   8,  4,  4)
-PARAMS_DSA              = SVAEParams(512,  16,   32,   8,  8,  0)
+PARAMS_SVAE             = SVAEParams(512,   0,   64,   4,  4,  0)
+PARAMS_PRED             = SVAEParams(512,   0,   64,   4,  4,  4)
+PARAMS_DSA              = SVAEParams(512,  16,   32,   4,  4,  0)
 
 
 def extract_tgts(x_1toL, act_1toL, hist, past, pred):

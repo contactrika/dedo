@@ -1,10 +1,9 @@
 """
 A demo for training Sequential Variational Autoencoders.
 
-python -m dedo.svae_demo --logdir=~/local/dedo --unsup_algo VAE
-python -m dedo.svae_demo --logdir=~/local/dedo --unsup_algo SVAE
-python -m dedo.svae_demo --logdir=~/local/dedo --unsup_algo PRED
-python -m dedo.svae_demo --logdir=~/local/dedo --unsup_algo DSA
+python -m dedo.svae_demo --logdir=~/local/dedo --num_envs 12 --unsup_algo VAE
+
+--unsup_algo choices: VAE, SVAE, PRED, DSA
 
 tensorboard --logdir=/tmp/dedo --bind_all --port 6006
 
@@ -32,6 +31,7 @@ import wandb
 from dedo.utils.args import get_args
 from dedo.utils.rl_utils import object_to_str
 from dedo.vaes.svae_advanced import SVAE, DSA
+from dedo.vaes.nets_advanced import ConvStack
 from dedo.vaes.svae_utils import do_logging, fill_seq_bufs_from_rollouts
 from dedo.vaes.svae_viz import viz_samples
 
@@ -48,6 +48,9 @@ def get_batch(env, rollout_len):
         x_1toT.append(obs)
         act_1toT.append(act)
         mask_1toT.append(masks)
+        if np.random.rand() > 0.9:  # reset envs randomly for data variety
+            env_id = np.random.randint(env.num_envs)
+            env.env_method('reset', indices=[env_id])
     x_1toT = torch.from_numpy(np.stack(x_1toT)).float()
     act_1toT = torch.from_numpy(np.stack(act_1toT)).float()
     mask_1toT = torch.from_numpy(np.stack(mask_1toT)).float()
@@ -59,7 +62,9 @@ def get_batch(env, rollout_len):
 
 def main(args):
     np.set_printoptions(precision=4, linewidth=150, suppress=True)
-    args.cam_resolution = 256
+    if args.cam_resolution not in ConvStack.IMAGE_SIZES:
+        print(f'Setting cam_resolution to 512 (was {args.cam_resolution}:d)')
+        args.cam_resolution = 512  # set default image resolution if needed
     logdir = None
     if args.logdir is not None:
         tstamp = datetime.strftime(datetime.today(), '%y%m%d_%H%M%S')
@@ -97,18 +102,27 @@ def main(args):
         params_class=unsup_algo_params, device=args.device)
     optim = torch.optim.Adam(svae.parameters(), lr=args.lr)
     seq_len = svae.pr.past+svae.pr.pred
-    rlt_len = 5*seq_len
-    num_inner_epochs = 10
-    viz_freq = 50 if args.unsup_algo == 'VAE' else 10
-    mini_batch_size = 32
+    rlt_len = 50
+    num_inner_epochs = 100 if args.unsup_algo == 'VAE' else 50
+    mini_batch_size = 96 if args.unsup_algo == 'VAE' else 24
+    if args.unsup_algo == 'PRED':
+        mini_batch_size = 16
     vec_env.reset()
     steps_done = 0
     epoch = 0
+    print('Getting test env data... ')
+    all_test_x_1toT, all_test_act_1toT, all_test_mask_1toT = get_batch(vec_env, 300)
+    print('got', all_test_x_1toT.shape)
     while steps_done < args.total_env_steps:
+        print(f'Epoch {epoch:d}: getting train env data... ')
         all_x_1toT, all_act_1toT, all_mask_1toT = get_batch(vec_env, rlt_len)
+        all_x_1toT.to(args.device)
+        all_act_1toT.to(args.device)
+        all_mask_1toT.to(args.device)
+        print('got', all_x_1toT.shape)
         steps_done += rlt_len*args.num_envs
         for inner_epoch in range(num_inner_epochs):
-            do_log_viz = (epoch % viz_freq == 0) and (inner_epoch == 0)
+            do_log_viz = inner_epoch+1 == num_inner_epochs
             x_1toT, act_1toT = fill_seq_bufs_from_rollouts(
                 all_x_1toT, all_act_1toT, all_mask_1toT,
                 mini_batch_size, seq_len, args.device)
@@ -119,10 +133,10 @@ def main(args):
             if do_log_viz:
                 do_logging(epoch, debug_dict, {}, tb_writer, 'train')
                 viz_samples(svae, x_1toT, act_1toT, epoch, tb_writer, 'train')
-                test_x_1toT, test_act_1toT, _ = get_batch(vec_env, seq_len)
+                test_x_1toT, test_act_1toT = fill_seq_bufs_from_rollouts(
+                    all_test_x_1toT, all_test_act_1toT, all_test_mask_1toT,
+                    mini_batch_size, seq_len, args.device)
                 steps_done += seq_len*args.num_envs
-                test_x_1toT = test_x_1toT.to(args.device)
-                test_act_1toT = test_act_1toT.to(args.device)
                 loss, debug_dict = svae.loss(
                     test_x_1toT, test_act_1toT, debug=do_log_viz)
                 do_logging(epoch, debug_dict, {}, tb_writer, 'test')
