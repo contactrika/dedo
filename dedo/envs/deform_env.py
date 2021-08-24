@@ -310,8 +310,9 @@ class DeformEnv(gym.Env):
                             command_anchor_velocity(
                                 self.sim, self.anchor_ids[i], action)
                 self.sim.stepSimulation()
-            reward = self.get_reward() * DeformEnv.FINAL_REWARD_MULT
-            info['is_success'] = np.abs(reward) < self.SUCESS_REWARD_TRESHOLD
+            last_rwd = self.get_reward() * DeformEnv.FINAL_REWARD_MULT
+            info['is_success'] = np.abs(last_rwd) < self.SUCESS_REWARD_TRESHOLD
+            reward += last_rwd
 
         self.episode_reward += reward  # update episode reward
 
