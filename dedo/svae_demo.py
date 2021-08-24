@@ -103,7 +103,7 @@ def main(args):
     optim = torch.optim.Adam(svae.parameters(), lr=args.lr)
     seq_len = svae.pr.past+svae.pr.pred
     rlt_len = 50
-    num_inner_epochs = 200 if args.unsup_algo == 'VAE' else 50
+    num_inner_epochs = 100 if args.unsup_algo == 'VAE' else 50
     mini_batch_size = 96 if args.unsup_algo == 'VAE' else 24
     if args.unsup_algo == 'PRED':
         mini_batch_size = 16
