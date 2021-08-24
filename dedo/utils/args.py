@@ -104,7 +104,7 @@ def get_args():
     # Training args.
     parser.add_argument('--rl_total_env_steps',  type=int, default=int(10e6),
                         help='Total number of env steps for RL training')
-    parser.add_argument('--rl_lr',  type=int, default=int(1e-4),
+    parser.add_argument('--rl_lr',  type=float, default=1e-4,
                         help='Learning rate for RL training')
     parser.add_argument('--reward_strategy',  type=int, default=0,
                         help='Which reward strategy to use')
