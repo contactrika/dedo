@@ -1,7 +1,10 @@
 """
 A demo for training Sequential Variational Autoencoders.
 
-python -m dedo.svae_demo --env=HangGarment-v1 --logdir=/tmp/dedo
+python -m dedo.svae_demo --logdir=~/local/dedo --unsup_algo VAE
+python -m dedo.svae_demo --logdir=~/local/dedo --unsup_algo SVAE
+python -m dedo.svae_demo --logdir=~/local/dedo --unsup_algo PRED
+python -m dedo.svae_demo --logdir=~/local/dedo --unsup_algo DSA
 
 tensorboard --logdir=/tmp/dedo --bind_all --port 6006
 
@@ -56,6 +59,7 @@ def get_batch(env, rollout_len):
 
 def main(args):
     np.set_printoptions(precision=4, linewidth=150, suppress=True)
+    args.cam_resolution = 256
     logdir = None
     if args.logdir is not None:
         tstamp = datetime.strftime(datetime.today(), '%y%m%d_%H%M%S')
@@ -86,7 +90,7 @@ def main(args):
     #
     unsup_algo_params = 'PARAMS_'+args.unsup_algo
     unsup_algo_class = 'SVAE'
-    if 'DSA' in args.unsu_algo:
+    if 'DSA' in args.unsup_algo:
         unsup_algo_class = 'DSA'
     svae = eval(unsup_algo_class)(
         im_sz=args.cam_resolution, act_sz=vec_env.action_space.shape[-1],
