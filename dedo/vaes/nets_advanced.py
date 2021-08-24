@@ -68,6 +68,8 @@ class MlpDecoder4L(nn.Module):
 
 
 class ConvStack(nn.Module):
+    IMAGE_SIZES = [64, 128, 256, 512]
+
     def __init__(self, pr):
         super(ConvStack, self).__init__()
         self.debug = pr.debug
@@ -93,6 +95,7 @@ class ConvStack(nn.Module):
         pdsz0 = int(strdsz0/2)
         in_strdsz = int(in_knlsz/2)
         in_pdsz = int(in_strdsz/2)
+        assert(pr.im_sz in ConvStack.IMAGE_SIZES)
         self.conv = nn.Sequential(  # in: 3x 64x64, 128x128 or 256x256
             nn.Conv2d(3, nflt, knlsz0, strdsz0, pdsz0, bias=False),
             nn.BatchNorm2d(nflt), pr.nl,
@@ -100,12 +103,13 @@ class ConvStack(nn.Module):
             nn.BatchNorm2d(nflt*2), pr.nl,
             nn.Conv2d(nflt*2, nflt*2, pr.knl_sz, pr.strd_sz, pr.pd_sz, bias=False),
             nn.BatchNorm2d(nflt*2), pr.nl)
-        if pr.im_sz == 256:
+        n_more = 1 if pr.im_sz == 256 else 2 if pr.im_sz == 512 else 0
+        for i in range(n_more):
             self.conv.add_module(
-                'conv_more', nn.Conv2d(nflt*2, nflt*2, pr.knl_sz, pr.strd_sz,
-                                       pr.pd_sz, bias=False))
-            self.conv.add_module('conv_more_nl', pr.nl)
-            self.conv.add_module('conv_mode_bn', nn.BatchNorm2d(nflt*2))
+                f'conv_more{i:d}', nn.Conv2d(
+                    nflt*2, nflt*2, pr.knl_sz, pr.strd_sz, pr.pd_sz, bias=False))
+            self.conv.add_module(f'conv_more{i:d}_nl', pr.nl)
+            self.conv.add_module(f'conv_more{i:d}_bn', nn.BatchNorm2d(nflt*2))
         self.conv.add_module('conv_head', nn.Conv2d(
             nflt*2, nflt*4, in_knlsz, in_strdsz, in_pdsz, bias=False))
         self.conv.add_module('conv_head_bn', nn.BatchNorm2d(nflt*4))
@@ -146,12 +150,14 @@ class ConvDecoder(nn.Module):
             nn.ConvTranspose2d(nflt*2, nflt*2, pr.knl_sz, pr.strd_sz, pr.pd_sz, bias=False),
             pr.nl, nn.BatchNorm2d(nflt*2)
         )
-        if pr.im_sz == 256:
+        assert(pr.im_sz in ConvStack.IMAGE_SIZES)
+        n_more = 1 if pr.im_sz == 256 else 2 if pr.im_sz == 512 else 0
+        for i in range(n_more):
             self.deconv.add_module(
-                'deconv_more', nn.ConvTranspose2d(nflt*2, nflt*2, pr.knl_sz,
-                                                  pr.strd_sz, pr.pd_sz, bias=False))
-            self.deconv.add_module('deconv_more_nl', pr.nl)
-            self.deconv.add_module('deconv_mode_bn', nn.BatchNorm2d(nflt*2))
+                f'deconv_more{i:d}', nn.ConvTranspose2d(
+                    nflt*2, nflt*2, pr.knl_sz, pr.strd_sz, pr.pd_sz, bias=False))
+            self.deconv.add_module(f'deconv_more{i:d}_nl', pr.nl)
+            self.deconv.add_module(f'deconv_more{i:d}_bn', nn.BatchNorm2d(nflt*2))
         self.deconv.add_module('deconv_head', nn.ConvTranspose2d(
             nflt*2, nflt, in_knlsz, in_strdsz, in_pdsz, bias=False))
         self.deconv.add_module('deconv_head_nl', pr.nl)

@@ -18,7 +18,7 @@ def get_args_parser():
                         default='HangBag-v1', help='Env name')
     parser.add_argument('--max_episode_len', type=int,
                         default=200, help='Max steps per episode')
-    parser.add_argument('--seed', type=int, default=None, help='Random seed')
+    parser.add_argument('--seed', type=int, default=0, help='Random seed')
     parser.add_argument('--logdir', type=str, default=None,
                         help='Path for logs')
     parser.add_argument('--device', type=str, default='cuda:0',
