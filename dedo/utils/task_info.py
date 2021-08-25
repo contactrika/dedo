@@ -24,7 +24,7 @@ TASK_INFO = {
                     'cloth/shirt_3.obj',
                     'cloth/shirt_4.obj',
                     ],
-    'ButtonSimple': ['cloth/button_cloth.obj'],
+    'Button': ['cloth/button_cloth.obj'],
     'ButtonProc': ['proc_button_cloth'],
     'DressBag': [
         'bags/backpack_0.obj',
