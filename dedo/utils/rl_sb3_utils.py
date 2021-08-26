@@ -4,18 +4,17 @@ Utilities for RL training and eval.
 @contactrika
 
 """
-import pickle
 import os
+import pickle
 
-import gym
 import torch
 
-from stable_baselines3 import A2C, DDPG, HER, PPO, SAC, TD3  # used dynamically
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.evaluation import evaluate_policy
-from stable_baselines3.common.logger import TensorBoardOutputFormat, Video
+from stable_baselines3.common.logger import Video
 
 from dedo.utils.args import get_args
+from dedo.utils.train_utils import object_to_str
 
 
 def play(env, num_episodes, rl_agent, debug=False):
@@ -35,22 +34,12 @@ def play(env, num_episodes, rl_agent, debug=False):
         # input('Episode ended; press enter to go on')
 
 
-def object_to_str(obj):
-    # Print all fields of the given object as text in tensorboard.
-    text_str = ''
-    for member in vars(obj):
-        # Tensorboard uses markdown-like formatting, hence '  \n'.
-        text_str += '  \n{:s}={:s}'.format(
-            str(member), str(getattr(obj, member)))
-    return text_str
-
-
 class CustomCallback(BaseCallback):
     """
     A custom callback that runs eval and adds videos to Tensorboard.
     """
-    def __init__(self, eval_env, num_play_episodes, logdir, num_train_envs,
-                 args, num_steps_between_play=20000, viz=False, debug=False):
+    def __init__(self, eval_env, logdir, num_train_envs, args,
+                 num_steps_between_save=10000, viz=False, debug=False):
         super(CustomCallback, self).__init__(debug)
         # Those variables will be accessible in the callback
         # (they are defined in the base class)
@@ -70,14 +59,13 @@ class CustomCallback(BaseCallback):
         # # to have access to the parent object
         # self.parent = None  # type: Optional[BaseCallback]
         self._eval_env = eval_env
-        self._num_play_episodes = num_play_episodes
         self._logdir = logdir
         self._num_train_envs = num_train_envs
         self._my_args = args
-        self._num_steps_between_play = num_steps_between_play
+        self._num_steps_between_save = num_steps_between_save
         self._viz = viz
         self._debug = debug
-        self._steps_since_play = num_steps_between_play  # play right away
+        self._steps_since_save = num_steps_between_save  # save right away
 
     def _on_training_start(self) -> None:
         """
@@ -103,30 +91,33 @@ class CustomCallback(BaseCallback):
 
         :return: (bool) If the callback returns False, training is aborted early.
         """
-        self._steps_since_play += self._num_train_envs
-        if self._steps_since_play >= self._num_steps_between_play:
-            screens = []
-
-            def grab_screens(_locals, _globals):
-                screen = self._eval_env.render(
-                    mode='rgb_array', width=300, height=300)
-                # PyTorch uses CxHxW vs HxWxC gym (and TF) images
-                screens.append(screen.transpose(2, 0, 1))
-
-            evaluate_policy(
-                self.model, self._eval_env, callback=grab_screens,
-                n_eval_episodes=self._num_play_episodes, deterministic=False)
-            if not self._my_args.disable_logging_video:
-                self.logger.record(
-                    'trajectory/video', Video(torch.ByteTensor([screens]), fps=50),
-                    exclude=('stdout', 'log', 'json', 'csv'))
-
-            self._steps_since_play = 0
+        self._steps_since_save += self._num_train_envs
+        if self._steps_since_save >= self._num_steps_between_save:
+            # Save checkpoint.
             if self._logdir is not None:
                 self.model.save(os.path.join(self._logdir, 'agent'))
                 pickle.dump(self._my_args,
                             open(os.path.join(self._logdir, 'args.pkl'), 'wb'),
                             protocol=pickle.HIGHEST_PROTOCOL)
+            self._steps_since_save = 0
+            # Record video.
+            if not self._my_args.disable_logging_video:
+                screens = []
+
+                def grab_screens(_locals, _globals):
+                    screen = self._eval_env.render(
+                        mode='rgb_array', width=300, height=300)
+                    # PyTorch uses CxHxW vs HxWxC gym (and TF) images
+                    screens.append(screen.transpose(2, 0, 1))
+
+                evaluate_policy(
+                    self.model, self._eval_env, callback=grab_screens,
+                    n_eval_episodes=1,  deterministic=False)
+                self.logger.record(
+                    'trajectory/video',
+                    Video(torch.ByteTensor([screens]), fps=50),
+                    exclude=('stdout', 'log', 'json', 'csv'))
+
         return True
 
     def _on_rollout_end(self) -> None:
@@ -141,24 +132,3 @@ class CustomCallback(BaseCallback):
         """
         pass
 
-
-def main(args):
-    # Example usage (if training logged to PPO_210822_104834_HangBag-v1):
-    # python -m dedo.utils.rl_utils --logdir PPO_210822_104834_HangBag-v1
-    checkpt = os.path.join(args.logdir, 'agent.zip')
-    print('Loading checkpoint from', checkpt)
-    args = pickle.load(open(os.path.join(args.logdir, 'args.pkl'), 'rb'))
-    if not hasattr(args, 'reward_strategy'):
-        args.reward_strategy = 0
-    if not hasattr(args, 'uint8_pixels'):
-        args.uint8_pixels = False
-    args.debug = True
-    args.viz = True
-    eval_env = gym.make(args.env, args=args)
-    eval_env.seed(args.seed)
-    rl_agent = eval(args.rl_algo).load(checkpt)
-    play(eval_env, num_episodes=10, rl_agent=rl_agent, debug=False)
-
-
-if __name__ == "__main__":
-    main(get_args())

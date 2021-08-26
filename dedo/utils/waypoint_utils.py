@@ -9,7 +9,7 @@ from scipy.signal import savgol_filter
 
 
 def interpolate_waypts(waypts, steps_per_waypt):
-    """A scratch function to smooth trajectory. Not tested."""
+    """A scratch function to smooth trajectory."""
     waypts = waypts.reshape(-1, 3)
     n_waypts = waypts.shape[0]
     dists = []
@@ -42,16 +42,19 @@ def target_pos_to_velocity(sim, anchor_bullet_id, tgt_pos, t):
     tgt_vel = (pos_diff) / t
     return tgt_vel
 
+
 #
-# TODO(Yonk): please remove all the code below and use interpolate_waypts instead.
+# TODO: remove all the code below and use interpolate_waypts instead.
 #
 def create_trajectory(init_pos, waypoints, steps_per_waypoint, frequency):
     # Create a smoothed trajectory through the given waypoints.
     assert(len(waypoints)== len(steps_per_waypoint))
     init_pos = np.array(init_pos)
     waypoints = np.array(waypoints)
-    assert init_pos.shape[-1] == waypoints.shape[-1], 'init_pos and waypoints must both be arrays of coordinates'
-    if len(init_pos.shape) == 1: init_pos = init_pos[None,...] # adding an empty dim
+    assert init_pos.shape[-1] == waypoints.shape[-1], \
+        'init_pos and waypoints must both be arrays of coordinates'
+    if len(init_pos.shape) == 1:
+        init_pos = init_pos[None,...]  # empty dim
     waypoints = np.concatenate([init_pos, waypoints], axis=0)
     num_wpts = len(waypoints)
     tot_steps = sum(steps_per_waypoint)
@@ -65,12 +68,13 @@ def create_trajectory(init_pos, waypoints, steps_per_waypoint, frequency):
         Y, Yd, Ydd = plan_min_jerk_trajectory(prev_pos, tgt_pos, dur*dt, dt)
         traj[t:t+dur,0:3] = Y[:]
         traj[t:t+dur,3:6] = Yd[:]   # velocity
-        #traj[t:t+dur,6:9] = Ydd[:]  # acceleration
+        # traj[t:t+dur,6:9] = Ydd[:]  # acceleration
         t += dur
         prev_pos = tgt_pos
     if t<tot_steps: traj[t:,:] = traj[t-1,:]  # set rest to last entry
-    #print('create_trajectory(): traj', traj)
+    # print('create_trajectory(): traj', traj)
     return traj
+
 
 def calculate_min_jerk_step(y_curr, yd_curr, ydd_curr, goal, rem_dur, dt):
 
@@ -112,6 +116,7 @@ def calculate_min_jerk_step(y_curr, yd_curr, ydd_curr, goal, rem_dur, dt):
     ydd = 20 * c1 * t3 + 12 * c2 * t2 + 6 * c3 * t1 + 2 * c4
 
     return y, yd, ydd
+
 
 def plan_min_jerk_trajectory(y0, goal, dur, dt):
     N = round(dur / dt)

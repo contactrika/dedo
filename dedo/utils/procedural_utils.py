@@ -1,7 +1,7 @@
 #
-# Utilities for the generating procedural cloth
+# Utilities for the generating procedural cloth.
 #
-# @jackson @yonkshi
+# @jackson, @yonkshi
 #
 
 import os

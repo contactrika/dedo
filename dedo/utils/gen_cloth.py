@@ -1,5 +1,5 @@
 #
-# Utilities for the buttoning task
+# Utilities for the buttoning task.
 #
 # @jackson, @pyshi
 #

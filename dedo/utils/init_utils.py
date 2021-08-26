@@ -3,16 +3,13 @@
 #
 # @contactrika
 #
-import os
-import time
+from pathlib import Path  # automatically converts forward slashes if needed
 
 import numpy as np
 import pybullet
 import pybullet_data
 
 from .mesh_utils import get_mesh_data
-from .anchor_utils import create_anchor_geom, pin_fixed
-from .task_info import DEFORM_INFO, SCENE_INFO, TASK_INFO
 
 
 def get_preset_properties(object_preset_dict, deform_obj_name, key):
@@ -23,60 +20,8 @@ def get_preset_properties(object_preset_dict, deform_obj_name, key):
         return object_preset_dict[deform_obj_name][key]
 
 
-def load_objects(sim, scene_name, args):
-    if scene_name.startswith('hang'):
-        scene_name = 'hang'  # same scene for 'HangBag', 'HangGarment'
-    elif scene_name.startswith('mask'):
-        scene_name = 'dress'  # same human figure for dress and mask tasks
-    elif scene_name.startswith('button'):
-        scene_name = 'button'  # same human figure for dress and mask tasks
-    data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
-    sim.setAdditionalSearchPath(data_path)
-    #
-    # Load rigid objects.
-    #
-    rigid_ids = []
-    for name, kwargs in SCENE_INFO[scene_name]['entities'].items():
-        pth = os.path.join(data_path, name)
-        id = load_rigid_object(
-            sim, pth, kwargs['globalScaling'],
-            kwargs['basePosition'], kwargs['baseOrientation'])
-        rigid_ids.append(id)
-    #
-    # Load deformable object.
-    #
-    if args.override_deform_obj is not None:
-        deform_obj = args.override_deform_obj
-    else:
-        assert (args.task in TASK_INFO)  # already checked in args
-        assert (args.version < len(TASK_INFO[args.task]))  # checked in args
-        deform_obj = TASK_INFO[args.task][args.version]
-        for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
-            setattr(args, arg_nm, arg_val)
-    texture_path = os.path.join(
-        data_path, 'textures', 'blue_bright.png')
-    deform_id = load_deform_object(
-        sim, deform_obj, texture_path, args.deform_scale,
-        args.deform_init_pos, args.deform_init_ori,
-        args.deform_bending_stiffness, args.deform_damping_stiffness,
-        args.deform_elastic_stiffness, args.deform_friction_coeff,
-        args.debug)
-    if scene_name == 'button':  # pin cloth edge for buttoning task
-        assert ('deform_fixed_anchor_vertex_ids' in DEFORM_INFO[deform_obj])
-        pin_fixed(sim, deform_id,
-                  DEFORM_INFO[deform_obj]['deform_fixed_anchor_vertex_ids'])
-    #
-    # Mark the goal.
-    #
-    goal_pos = SCENE_INFO[scene_name]['goal_pos']
-    if args.viz:
-        create_anchor_geom(sim, goal_pos, mass=0.0, radius=0.01,
-                           rgba=(0, 1, 0, 1), use_collision=True)
-    pass
-
-
-def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori, texture_file=None,
-                      rgba_color=None):
+def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori,
+                      texture_file=None, rgba_color=None):
     """Load a rigid object from file, create visual and collision shapes."""
     if obj_file_name.endswith('.obj'):  # mesh info
         xyz_scale = [scale, scale, scale]
@@ -108,13 +53,15 @@ def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori, texture_fil
         if hasattr(pybullet, 'VISUAL_SHAPE_DOUBLE_SIDED'):
             kwargs['flags'] = pybullet.VISUAL_SHAPE_DOUBLE_SIDED
 
-        if obj_file_name.endswith('figure_headless.urdf'): # Only changing the body of the figure
-            sim.changeVisualShape(
-                rigid_id, 0, rgbaColor=[1, 1, 1, 1], textureUniqueId=texture_id, **kwargs)
+        if obj_file_name.endswith('figure_headless.urdf'):
+            sim.changeVisualShape(  # only changing the body of the figure
+                rigid_id, 0, rgbaColor=[1, 1, 1, 1],
+                textureUniqueId=texture_id, **kwargs)
         else:
             for i in range(-1, n_jt):
                 sim.changeVisualShape(
-                    rigid_id, i, rgbaColor=[1,1,1,1], textureUniqueId=texture_id, **kwargs)
+                    rigid_id, i, rgbaColor=[1,1,1,1],
+                    textureUniqueId=texture_id, **kwargs)
 
     return rigid_id
 
@@ -129,7 +76,7 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
     # Note: do not set very small mass (e.g. 0.01 causes instabilities).
     deform_id = sim.loadSoftBody(
         mass=1,  # 1kg is default; bad sim with lower mass
-        fileName=obj_file_name,
+        fileName=str(Path(obj_file_name)),
         scale=scale,
         basePosition=init_pos,
         baseOrientation=pybullet.getQuaternionFromEuler(init_ori),
@@ -147,9 +94,9 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
         # repulsionStiffness=10000000,
     )
     # PyBullet examples for loading and anchoring deformables:
-    # https://github.com/bulletphysics/bullet3/examples/pybullet/examples/deformable_anchor.py
+    # github.com/bulletphysics/bullet3/examples/pybullet/examples/deformable_anchor.py
     sim.setPhysicsEngineParameter(sparseSdfVoxelSize=0.25)
-    texture_id = sim.loadTexture(texture_file_name)
+    texture_id = sim.loadTexture(str(Path(texture_file_name)))
     kwargs = {}
     if hasattr(pybullet, 'VISUAL_SHAPE_DOUBLE_SIDED'):
         kwargs['flags'] = pybullet.VISUAL_SHAPE_DOUBLE_SIDED
@@ -165,7 +112,7 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
     # Large meshes will load on Linux/Ubuntu, but sim will run too slowly.
     # Meshes with >2^13=8196 vertices will fail to load on OS X due to shared
     # memory limits, as noted here:
-    # https://github.com/bulletphysics/bullet3/issues/1965
+    # github.com/bulletphysics/bullet3/issues/1965
     assert(num_mesh_vertices < 2**13)  # make sure mesh has less than ~8K verts
     return deform_id
 
