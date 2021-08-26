@@ -12,14 +12,9 @@ sewing_dir = Path(bp, 'data/sewing_dataset')
 if os.path.exists(sewing_dir):
     versions = []
     for file in os.listdir(sewing_dir):
-<<<<<<< HEAD
-        if not file.endswith('.obj'): continue # sanity check
-        versions.append(os.path.join('sewing_dataset',file))
-=======
         if not file.endswith('.obj'):
             continue  # skip files that are not in .obj format
-        versions.append('data/sewing_dataset/'+file)
->>>>>>> 536a24d6da492b3104012297ef4a7bdccd5ad1c9
+        versions.append(os.path.join('sewing_dataset',file))
     TASK_INFO['Sewing'] = versions
 
 for task, versions in TASK_INFO.items():
