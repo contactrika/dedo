@@ -139,7 +139,7 @@ Over View Here
 `HangGarment-v0`: hang garment with randomized textures 
 (a few examples below):
 
-![misc/imgs/hang_garments_0.jpg](misc/imgs/hang_garments_0.jpg)
+![misc/gif/HangGarment-v1.gif](misc/gif/HangGarment-v1.gif)
 
 `HangGarment-v[1-5]`: 5 apron meshes and texture combos shown below:
 
