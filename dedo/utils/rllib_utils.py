@@ -91,17 +91,21 @@ def make_rl_config(args, num_gpus):
     rl_config['gamma'] = 0.995
     # rl_config['horizon'] = rollout_len  # seems to break things
     # Customize NN architecture and hidden layers.
-    if args.cam_resolution > 0 is not None:
-        im_sz = args.cam_resolution
-        nflt = 32
-        conv_filters = [[nflt, [4, 4], 2], [nflt*2, [4, 4], 2]]
-        if im_sz >= 64:
-            conv_filters.append([nflt*2, [4, 4], 2])
-        if im_sz == 128:
-            conv_filters.append([nflt*4, [4, 4], 2])
-        conv_filters.append([nflt*4, [8, 8], 1])  # im_sz=32,64,128
-        rl_config['model']['dim'] = args.cam_resolution
-        rl_config['model']['conv_filters'] = conv_filters
+    # if args.cam_resolution > 0 is not None:
+    #    im_sz = args.cam_resolution
+    #    nflt = 32
+    #    conv_filters = [[nflt, [4, 4], 2], [nflt*2, [4, 4], 2]]
+    #    if im_sz >= 64:
+    #        conv_filters.append([nflt*2, [4, 4], 2])
+    #    if im_sz == 128:
+    #        conv_filters.append([nflt*4, [4, 4], 2])
+    #    conv_filters.append([nflt*4, [8, 8], 1])  # im_sz=32,64,128
+    #    rl_config['model']['dim'] = args.cam_resolution
+    #    rl_config['model']['conv_filters'] = conv_filters
+    if args.cam_resolution > 0:
+        rl_config['model']['fcnet_hiddens'] = [1024, 512, 128]
+    else:
+        rl_config['model']['fcnet_hiddens'] = [64, 64]
     if args.rllib_use_torch:
         rl_config['framework'] = 'torch'
     if args.rl_algo == 'A3C' and not args.rllib_use_torch:
@@ -112,10 +116,14 @@ def make_rl_config(args, num_gpus):
         rl_config['sgd_minibatch_size'] = bsz//10
         # rl_config['vf_share_layers'] = True
         rl_config['entropy_coeff'] = 0.01   # low exploration noise
+    if args.rl_algo == 'SAC':
+        rl_config['buffer_size'] = args.replay_size
+    if args.rl_algo == 'TD3':
+        rl_config['buffer_size'] = args.replay_size
     if args.rl_algo == 'Impala':
         rl_config['num_sgd_iter'] = 50
         rl_config['replay_proportion'] = 0.5  # 0.5:1 proportion
-        rl_config['replay_buffer_num_slots'] = 10000
+        rl_config['replay_buffer_num_slots'] = args.replay_size
     if args.rl_algo == 'ApexDDPG':
         rl_config['learning_starts'] = args.rollout_len
         rl_config['target_network_update_freq'] = 2*args.rollout_len
