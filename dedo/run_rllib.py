@@ -1,8 +1,8 @@
 """
 An example of RL training using RLlib.
 
+pip install tensorflow-gpu
 pip install ray[rllib]
-pip install tensorflow
 python -m dedo.run_rllib --env=HangGarment-v1 --rl_algo PPO --logdir=/tmp/dedo
 
 tensorboard --logdir=/tmp/dedo --bind_all --port 6006
@@ -32,6 +32,8 @@ def run_with_args(args):
     assert(args.rl_algo is not None), 'Please provide --rl_algo'
     os.environ['RAY_DISABLE_IMPORT_WARNING'] = '1'
     args.logdir, args.device = init_train(args.rl_algo, args)
+    # conv_filters in make_rl_config support cam_resolution 128
+    args.cam_resolution = 128
     ray.tune.registry.register_env(args.env, deform_env_creator)
     num_cpus = args.num_envs+1  # +1 for the controller
     num_gpus = 0
