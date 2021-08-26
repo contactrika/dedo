@@ -47,7 +47,7 @@ nvidia-smi
 source "${HOME}/miniconda3/etc/profile.d/conda.sh"
 conda activate DEDO
 # Train and save the exit code of the python script
-python -m dedo.svae_demo --cam_resolution=256 --num_envs=12 --logdir=~/experiment_logs/dedo --unsup_algo ${ALGO} --use_wandb --env ${ENV_NAME} --seed=1
+python -m dedo.svae_demo --cam_resolution=256 --total_env_steps=300000 --num_envs=12 --logdir=~/experiment_logs/dedo --unsup_algo ${ALGO} --use_wandb --env ${ENV_NAME} --seed=1
 EXIT_CODE="\${?}"
 exit "\${EXIT_CODE}"
 HERE

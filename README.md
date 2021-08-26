@@ -1,4 +1,5 @@
-# DEDO  - Dynamic Environments with Deformable Objects
+![DEDO  - Dynamic Environments with Deformable Objects](misc/imgs/header.png)
+### DEDO  - Dynamic Environments with Deformable Objects
 Dedo is a lightweight, deterministic, and customizable deformable object gym environment aimed towards researchers in the reinforcement learning
 and robotics community. 
 The environment a set of every day tasks involving deformable objects such as hanging cloth, dressing a person, and buttoning buttons. 
@@ -14,7 +15,7 @@ highly parallelizable and supports a wide range of customizations: loading custo
 [Tasks](#tasks)<br />
 [Customization](#custom)<br />
 
-
+For Full Documentation, please refer to **[Wiki](../../wiki)**
 
 <a name="install"></a>
 ## Installation
