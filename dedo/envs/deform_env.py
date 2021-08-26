@@ -36,7 +36,6 @@ class DeformEnv(gym.Env):
 
     def __init__(self, args):
         self.args = args
-
         self.cam_on = args.cam_resolution > 0
         # Initialize sim and load objects.
         self.sim = bclient.BulletClient(
@@ -52,14 +51,14 @@ class DeformEnv(gym.Env):
         if args.cam_resolution <= 0:  # report anchor positions as low-dim obs
             self.observation_space = gym.spaces.Box(
                 -1.0 * self.anchor_lims, self.anchor_lims)
-        else:  # RGB
-           shape = (args.cam_resolution, args.cam_resolution, 3)      # WxHxC
-           if self.args.rgb_channels_first:
-               shape = (3, args.cam_resolution, args.cam_resolution)  # CxWxH
-           self.observation_space = gym.spaces.Box(
-               low=0, high=255 if args.uint8_pixels else 1.0,
-               dtype=np.uint8 if args.uint8_pixels else np.float,
-               shape=shape)
+        else:  # RGB WxHxC
+            shape = (args.cam_resolution, args.cam_resolution, 3)
+            if args.flat_obs:
+                shape = (np.prod(shape),)
+            self.observation_space = gym.spaces.Box(
+                low=0, high=255 if args.uint8_pixels else 1.0,
+                dtype=np.uint8 if args.uint8_pixels else np.float,
+                shape=shape)
         self.action_space = gym.spaces.Box(  # [-1,1]
             -1.0 * np.ones(DeformEnv.NUM_ANCHORS * 3),
             np.ones(DeformEnv.NUM_ANCHORS * 3))
@@ -353,8 +352,8 @@ class DeformEnv(gym.Env):
                 obs = obs.astype(np.uint8)  # already in [0,255]
             else:
                 obs = obs.astype(np.float32)/255.0  # to [0,1]
-            if self.args.rgb_channels_first:
-                obs = np.rollaxis(obs, axis=2, start=0)  # WxHxC -> CxWxH
+        if self.args.flat_obs:
+            obs = obs.reshape(-1)
         assert self.observation_space.contains(obs)
         return obs, done
 
