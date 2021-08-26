@@ -63,12 +63,12 @@ procedurally generated cloth with 1 and 2 holes.
 
 ![misc/imgs/button_proc.jpg](misc/imgs/button_proc.jpg)
 
-`ButtonSimple-v0`: randomized textures, but fixed cloth and button positions.
+`Button-v0`: randomized textures, but fixed cloth and button positions.
 
-`ButtonSimple-v1`:  fixed cloth and button positions with one texture 
+`Button-v1`:  fixed cloth and button positions with one texture 
 (see image below):
 
-![misc/imgs/button_simple.jpg](misc/imgs/button_simple.jpg)
+![misc/imgs/button.jpg](misc/imgs/button.jpg)
 
 
 #### Hoop and Lasso

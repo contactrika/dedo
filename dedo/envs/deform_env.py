@@ -9,9 +9,7 @@ import time
 import numpy as np
 import gym
 import pybullet
-import pybullet_data
 import pybullet_utils.bullet_client as bclient
-import matplotlib.pyplot as plt
 
 from ..utils.anchor_utils import (
     create_anchor, attach_anchor, create_anchor_geom, command_anchor_velocity,
@@ -34,7 +32,7 @@ class DeformEnv(gym.Env):
     STEPS_AFTER_DONE = 500     # steps after releasing anchors at the end
     FORCE_REWARD_MULT = 1e-4   # scaling for the force penalties
     FINAL_REWARD_MULT = 50     # multiply the final reward (for sparse rewards)
-    SUCESS_REWARD_TRESHOLD = 2.5  # threshold to log task success/failure
+    SUCESS_REWARD_TRESHOLD = 2.5  # approx. threshold for task success/failure
 
     def __init__(self, args):
         self.args = args
@@ -54,11 +52,14 @@ class DeformEnv(gym.Env):
         if args.cam_resolution <= 0:  # report anchor positions as low-dim obs
             self.observation_space = gym.spaces.Box(
                 -1.0 * self.anchor_lims, self.anchor_lims)
-        else:  # WxHxC RGB
+        else:  # RGB
+           shape = (args.cam_resolution, args.cam_resolution, 3)      # WxHxC
+           if self.args.rgb_channels_first:
+               shape = (3, args.cam_resolution, args.cam_resolution)  # CxWxH
            self.observation_space = gym.spaces.Box(
                low=0, high=255 if args.uint8_pixels else 1.0,
                dtype=np.uint8 if args.uint8_pixels else np.float,
-               shape=(args.cam_resolution, args.cam_resolution, 3))
+               shape=shape)
         self.action_space = gym.spaces.Box(  # [-1,1]
             -1.0 * np.ones(DeformEnv.NUM_ANCHORS * 3),
             np.ones(DeformEnv.NUM_ANCHORS * 3))
@@ -79,7 +80,7 @@ class DeformEnv(gym.Env):
             parent = os.path.dirname(file_path)
             full_parent_path = os.path.join(self.args.data_path, parent)
             randfile = np.random.choice(list(os.listdir(full_parent_path)))
-            file_path = os.path.join(parent,randfile)
+            file_path = os.path.join(parent, randfile)
         return file_path
 
     def load_objects(self, sim, args):
@@ -101,7 +102,7 @@ class DeformEnv(gym.Env):
 
         if args.override_deform_obj is not None:
             deform_obj = args.override_deform_obj
-        elif self.args.task == 'HangProcCloth':  # procedural generation for hanging cloth
+        elif self.args.task == 'HangProcCloth':  # procedural gen. for hanging
             args.node_density = 15
             if args.version == 0:
                 args.num_holes = np.random.randint(2)+1
@@ -111,7 +112,7 @@ class DeformEnv(gym.Env):
                 self.args, 'procedural_hang_cloth', DEFORM_INFO)
             for arg_nm, arg_val in DEFORM_INFO[deform_obj].items():
                 setattr(args, arg_nm, arg_val)
-        elif self.args.task == 'ButtonProc':  # procedural generation for buttoninig
+        elif self.args.task == 'ButtonProc':  # procedural gen. for buttoning
             args.num_holes = 2
             args.node_density = 15
             deform_obj, hole_centers = gen_procedural_button_cloth(
@@ -121,14 +122,15 @@ class DeformEnv(gym.Env):
 
             h1, h2 = hole_centers
 
-            # Move buttons according to match hole position so the task can complete
-            # conversion
+            # Move buttons to match hole position.
             h1 = (-h1[1], 0, h1[2]+2)
-            h2 = (-h2[1], 0, h2[2] + 2)
+            h2 = (-h2[1], 0, h2[2]+2)
 
             buttons = SCENE_INFO['button']
-            buttons['entities']['urdf/button_fixed.urdf']['basePosition'] = (h1[0], 0.2, h1[2])
-            buttons['entities']['urdf/button_fixed2.urdf']['basePosition'] = (h2[0], 0.2, h2[2])
+            buttons['entities']['urdf/button_fixed.urdf']['basePosition'] = (
+                h1[0], 0.2, h1[2])
+            buttons['entities']['urdf/button_fixed2.urdf']['basePosition'] = (
+                h2[0], 0.2, h2[2])
             # goal pos
             buttons['goal_pos'] = [h1, h2]
         elif self.args.task == 'BGarments':
@@ -169,14 +171,14 @@ class DeformEnv(gym.Env):
         #
         rigid_ids = []
         for name, kwargs in SCENE_INFO[scene_name]['entities'].items():
-            pth = os.path.join(data_path, name)
             rgba_color = kwargs['rgbaColor'] if 'rgbaColor' in kwargs else None
             texture_file = None
             if 'useTexture' in kwargs and kwargs['useTexture']:
                 texture_file = self.get_texture_path(args.rigid_texture_file)
             id = load_rigid_object(
-                sim, pth, kwargs['globalScaling'], kwargs['basePosition'],
-                kwargs['baseOrientation'], texture_file, rgba_color)
+                sim, os.path.join(data_path, name), kwargs['globalScaling'],
+                kwargs['basePosition'], kwargs['baseOrientation'],
+                texture_file, rgba_color)
             rigid_ids.append(id)
 
         #
@@ -214,8 +216,11 @@ class DeformEnv(gym.Env):
         self.stepnum = 0
         self.episode_reward = 0.0
         self.anchors = {}
+
+        # Reset pybullet sim to clear out deformables and reload objects.
         plane_texture_path = os.path.join(
-            self.args.data_path,  self.get_texture_path(self.args.plane_texture_file))
+            self.args.data_path,  self.get_texture_path(
+                self.args.plane_texture_file))
         reset_bullet(self.args, self.sim, plane_texture=plane_texture_path)
         self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos = \
             self.load_objects(self.sim, self.args)
@@ -227,8 +232,8 @@ class DeformEnv(gym.Env):
 
         self.sim.stepSimulation()  # step once to get initial state
         #
-        if self.args.debug and self.args.viz:
-            self.debug_viz_cent_loop()
+        # if self.args.debug and self.args.viz:
+        #    self.debug_viz_cent_loop()
 
         # Setup dynamic anchors.
         for i in range(DeformEnv.NUM_ANCHORS):  # make anchors
@@ -257,7 +262,8 @@ class DeformEnv(gym.Env):
         if not hasattr(self.args, "deform_true_loop_vertices"): return
         _, vertex_positions = get_mesh_data(self.sim, self.deform_id)
         v = np.array(vertex_positions)
-        for i, true_loop_vertices in enumerate(self.args.deform_true_loop_vertices):
+        for i, true_loop_vertices in enumerate(
+                self.args.deform_true_loop_vertices):
             cent_pos = v[true_loop_vertices].mean(axis=0)
 
             alpha = 1 if i == 0 else 0.3  # solid or transparent
@@ -347,6 +353,8 @@ class DeformEnv(gym.Env):
                 obs = obs.astype(np.uint8)  # already in [0,255]
             else:
                 obs = obs.astype(np.float32)/255.0  # to [0,1]
+            if self.args.rgb_channels_first:
+                obs = np.rollaxis(obs, axis=2, start=0)  # WxHxC -> CxWxH
         assert self.observation_space.contains(obs)
         return obs, done
 
@@ -370,9 +378,8 @@ class DeformEnv(gym.Env):
                     dist *= DeformEnv.FINAL_REWARD_MULT
                 # Save a screenshot for debugging.
                 obs = self.render(mode='rgb_array', width=300, height=300)
-                np.save(os.path.join(
-                    self.args.logdir,
-                    f'nan_{self.args.env}_s{self.stepnum}.npy'), obs)
+                pth = f'nan_{self.args.env}_s{self.stepnum}.npy'
+                np.save(os.path.join(self.args.logdir, pth), obs)
                 break
             cent_pos = cent_pts.mean(axis=0)
             dist.append(np.linalg.norm(cent_pos - goal_pos))

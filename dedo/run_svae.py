@@ -1,24 +1,16 @@
 """
 A demo for training Sequential Variational Autoencoders.
 
-python -m dedo.svae_demo --logdir=~/local/dedo --num_envs 12 --unsup_algo VAE
-
---unsup_algo choices: VAE, SVAE, PRED, DSA
+python -m dedo.run_svae --logdir=~/local/dedo --num_envs 12 --unsup_algo VAE
 
 tensorboard --logdir=/tmp/dedo --bind_all --port 6006
 
+Note: --unsup_algo choices: VAE, SVAE, PRED, DSA
 
 @contactrika
 
 """
 from copy import deepcopy
-from collections import deque
-from datetime import datetime
-from glob import glob
-import os
-import platform
-if platform.system() == 'Linux':
-    os.environ['IMAGEIO_FFMPEG_EXE'] = '/usr/bin/ffmpeg'
 
 import gym
 import numpy as np
@@ -26,12 +18,11 @@ from stable_baselines3.common.env_util import (
     make_vec_env, DummyVecEnv, SubprocVecEnv)
 from tensorboardX import SummaryWriter
 import torch
-import wandb
 
 from dedo.utils.args import get_args
-from dedo.utils.rl_utils import object_to_str
-from dedo.vaes.svae_advanced import SVAE, DSA
+from dedo.utils.train_utils import init_train, object_to_str
 from dedo.vaes.nets_advanced import ConvStack
+from dedo.vaes.svae_advanced import SVAE, DSA  # used dynamically
 from dedo.vaes.svae_utils import do_logging, fill_seq_bufs_from_rollouts
 from dedo.vaes.svae_viz import viz_samples
 
@@ -61,24 +52,14 @@ def get_batch(env, rollout_len):
 
 
 def main(args):
-    np.set_printoptions(precision=4, linewidth=150, suppress=True)
+    assert(args.unsup_algo is not None), 'Please provide --unsup_algo'
     if args.cam_resolution not in ConvStack.IMAGE_SIZES:
-        print(f'Setting cam_resolution to 512 (was {args.cam_resolution}:d)')
+        print(f'Setting cam_resolution to 512 (was {args.cam_resolution:d})')
         args.cam_resolution = 512  # set default image resolution if needed
-    logdir = None
-    if args.logdir is not None:
-        tstamp = datetime.strftime(datetime.today(), '%y%m%d_%H%M%S')
-        subdir = '_'.join([args.unsup_algo, tstamp, args.env])
-        logdir = os.path.join(os.path.expanduser(args.logdir), subdir)
-        if args.use_wandb:
-            wandb.init(config=vars(args), project='dedo', name=logdir)
-            wandb.init(sync_tensorboard=False)
-            wandb.tensorboard.patch(tensorboardX=True, pytorch=True)
-    tb_writer = SummaryWriter(logdir)
+    args.logdir, args.device = init_train(args.unsup_algo, args)
+    tb_writer = SummaryWriter(args.logdir)
     tb_writer.add_text('args', object_to_str(args))
     print('svae_demo with args:\n', args)
-    eval_env = gym.make(args.env, args=args)
-    eval_env.seed(args.seed)
     train_args = deepcopy(args)
     train_args.debug = False  # no debug during training
     train_args.viz = False  # no viz during training
@@ -111,8 +92,8 @@ def main(args):
     steps_done = 0
     epoch = 0
     print('Getting test env data... ')
-    all_test_x_1toT, all_test_act_1toT, all_test_mask_1toT = get_batch(vec_env, 300)
-    print('got', all_test_x_1toT.shape)
+    test_x_1toT, test_act_1toT, test_mask_1toT = get_batch(vec_env, 300)
+    print('got', test_x_1toT.shape)
     while steps_done < args.total_env_steps:
         print(f'Epoch {epoch:d}: getting train env data... ')
         all_x_1toT, all_act_1toT, all_mask_1toT = get_batch(vec_env, rlt_len)
@@ -133,14 +114,14 @@ def main(args):
             if do_log_viz:
                 do_logging(epoch, debug_dict, {}, tb_writer, 'train')
                 viz_samples(svae, x_1toT, act_1toT, epoch, tb_writer, 'train')
-                test_x_1toT, test_act_1toT = fill_seq_bufs_from_rollouts(
-                    all_test_x_1toT, all_test_act_1toT, all_test_mask_1toT,
+                tmp_x_1toT, tmp_act_1toT = fill_seq_bufs_from_rollouts(
+                    test_x_1toT, test_act_1toT, test_mask_1toT,
                     mini_batch_size, seq_len, args.device)
                 steps_done += seq_len*args.num_envs
                 loss, debug_dict = svae.loss(
-                    test_x_1toT, test_act_1toT, debug=do_log_viz)
+                    tmp_x_1toT, tmp_act_1toT, debug=do_log_viz)
                 do_logging(epoch, debug_dict, {}, tb_writer, 'test')
-                viz_samples(svae, test_x_1toT, test_act_1toT, epoch, tb_writer,
+                viz_samples(svae, tmp_x_1toT, tmp_act_1toT, epoch, tb_writer,
                             'test')
         epoch += 1
     #

@@ -1,12 +1,13 @@
-# Scene and mesh info.
+#
+# Information for scene and mesh configuration for the default tasks.
 #
 # @contactrika, @pyshi
-#
-# TODO(later): replace slashes for Windows users and test on Windows.
 #
 import numpy as np
 
 # Task information dictionary/map from task names to mesh file names lists.
+# Notes: forward slashes ok as separators on all systems, since we wrap paths
+# using pathlib.Path that automatically converts slashes if needed.
 TASK_INFO = {
     'HangBag': ['bags/totes/bag0_0.obj',
                 'bags/totes/bag1_0.obj',
@@ -24,14 +25,14 @@ TASK_INFO = {
                     'cloth/shirt_3.obj',
                     'cloth/shirt_4.obj',
                     ],
-    'ButtonSimple': ['cloth/button_cloth.obj'],
+    'Button': ['cloth/button_cloth.obj'],
     'ButtonProc': ['proc_button_cloth'],
     'DressBag': [
         'bags/backpack_0.obj',
         'bags/backpack_1.obj',
-        'bags/backpack_2.obj',  # TODO: fix object issue
-        'bags/backpack_3.obj',  # TODO: fix object issue
-        'bags/backpack_4.obj',  # TODO: fix object issue
+        'bags/backpack_2.obj',
+        'bags/backpack_3.obj',
+        'bags/backpack_4.obj',
     ],
     'DressGarment': [
         'cloth/vest_0.obj',
@@ -87,7 +88,7 @@ SCENE_INFO = {
                 'useTexture': True,
             },
             'head_with_ears2.obj': {
-                'basePosition': [-0.22, 0.00, 6.54],  # 'basePosition': [-0.22, 0.00, 0.64],
+                'basePosition': [-0.22, 0.00, 6.54],  # [-0.22, 0.00, 0.64],
                 'baseOrientation': [0, 0, np.pi * 1.05],
                 'globalScaling': 0.4,
                 'rgbaColor': (0.9, 0.75, 0.65, 1),
@@ -195,7 +196,7 @@ SCENE_INFO = {
                 'useTexture': True,
             },
             'head_with_ears2.obj': {
-                'basePosition': [-0.22, 0.00, 6.54],  # 'basePosition': [-0.22, 0.00, 0.64],
+                'basePosition': [-0.22, 0.00, 6.54],  # [-0.22, 0.00, 0.64],
                 'baseOrientation': [0, 0, np.pi * 1.05],
                 'globalScaling': 0.4,
                 'rgbaColor': (0.9, 0.75, 0.65, 1),
@@ -232,7 +233,8 @@ DEFORM_INFO = {
             [238],
         ],
         'deform_true_loop_vertices': [
-            [515, 511, 509, 507, 505, 512, 510, 508, 506, 502, 504, 503, 514, 513, ],
+            [515, 511, 509, 507, 505, 512, 510, 508, 506, 502, 504, 503, 514,
+             513, ],
             [461, 457, 455, 453, 451, 458, 456, 454, 452, 448, ],
         ],
         'cam_viewmat': [8, -5.8, 272, 1.05, 4.04, 5.22],
@@ -252,10 +254,10 @@ DEFORM_INFO = {
             [297],
         ],
         'deform_true_loop_vertices': [
-            [200, 190, 535, 534, 533, 532, 259, 276, 196, 191, 539, 538, 537, 536, 258, 280, 196, 197, 198, 199, 280,
-             279, 278, 277, ],
-            [167, 166, 164, 165, 163, 354, 353, 352, 351, 350, 178, 487, 486, 485, 484, 333, 179, 491, 490, 489, 488,
-             332, ],
+            [200, 190, 535, 534, 533, 532, 259, 276, 196, 191, 539, 538, 537,
+             536, 258, 280, 196, 197, 198, 199, 280, 279, 278, 277, ],
+            [167, 166, 164, 165, 163, 354, 353, 352, 351, 350, 178, 487, 486,
+             485, 484, 333, 179, 491, 490, 489, 488, 332, ],
         ],
         'cam_viewmat': [8, -5.8, 272, 1.05, 4.04, 5.22],
         'plane_texture_file': 'textures/plane/grey_tile.jpg',
@@ -277,9 +279,11 @@ DEFORM_INFO = {
         'rigid_texture_file': "textures/rigid/darkwood.jpg",
         'plane_texture_file': 'textures/plane/cobblestone.jpg',
         'deform_true_loop_vertices': [
-            [195, 196, 197, 198, 199, 200, 186, 179, 479, 478, 477, 476, 243, 254, 263, 264, 265, 266, 267, 268, 269,
+            [195, 196, 197, 198, 199, 200, 186, 179, 479, 478, 477, 476, 243,
+             254, 263, 264, 265, 266, 267, 268, 269,
              255, 242, 480, 481, 482, 483, 180, 185, 194],
-            [335, 321, 308, 444, 445, 446, 447, 171, 162, 153, 329, 320, 309, 440, 441, 442, 443, 170, 161, 147, 152,
+            [335, 321, 308, 444, 445, 446, 447, 171, 162, 153, 329, 320, 309,
+             440, 441, 442, 443, 170, 161, 147, 152,
              151, 150, 149, 148, 335, 334, 333, 332, 331, 330],
         ],
         'cam_viewmat': [8, -5.8, 272, 1.05, 4.04, 5.22],
@@ -620,8 +624,8 @@ DEFORM_INFO = {
         'deform_damping_stiffness': 0.01,
         'cam_viewmat': [8.8, -12.6, 314, -0.4, 0.6, 5.3],
         'deform_anchor_vertices': [
-            [172, ],  # , 72, 73, 76, 77, 78, 79, 227, 230, 602, 604, 721, 722],
-            [16, ],  # 159, 161, 162, 163, 285, 288, 520, 522, 680, 681, 763],
+            [172],  # , 72, 73, 76, 77, 78, 79, 227, 230, 602, 604, 721, 722],
+            [16],  # 159, 161, 162, 163, 285, 288, 520, 522, 680, 681, 763],
         ],
         'deform_true_loop_vertices': [
             [0, 2, 4, 6, 8, 9, 10, 11, 13, 16, 17, 18, 19, 22, 23, 24, 25, 26,
@@ -710,7 +714,8 @@ DEFORM_INFO = {
         ],
         'max_episode_len': 300,
         'deform_true_loop_vertices': [
-            [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 237, 292, 294, 296, 298, 300, 303, 305, 307, 309, 311, 312, 519],
+            [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 237, 292, 294, 296, 298, 300,
+             303, 305, 307, 309, 311, 312, 519],
         ],
         'deform_texture_file': 'textures/deform/pb_leopard.png',
         'plane_texture_file': 'textures/plane/cobblestone.jpg',
@@ -732,7 +737,8 @@ DEFORM_INFO = {
         ],
         'max_episode_len': 300,
         'deform_true_loop_vertices': [
-            [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 238, 292, 294, 296, 298, 300, 303, 305, 307, 309, 311, 312, 520],
+            [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 238, 292, 294, 296, 298, 300,
+             303, 305, 307, 309, 311, 312, 520],
         ],
         'deform_texture_file': 'textures/deform/pb_purple_fancy.jpg',
         'plane_texture_file': 'textures/plane/brown_yellow_carpet.jpg',
@@ -754,7 +760,8 @@ DEFORM_INFO = {
         ],
         'max_episode_len': 300,
         'deform_true_loop_vertices': [
-            [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 238, 292, 294, 296, 298, 300, 303, 305, 307, 309, 311, 312, 519],
+            [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 238, 292, 294, 296, 298, 300,
+             303, 305, 307, 309, 311, 312, 519],
         ],
         'deform_texture_file': 'textures/deform/pb_jeans.jpg',
         'plane_texture_file': 'textures/plane/grey_tile.jpg',
@@ -776,7 +783,8 @@ DEFORM_INFO = {
         ],
         'max_episode_len': 300,
         'deform_true_loop_vertices': [
-            [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 238, 292, 294, 296, 298, 300, 303, 305, 307, 309, 311, 312, 520],
+            [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 238, 292, 294, 296, 298, 300,
+             303, 305, 307, 309, 311, 312, 520],
         ],
         'plane_texture_file': 'textures/plane/white_brick.jpg',
         'rigid_texture_file': "textures/rigid/concrete.jpg",
@@ -798,7 +806,8 @@ DEFORM_INFO = {
         ],
         'max_episode_len': 300,
         'deform_true_loop_vertices': [
-            [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 238, 292, 294, 296, 298, 300, 303, 305, 307, 309, 311, 312, 520],
+            [0, 3, 5, 6, 8, 12, 13, 16, 18, 20, 238, 292, 294, 296, 298, 300,
+             303, 305, 307, 309, 311, 312, 520],
         ],
         'deform_texture_file': 'textures/deform/pb_white_knit.jpg',
         'plane_texture_file': 'textures/plane/blue_carpet.jpg',
@@ -929,14 +938,16 @@ DEFORM_INFO = {
         'deform_damping_stiffness': 0.1,
         'deform_friction_coeff': 2,
         'deform_anchor_vertices': [
-            [356, ],
-            [269, ],
+            [356],
+            [269],
 
         ],
         'deform_true_loop_vertices': [
-            [117, 200, 215, 217, 268, 270, 272, 274, 276, 278, 280, 282, 284, 286, 287, 293, 294, 295, 297, 298, 299,
+            [117, 200, 215, 217, 268, 270, 272, 274, 276, 278, 280, 282, 284,
+             286, 287, 293, 294, 295, 297, 298, 299,
              301, 303, 305, 307, 309, 311, 313, 319, 320, 321, 400],
-            [0, 232, 233, 337, 338, 339, 341, 343, 345, 347, 348, 350, 353, 354, 357, 358, 360, 362, 364, 366, 369, 371,
+            [0, 232, 233, 337, 338, 339, 341, 343, 345, 347, 348, 350, 353, 354,
+             357, 358, 360, 362, 364, 366, 369, 371,
              373, 375, 377, 379, 381, 383, 384, 385, 391, 393, 395, 396],
         ],
         'cam_viewmat': [3.80, -23.6, 177.4, -0.42, 0.06, 5.00],
@@ -955,13 +966,15 @@ DEFORM_INFO = {
         'deform_damping_stiffness': 0.1,
         'deform_friction_coeff': 2,
         'deform_anchor_vertices': [
-            [394, ],
-            [289, ],
+            [394],
+            [289],
         ],
         'deform_true_loop_vertices': [
-            [117, 200, 215, 217, 268, 270, 272, 274, 276, 278, 280, 282, 284, 286, 287, 293, 294, 295, 297, 298, 299,
+            [117, 200, 215, 217, 268, 270, 272, 274, 276, 278, 280, 282, 284,
+             286, 287, 293, 294, 295, 297, 298, 299,
              301, 303, 305, 307, 309, 311, 313, 319, 320, 321, 400],
-            [0, 232, 233, 337, 338, 339, 341, 343, 345, 347, 348, 350, 353, 354, 357, 358, 360, 362, 364, 366, 369, 371,
+            [0, 232, 233, 337, 338, 339, 341, 343, 345, 347, 348, 350, 353, 354,
+             357, 358, 360, 362, 364, 366, 369, 371,
              373, 375, 377, 379, 381, 383, 384, 385, 391, 393, 395, 396],
         ],
         'cam_viewmat': [3.80, -23.6, 177.4, -0.42, 0.06, 5.00],
@@ -979,12 +992,14 @@ DEFORM_INFO = {
         'deform_damping_stiffness': 0.1,
         'deform_friction_coeff': 2,
         'deform_anchor_vertices': [
-            [354, ],
-            [288, ],
+            [354],
+            [288],
         ],
         'deform_true_loop_vertices': [
-            [117, 199, 215, 217, 266, 272, 274, 282, 284, 295, 296, 301, 303, 311],
-            [0, 231, 232, 336, 337, 344, 346, 349, 352, 354, 357, 361, 368, 374, 376, 378, 379, 382, 384, 395],
+            [117, 199, 215, 217, 266, 272, 274, 282, 284, 295, 296, 301, 303,
+             311],
+            [0, 231, 232, 336, 337, 344, 346, 349, 352, 354, 357, 361, 368, 374,
+             376, 378, 379, 382, 384, 395],
         ],
         'cam_viewmat': [3.80, -23.6, 177.4, -0.42, 0.06, 5.00],
         'plane_texture_file': 'textures/plane/cobblestone.jpg',
@@ -1001,14 +1016,14 @@ DEFORM_INFO = {
         'deform_damping_stiffness': 0.1,
         'deform_friction_coeff': 2,
         'deform_anchor_vertices': [
-            [358, ],
-            [289, ],
+            [358],
+            [289],
         ],
         'deform_true_loop_vertices': [
-            [93, 99, 117, 119, 128, 190, 192, 198, 213, 215, 270, 278, 280, 281, 282, 286, 299, 307, 309, 310, 311,
-             315],
-            [0, 1, 3, 5, 30, 54, 81, 83, 152, 166, 233, 234, 268, 340, 348, 351, 353, 365, 372, 374, 376, 380, 394,
-             396],
+            [93, 99, 117, 119, 128, 190, 192, 198, 213, 215, 270, 278, 280, 281,
+             282, 286, 299, 307, 309, 310, 311, 315],
+            [0, 1, 3, 5, 30, 54, 81, 83, 152, 166, 233, 234, 268, 340, 348, 351,
+             353, 365, 372, 374, 376, 380, 394, 396],
         ],
         'cam_viewmat': [3.80, -23.6, 177.4, -0.42, 0.06, 5.00],
         'plane_texture_file': 'textures/plane/grass.jpg',
@@ -1025,13 +1040,15 @@ DEFORM_INFO = {
         'deform_damping_stiffness': 0.1,
         'deform_friction_coeff': 2,
         'deform_anchor_vertices': [
-            [360, ],
-            [298, ],
+            [360],
+            [298],
         ],
         'deform_true_loop_vertices': [
-            [93, 96, 98, 99, 123, 188, 197, 200, 219, 221, 275, 276, 277, 279, 283, 289, 291, 293, 294, 298, 300, 303,
+            [93, 96, 98, 99, 123, 188, 197, 200, 219, 221, 275, 276, 277, 279,
+             283, 289, 291, 293, 294, 298, 300, 303,
              304, 305, 306, 308, 312, 314, 318, 320, 323, 325, 327],
-            [0, 3, 54, 56, 153, 234, 235, 236, 254, 269, 341, 343, 345, 347, 349, 354, 357, 366, 368, 370, 373, 375,
+            [0, 3, 54, 56, 153, 234, 235, 236, 254, 269, 341, 343, 345, 347,
+             349, 354, 357, 366, 368, 370, 373, 375,
              381, 393, 395, 398, 400],
         ],
         'cam_viewmat': [3.80, -23.6, 177.4, -0.42, 0.06, 5.00],
@@ -1049,8 +1066,8 @@ DEFORM_INFO = {
         'deform_friction_coeff': 0.5,
         'disable_self_collision': True,
         'deform_anchor_vertices': [
-            [221, ],
-            [131, ],
+            [221],
+            [131],
         ],
 
         'deform_true_loop_vertices': [
@@ -1079,8 +1096,8 @@ DEFORM_INFO = {
         'disable_self_collision': True,
         'max_episode_len': 250,
         'deform_anchor_vertices': [
-            [82, ],
-            [2, ],
+            [82],
+            [2],
         ],
 
         'deform_true_loop_vertices': [
@@ -1107,13 +1124,14 @@ DEFORM_INFO = {
         'deform_damping_stiffness': 0.1,
         'cam_viewmat': [4.4, -45, 267, -0.03, 1.18, 3.2],
         'deform_anchor_vertices': [
-            [397, ],
-            [457, ],
+            [397],
+            [457],
         ],
         'deform_true_loop_vertices': [
-            [6, 18, 30, 42, 54, 66, 78, 90, 102, 114, 126, 138, 150, 162, 174, 186, 198, 210, 222, 234, 246, 258, 270,
-             282, 294, 306, 318, 330, 342, 354, 366, 378, 390, 402, 414, 426, 438, 450, 462, 474, 486, 498, 510, 522,
-             534, 546, 558, 570],
+            [6, 18, 30, 42, 54, 66, 78, 90, 102, 114, 126, 138, 150, 162, 174,
+             186, 198, 210, 222, 234, 246, 258, 270,
+             282, 294, 306, 318, 330, 342, 354, 366, 378, 390, 402, 414, 426,
+             438, 450, 462, 474, 486, 498, 510, 522, 534, 546, 558, 570],
         ],
         'rigid_texture_file': "textures/rigid/lightwood.jpg",
         'plane_texture_file': 'textures/plane/blue_carpet.jpg',
@@ -1126,12 +1144,13 @@ DEFORM_INFO = {
         'deform_elastic_stiffness': 10,
         'deform_bending_stiffness': 10,
         'deform_anchor_vertices': [
-            [38, ],
-            [0, ],
+            [38],
+            [0],
 
         ],
         'deform_fixed_anchor_vertex_ids':
-            [372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391],
+            [372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384,
+             385, 386, 387, 388, 389, 390, 391],
 
         'deform_true_loop_vertices': [
             [54, 55, 56, 57, 74, 75, 92, 93, 108, 109, 110, 126],
@@ -1192,7 +1211,8 @@ DEFORM_INFO = {
     },
 }
 
-DEFAULT_CAM = [11.4, -22.4, 257, -0.08, -0.29, 1.8, ]
+# Default camera values: [distance, pitch, yaw, posX, posY, posZ]
+DEFAULT_CAM = [11.4, -22.4, 257, -0.08, -0.29, 1.8]
 
 # Info for camera rendering without debug visualizer.
 # projectionMatrix is output 3 from pybullet.getDebugVisualizerCamera()
