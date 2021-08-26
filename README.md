@@ -1,9 +1,9 @@
 # DEDO  - Dynamic Environments with Deformable Objects
-Dedo is a lightweight, deterministic, and customizable deformable object GyM environment aimed towards researchers in the reinforcement learning
+Dedo is a lightweight, deterministic, and customizable deformable object gym environment aimed towards researchers in the reinforcement learning
 and robotics community. 
 The environment a set of every day tasks involving deformable objects such as hanging cloth, dressing a person, and buttoning buttons. 
 We have provided examples for integrating two popular 
-reinforcement learning libraries (stable_baselin3 and rllib) and an example for collecting and training a Variational Autoencoder with our environment. Dedo is easy to set up with very few dependencies,
+reinforcement learning libraries (stable_baseline3 and rllib) and an example for collecting and training a Variational Autoencoder with our environment. Dedo is easy to set up with very few dependencies,
 highly parallelizable and supports a wide range of customizations: loading custom objects, adjusting texture and material properties. 
 
 **Table of Contents:**<br />
@@ -18,7 +18,7 @@ highly parallelizable and supports a wide range of customizations: loading custo
 <a name="install"></a>
 ## Installation
 
-Optional initial step: create a new conda environment with
+_Optional initial step_:  create a new conda environment with
 `conda create --name dedo python=3.7` and activate it with
 `conda activate dedo`. 
 Conda is not strictly needed, alternatives like virtualenv can be used;
@@ -42,21 +42,21 @@ sudo apt-get install ffmpeg
 
 <a name="examples"></a>
 ## Getting started
-To get started, one can run one of the following commands to visualize our environment
+To get started, one can run one of the following commands to visualize the tasks through a hard-coded policy. 
 
-Hanging a bag
+**Hanging a bag**
 ```
-python -m dedo.demo --env=HangBag-v1 --viz --debug
+python -m dedo.demo_preset --env=HangBag-v1 --viz --debug
 ```
-Hanging an apron
-```
-python -m dedo.demo --env=HangGarment-v1 --cam_resolution 400 --viz --debug
-```
+
 * `dedo.demo` is the demo module
 * `--env=HangGarment-v1` specifies the environment
 * `--viz` enables the GUI
 * `---debug` outputs additional information in the console
 * `--cam_resolution 400` specifies the size of the output window
+
+All but the HangBag-v1 environments have 
+
 
 
 ![misc/imgs/hang_task_ui.jpg](misc/imgs/hang_task_ui.jpg)
@@ -88,11 +88,10 @@ To launch the Tensorboard:
 tensorboard --logdir=/tmp/dedo --bind_all --port 6006 \
   --samples_per_plugin images=1000
 ```
-
+<a name="svae"></a>
 ## SVAE Examples
 
-`dedo/run_svae.py` gives an example of how to train an RL
-algorithm from Stable Baselines 3:
+`dedo/run_svae.py` gives an example of how to train various flavors of VAE:
 
 ```
 python -m dedo.run_rl_sb3 --env=HangGarment-v0 \

@@ -18,7 +18,6 @@ from dedo.utils.args import get_args
 from dedo.utils.anchor_utils import create_anchor_geom
 from dedo.utils.waypoint_utils import create_traj, create_traj_savgol
 from dedo.utils.preset_info import preset_traj
-import wandb
 
 WRITE_TO_VID = True
 if WRITE_TO_VID:
@@ -26,7 +25,6 @@ if WRITE_TO_VID:
 
 
 def play(env, num_episodes, args):
-    wandb.init(config=vars(args), project='dedo', name=f'{args.env}-preset')
     if args.task == 'ButtonProc':
         deform_obj = 'cloth/button_cloth.obj'
     elif args.task == 'HangProcCloth':
@@ -75,12 +73,7 @@ def play(env, num_episodes, args):
             # if done: break;
             obs = next_obs
             step += 1
-
-        # TODO DELETE ME:
-        # Temporarily logging to wandb
-        rwd_mean = np.mean(rwds)
-        for i in range(31): #500k steps
-            wandb.log({'rollout/ep_rew_mean':rwd_mean, 'rwd': rwd}, step=i)
+        print('traj_done!!!!!')
         if WRITE_TO_VID:
             vidwriter.release()
 

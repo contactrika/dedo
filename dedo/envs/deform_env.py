@@ -302,8 +302,8 @@ class DeformEnv(gym.Env):
         info = {}
         # Compute final reward by releasing anchor and letting the object fall.
         if done:
-            release_anchor(self.sim, self.anchor_ids[0])
-            release_anchor(self.sim, self.anchor_ids[1])
+            # release_anchor(self.sim, self.anchor_ids[0])
+            # release_anchor(self.sim, self.anchor_ids[1])
             for sim_step in range(self.STEPS_AFTER_DONE):
                 # For lasso pull the string at the end to test lasso loop.
                 if self.args.task.lower() == 'lasso':
