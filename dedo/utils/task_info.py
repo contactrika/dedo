@@ -1144,8 +1144,9 @@ DEFORM_INFO = {
         'deform_elastic_stiffness': 10,
         'deform_bending_stiffness': 10,
         'deform_anchor_vertices': [
-            [38],
             [0],
+            [38],
+
 
         ],
         'deform_fixed_anchor_vertex_ids':
