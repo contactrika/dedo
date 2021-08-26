@@ -91,15 +91,17 @@ def make_rl_config(args, num_gpus):
     rl_config['gamma'] = 0.995
     # rl_config['horizon'] = rollout_len  # seems to break things
     # Customize NN architecture and hidden layers.
-    fcnet_hiddens = [64, 64] if args.cam_resolution > 0 else [256, 256, 64]
-    rl_config['model']['dim'] = args.cam_resolution
-    rl_config['model']['custom_model_config'] = {
-        'fcnet_activation': 'ReLU',
-        'fcnet_hiddens': fcnet_hiddens,
-        'no_final_linear': False,
-        'vf_share_layers': True,
-        'free_log_std': False,
-    }
+    if args.cam_resolution > 0 is not None:
+        im_sz = args.cam_resolution
+        nflt = 32
+        conv_filters = [[nflt, [4, 4], 2], [nflt*2, [4, 4], 2]]
+        if im_sz >= 64:
+            conv_filters.append([nflt*2, [4, 4], 2])
+        if im_sz == 128:
+            conv_filters.append([nflt*4, [4, 4], 2])
+        conv_filters.append([nflt*4, [8, 8], 1])  # im_sz=32,64,128
+        rl_config['model']['dim'] = args.cam_resolution
+        rl_config['model']['conv_filters'] = conv_filters
     if args.rllib_use_torch:
         rl_config['framework'] = 'torch'
     if args.rl_algo == 'A3C' and not args.rllib_use_torch:
