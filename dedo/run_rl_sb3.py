@@ -1,11 +1,11 @@
 """
-An example of RL training using Stable Baselines.
+An example of RL training using StableBaselines3.
 
 python -m dedo.run_rl_sb3 --env=HangGarment-v1 --rl_algo PPO --logdir=/tmp/dedo
 
 tensorboard --logdir=/tmp/dedo --bind_all --port 6006
 
-Example playing saved policy (e.g. logged to PPO_210825_204955_HangGarment-v1):
+Play the saved policy (e.g. logged to PPO_210825_204955_HangGarment-v1):
 python -m dedo.run_rl_sb3 --env=HangGarment-v1 \
     --play=/tmp/dedo/PPO_210825_204955_HangGarment-v1
 
@@ -26,20 +26,20 @@ from dedo.utils.rl_sb3_utils import CustomCallback, play
 from dedo.utils.train_utils import init_train
 
 
-def do_play(args):
-    checkpt = os.path.join(args.play, 'agent.zip')
-    print('Loading checkpoint from', checkpt)
-    args = pickle.load(open(os.path.join(args.play, 'args.pkl'), 'rb'))
+def do_play(args, num_episodes=10):
+    checkpt = os.path.join(args.load_checkpt, 'agent.zip')
+    print('Loading RL agent checkpoint from', checkpt)
+    args = pickle.load(open(os.path.join(args.load_checkpt, 'args.pkl'), 'rb'))
     args.debug = True
     args.viz = True
     eval_env = gym.make(args.env, args=args)
     eval_env.seed(args.seed)
     rl_agent = eval(args.rl_algo).load(checkpt)
-    play(eval_env, num_episodes=10, rl_agent=rl_agent, debug=False)
+    play(eval_env, num_episodes=num_episodes, rl_agent=rl_agent, debug=False)
 
 
 def main(args):
-    if args.play is not None:
+    if args.play:
         do_play(args)
         return  # no training, just playing
     assert(args.rl_algo is not None), 'Please provide --rl_algo'
@@ -65,9 +65,9 @@ def main(args):
           vec_env.action_space.shape)
     rl_kwargs = {'learning_rate': args.lr, 'device': args.device,
                  'tensorboard_log': args.logdir, 'verbose': 1}
-    num_steps_between_save = args.log_save_interval*1000
+    num_steps_between_save = args.log_save_interval*10
     if on_policy:
-        num_steps_between_save *= 10
+        num_steps_between_save *= 10  # less frequent logging
     if not on_policy and args.cam_resolution > 0:
         rl_kwargs['buffer_size'] = args.replay_size
     policy_name = 'MlpPolicy'

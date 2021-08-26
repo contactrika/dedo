@@ -3,10 +3,9 @@ A demo for training Sequential Variational Autoencoders.
 
 python -m dedo.run_svae --logdir=~/local/dedo --num_envs 12 --unsup_algo VAE
 
---unsup_algo choices: VAE, SVAE, PRED, DSA
-
 tensorboard --logdir=/tmp/dedo --bind_all --port 6006
 
+Note: --unsup_algo choices: VAE, SVAE, PRED, DSA
 
 @contactrika
 
@@ -22,8 +21,8 @@ import torch
 
 from dedo.utils.args import get_args
 from dedo.utils.train_utils import init_train, object_to_str
-from dedo.vaes.svae_advanced import SVAE, DSA  # used dynamically
 from dedo.vaes.nets_advanced import ConvStack
+from dedo.vaes.svae_advanced import SVAE, DSA  # used dynamically
 from dedo.vaes.svae_utils import do_logging, fill_seq_bufs_from_rollouts
 from dedo.vaes.svae_viz import viz_samples
 

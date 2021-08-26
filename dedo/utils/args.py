@@ -4,16 +4,11 @@
 # @contactrika
 #
 import argparse
-import logging
-import sys
 
 from .task_info import TASK_INFO
 
 
 def get_args_parser():
-    logging.basicConfig(
-        level=logging.INFO, format='%(asctime)s %(message)s',
-        handlers=[logging.StreamHandler(sys.stdout)])
     parser = argparse.ArgumentParser(description='args', add_help=True)
     #
     # Main/demo args.
@@ -24,21 +19,25 @@ def get_args_parser():
     parser.add_argument('--seed', type=int, default=0, help='Random seed')
     parser.add_argument('--logdir', type=str, default=None,
                         help='Path for logs')
+    parser.add_argument('--load_checkpt', type=str, default=None,
+                        help='Path to a saved model e.g. '
+                             '/tmp/dedo/PPO_210825_204955_HangGarment-v1'
+                             '(used to re-start training or'
+                             'load model for play if --play is set)')
     parser.add_argument('--device', type=str, default='cuda:0',
-                        help='Name of the device for training.')
+                        help='Name/ID of the device for training.')
     parser.add_argument('--rl_algo', type=str, default=None,
-                        choices=['ApexDDPG', 'Impala', 'A2C', 'DDPG',
+                        choices=['ApexDDPG', 'A2C', 'DDPG', 'Impala',
                                  'PPO', 'SAC', 'TD3'],
                         help='Name of RL algo from Stable Baselines to train')
-    parser.add_argument('--play', type=str, default=None,
-                        help='Path to dir with saved model and args for playing'
-                        'e.g. --play=PPO_210825_204955_HangGarment-v1'
-                        'If --play is given: do play only (no training).')
+    parser.add_argument('--play', action='store_true',
+                        help='Load saved model from --load_checkpt_path and'
+                             'play (no training)')
     parser.add_argument('--total_env_steps', type=int, default=int(10e6),
                         help='Total number of env steps for training')
     parser.add_argument('--num_envs', type=int, default=8,
                         help='Number of parallel envs.')
-    parser.add_argument('--log_save_interval', type=int, default=1,
+    parser.add_argument('--log_save_interval', type=int, default=100,
                         help='Interval for logging and saving.')
     parser.add_argument('--disable_logging_video', action='store_true',
                         help='Whether to disable dumping video to logger')
