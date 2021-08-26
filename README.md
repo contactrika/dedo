@@ -1,16 +1,123 @@
-# DEDO: Dynamic Environments with Deformable Objects
-TODO: SHORT DESCRIPTION HERE
+# DEDO  - Dynamic Environments with Deformable Objects
+Dedo is a lightweight, deterministic, and customizable deformable object GyM environment aimed towards researchers in the reinforcement learning
+and robotics community. 
+The environment a set of every day tasks involving deformable objects such as hanging cloth, dressing a person, and buttoning buttons. 
+We have provided examples for integrating two popular 
+reinforcement learning libraries (stable_baselin3 and rllib) and an example for collecting and training a Variational Autoencoder with our environment. Dedo is easy to set up with very few dependencies,
+highly parallelizable and supports a wide range of customizations: loading custom objects, adjusting texture and material properties. 
 
 **Table of Contents:**<br />
-[Tasks](#tasks)<br />
 [Installation](#install)<br />
-[Basic Examples](#examples)<br />
+[GettingStarted](#examples)<br />
 [RL Examples](#rl)<br />
+[Tasks](#tasks)<br />
 [Customization](#custom)<br />
 
+
+
+<a name="install"></a>
+## Installation
+
+Optional initial step: create a new conda environment with
+`conda create --name dedo python=3.7` and activate it with
+`conda activate dedo`. 
+Conda is not strictly needed, alternatives like virtualenv can be used;
+a direct install without using virtual environments is ok as well.
+
+Python 3.8 or 3.7 should work, though on some cluster/remote machines we saw
+that pybullet installs successfully with python3.7, but has trouble with 3.8.
+
+
+```
+git clone https://github.com/contactrika/dedo
+cd dedo
+pip install numpy  # important: Nessasary for compiling numpy-enabled PyBullet
+pip install -e .
+```
+
+To enable recording/logging videos install ffmpeg:
+```
+sudo apt-get install ffmpeg
+```
+
+<a name="examples"></a>
+## Getting started
+To get started, one can run one of the following commands to visualize our environment
+
+Hanging a bag
+```
+python -m dedo.demo --env=HangBag-v1 --viz --debug
+```
+Hanging an apron
+```
+python -m dedo.demo --env=HangGarment-v1 --cam_resolution 400 --viz --debug
+```
+* `dedo.demo` is the demo module
+* `--env=HangGarment-v1` specifies the environment
+* `--viz` enables the GUI
+* `---debug` outputs additional information in the console
+* `--cam_resolution 400` specifies the size of the output window
+
+
+![misc/imgs/hang_task_ui.jpg](misc/imgs/hang_task_ui.jpg)
+
+
+<a name="rl"></a>
+## RL Examples
+
+`dedo/run_rl_sb3.py` gives an example of how to train an RL
+algorithm from Stable Baselines 3:
+
+```
+python -m dedo.run_rl_sb3 --env=HangGarment-v0 \
+    --logdir=/tmp/dedo --num_play_runs=3 --viz --debug
+```
+
+`dedo/run_rllib.py` gives an example of how to train an RL
+algorithm using RLLib:
+
+```
+python -m dedo.run_rllib --env=HangGarment-v0 \
+    --logdir=/tmp/dedo --num_play_runs=3 --viz --debug
+```
+
+For documentation, please refer to [Argument References](../../wiki/Basic-commands) page in wiki
+
+To launch the Tensorboard:
+```
+tensorboard --logdir=/tmp/dedo --bind_all --port 6006 \
+  --samples_per_plugin images=1000
+```
+
+## SVAE Examples
+
+`dedo/run_rl_sb3.py` gives an example of how to train an RL
+algorithm from Stable Baselines 3:
+
+```
+python -m dedo.run_rl_sb3 --env=HangGarment-v0 \
+    --logdir=/tmp/dedo --num_play_runs=3 --viz --debug
+```
+
+`dedo/run_rllib.py` gives an example of how to train an RL
+algorithm from Stable Baselines 3:
+
+```
+python -m dedo.run_rl_sb3 --env=HangGarment-v0 \
+    --logdir=/tmp/dedo --num_play_runs=3 --viz --debug
+```
+
+To launch the Tensorboard:
+```
+tensorboard --logdir=/tmp/dedo --bind_all --port 6006 \
+  --samples_per_plugin images=1000
+```
+
+
 ## Tasks:
-TODO: Tasks overview here
-All tasks have `-v0` that randomizes textures and meshes.
+We provide a set of 10 tasks involving deformable objects, most tasks contains 5 handmade deformable objects. 
+There are also two procedurally generated tasks, `ButtonProc` and `HangProcCloth`, in which the deformable objects are procedurally generated. 
+Furthermore, to improve generalzation, the `v0` of each task will randomizes textures and meshes.
 
 All tasks have `-v1` and `-v2` with a particular choice of meshes and textures
 that is not randomized. Most tasks have versions up to `-v5` with additional
@@ -100,57 +207,6 @@ Visualizations of the 5 backpack mesh and texture variants for `DressBag-v[1-5]`
 
 ![misc/imgs/mask_0.jpg](misc/imgs/mask_0.jpg)
 
-
-
-<a name="install"></a>
-## Installation
-
-Optional initial step: create a new conda environment with
-`conda create --name dedo python=3.7` and activate it with
-`conda activate dedo`. 
-Conda is not strictly needed, alternatives like virtualenv can be used;
-a direct install without using virtual environments is ok as well.
-
-Python 3.8 or 3.7 should work, though on some cluster/remote machines we saw
-that pybullet installs successfully with python3.7, but has trouble with 3.8.
-
-
-```
-git clone https://github.com/contactrika/dedo
-cd dedo
-pip install numpy
-pip install -e .
-```
-
-To enable recording/logging videos install ffmpeg:
-```
-sudo apt-get install ffmpeg
-```
-
-<a name="examples"></a>
-### Basic Examples
-
-```
-python -m dedo.demo --env=HangBag-v1 --viz --debug
-python -m dedo.demo --env=HangGarment-v1 --cam_resolution 400 --viz --debug
-```
-
-![misc/imgs/hang_task_ui.jpg](misc/imgs/hang_task_ui.jpg)
-
-
-<a name="rl"></a>
-## RL Examples
-
-`dedo/rl_demo.py` gives an example of how to train an RL
-algorithm from Stable Baselines:
-
-```
-python -m dedo.rl_demo --env=HangGarment-v0 \
-    --logdir=/tmp/dedo --num_play_runs=3 --viz --debug
-
-tensorboard --logdir=/tmp/dedo --bind_all --port 6006 \
-  --samples_per_plugin images=1000
-```
 
 
 <a name="custom"></a>

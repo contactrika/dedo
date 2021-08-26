@@ -18,6 +18,7 @@ from dedo.utils.args import get_args
 from dedo.utils.anchor_utils import create_anchor_geom
 from dedo.utils.waypoint_utils import create_trajectory, interpolate_waypts
 from dedo.utils.preset_info import preset_traj
+import wandb
 
 WRITE_TO_VID = False
 if WRITE_TO_VID:
@@ -25,7 +26,7 @@ if WRITE_TO_VID:
 
 
 def play(env, num_episodes, args):
-
+    wandb.init(config=vars(args), project='dedo', name=f'{args.env}-preset')
     if args.task == 'ButtonProc':
         deform_obj = 'cloth/button_cloth.obj'
     elif args.task == 'HangProcCloth':
@@ -57,12 +58,14 @@ def play(env, num_episodes, args):
         # traj_b = np.zeros_like(traj_b)
         traj = merge_traj(traj_a, traj_b)
         gif_frames = []
+        rwds = []
         while True:
             assert (not isinstance(env.action_space, gym.spaces.Discrete))
 
             act = traj[step] if step < len(traj) else np.zeros_like(traj[0])
 
             next_obs, rwd, done, info = env.step(act, unscaled_velocity=True)
+            rwds.append(rwd)
             if WRITE_TO_VID:
                 obs = env.render(mode='rgb_array', width=640, height=480)
                 bgr_obs = obs[...,::-1]
@@ -72,6 +75,12 @@ def play(env, num_episodes, args):
             # if done: break;
             obs = next_obs
             step += 1
+
+        # TODO DELETE ME:
+        # Temporarily logging to wandb
+        rwd_mean = np.mean(rwds)
+        for i in range(31): #500k steps
+            wandb.log({'rollout/ep_rew_mean':rwd_mean, 'rwd': rwd}, step=i)
         if WRITE_TO_VID:
             vidwriter.release()
 

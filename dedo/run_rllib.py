@@ -52,7 +52,9 @@ def run_with_args(args):
                  checkpoint_freq=args.log_save_interval,
                  local_dir=args.logdir, name='rllib',
                  trial_dirname_creator=lambda x: 'agent',
-                 restore=args.load_checkpt, reuse_actors=True)
+                 restore=args.load_checkpt, reuse_actors=True,
+                 stop={'timesteps_total': args.total_env_steps},
+                 )
 
 
 if __name__ == "__main__":
