@@ -33,7 +33,7 @@ sbatch << HERE
 #SBATCH --constrain="balrog|smaug|shelob|khazadum|belegost|shire|rivendell"
 #SBATCH --mail-user="${USER}@kth.se"
 #SBATCH --gres=gpu:1
-#SBATCH --cpus-per-task=12
+#SBATCH --cpus-per-task=16
 #SBATCH --mem=50GB
 #SBATCH --job-name=${ALGO}-${ENV_NAME}
 # Check job environment
@@ -47,7 +47,7 @@ nvidia-smi
 source "${HOME}/miniconda3/etc/profile.d/conda.sh"
 conda activate DEDO
 # Train and save the exit code of the python script
-python -m dedo.svae_demo --logdir=~/experiment_logs/dedo --unsup_algo ${ALGO} --use_wandb --env ${ENV_NAME}
+python -m dedo.svae_demo --cam_resolution=256 --num_envs=12 --logdir=~/experiment_logs/dedo --unsup_algo ${ALGO} --use_wandb --env ${ENV_NAME} --seed=1
 EXIT_CODE="\${?}"
 exit "\${EXIT_CODE}"
 HERE
