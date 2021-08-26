@@ -78,7 +78,7 @@ def make_rl_config(args, num_gpus):
     else:
         rl_config = eval(args.rl_algo.lower()).DEFAULT_CONFIG.copy()
     rl_config['env_config'] = {'args': args}
-    bsz = args.rollout_len*max(1, args.num_envs)
+    bsz = args.rollout_len # *max(1, args.num_envs)
     rl_config['train_batch_size'] = bsz
     rl_config['rollout_fragment_length'] = args.rollout_len  # sample_batch_size
     rl_config['soft_horizon'] = True  # don't reset episode after rollout

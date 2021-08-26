@@ -74,7 +74,7 @@ def main(args):
     env.seed(env.args.seed)
     print('Created', args.task, 'with observation_space',
           env.observation_space.shape, 'action_space', env.action_space.shape)
-    play(env, env.args.num_play_runs, args)
+    play(env, 1, args)
     env.close()
 
 

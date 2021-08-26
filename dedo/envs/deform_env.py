@@ -57,7 +57,7 @@ class DeformEnv(gym.Env):
                 shape = (np.prod(shape),)
             self.observation_space = gym.spaces.Box(
                 low=0, high=255 if args.uint8_pixels else 1.0,
-                dtype=np.uint8 if args.uint8_pixels else np.float,
+                dtype=np.uint8 if args.uint8_pixels else np.float16,
                 shape=shape)
         self.action_space = gym.spaces.Box(  # [-1,1]
             -1.0 * np.ones(DeformEnv.NUM_ANCHORS * 3),
@@ -231,8 +231,8 @@ class DeformEnv(gym.Env):
 
         self.sim.stepSimulation()  # step once to get initial state
         #
-        # if self.args.debug and self.args.viz:
-        #    self.debug_viz_cent_loop()
+        if self.args.debug and self.args.viz:
+           self.debug_viz_cent_loop()
 
         # Setup dynamic anchors.
         for i in range(DeformEnv.NUM_ANCHORS):  # make anchors
@@ -273,10 +273,11 @@ class DeformEnv(gym.Env):
     def step(self, action, unscaled_velocity=False):
         # action is num_anchors x 3 for 3D velocity for anchors/grippers;
         # assume action in [-1,1], we convert to [-MAX_ACT_VEL, MAX_ACT_VEL].
-        assert self.action_space.contains(action)
+
         if self.args.debug:
             print('action', action)
         if not unscaled_velocity:
+            assert self.action_space.contains(action)
             assert ((np.abs(action) <= 1.0).all()), 'action must be in [-1, 1]'
             action *= DeformEnv.MAX_ACT_VEL
         action = action.reshape(DeformEnv.NUM_ANCHORS, 3)
