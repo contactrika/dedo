@@ -9,6 +9,7 @@ highly parallelizable and supports a wide range of customizations: loading custo
 **Table of Contents:**<br />
 [Installation](#install)<br />
 [GettingStarted](#examples)<br />
+[Reinforcement Learning Examples](#rl)<br />
 [RL Examples](#rl)<br />
 [Tasks](#tasks)<br />
 [Customization](#custom)<br />
@@ -139,7 +140,7 @@ Over View Here
 `HangGarment-v0`: hang garment with randomized textures 
 (a few examples below):
 
-![misc/gif/HangGarment-v1.gif](misc/gif/HangGarment-v1.gif)
+![misc/gifs/HangGarment-v1.gif](misc/gifs/HangGarment-v1.gif)
 
 `HangGarment-v[1-5]`: 5 apron meshes and texture combos shown below:
 

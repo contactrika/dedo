@@ -73,7 +73,6 @@ def play(env, num_episodes, args):
             # if done: break;
             obs = next_obs
             step += 1
-        print('traj_done!!!!!')
         if WRITE_TO_VID:
             vidwriter.release()
 
