@@ -52,11 +52,14 @@ class DeformEnv(gym.Env):
         if args.cam_resolution <= 0:  # report anchor positions as low-dim obs
             self.observation_space = gym.spaces.Box(
                 -1.0 * self.anchor_lims, self.anchor_lims)
-        else:  # WxHxC RGB
+        else:  # RGB
+           shape = (args.cam_resolution, args.cam_resolution, 3)      # WxHxC
+           if self.args.rgb_channels_first:
+               shape = (3, args.cam_resolution, args.cam_resolution)  # CxWxH
            self.observation_space = gym.spaces.Box(
                low=0, high=255 if args.uint8_pixels else 1.0,
                dtype=np.uint8 if args.uint8_pixels else np.float,
-               shape=(args.cam_resolution, args.cam_resolution, 3))
+               shape=shape)
         self.action_space = gym.spaces.Box(  # [-1,1]
             -1.0 * np.ones(DeformEnv.NUM_ANCHORS * 3),
             np.ones(DeformEnv.NUM_ANCHORS * 3))
@@ -350,6 +353,8 @@ class DeformEnv(gym.Env):
                 obs = obs.astype(np.uint8)  # already in [0,255]
             else:
                 obs = obs.astype(np.float32)/255.0  # to [0,1]
+            if self.args.rgb_channels_first:
+                obs = np.rollaxis(obs, axis=2, start=0)  # WxHxC -> CxWxH
         assert self.observation_space.contains(obs)
         return obs, done
 

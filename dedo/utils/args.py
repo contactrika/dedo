@@ -118,8 +118,10 @@ def get_args_parser():
                         help='Which reward strategy to use')
     parser.add_argument('--uint8_pixels', action='store_true',
                         help='Use CNNs for RL and uint8 in [0,255] for pixels')
-    parser.add_argument('--rllib_use_tf', action='store_true',
-                        help='Whether to use tensorflow models for RLlib')
+    parser.add_argument('--rgb_channels_first', action='store_true',
+                        help='CxWxH instead of WxHxC images (for RLLib)')
+    parser.add_argument('--rllib_use_torch', action='store_true',
+                        help='Whether to use torch models for RLlib')
     parser.add_argument('--rollout_len', type=int, default=64,
                         help='Episode rollout length')
     parser.add_argument('--replay_size', type=int, default=10000,
