@@ -9,8 +9,8 @@ highly parallelizable and supports a wide range of customizations: loading custo
 **Table of Contents:**<br />
 [Installation](#install)<br />
 [GettingStarted](#examples)<br />
-[Reinforcement Learning Examples](#rl)<br />
-[RL Examples](#rl)<br />
+[Use with RL](#rl)<br />
+[Use with VAE](#svae)<br />
 [Tasks](#tasks)<br />
 [Customization](#custom)<br />
 
@@ -256,3 +256,5 @@ python -m dedo.demo --env=HangGarment-v0 --viz --debug \
    --deform_scale 2.0 --anchor_init_pos -0.10 0.40 0.70 \
    --other_anchor_init_pos 0.10 0.40 0.70
 ```
+## License
+TODO 
