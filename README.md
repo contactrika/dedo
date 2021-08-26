@@ -91,7 +91,7 @@ tensorboard --logdir=/tmp/dedo --bind_all --port 6006 \
 
 ## SVAE Examples
 
-`dedo/run_rl_sb3.py` gives an example of how to train an RL
+`dedo/run_svae.py` gives an example of how to train an RL
 algorithm from Stable Baselines 3:
 
 ```

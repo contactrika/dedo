@@ -16,11 +16,11 @@ import numpy as np
 
 from dedo.utils.args import get_args
 from dedo.utils.anchor_utils import create_anchor_geom
-from dedo.utils.waypoint_utils import create_trajectory, interpolate_waypts
+from dedo.utils.waypoint_utils import create_traj, create_traj_savgol
 from dedo.utils.preset_info import preset_traj
 import wandb
 
-WRITE_TO_VID = False
+WRITE_TO_VID = True
 if WRITE_TO_VID:
     import cv2
 
@@ -110,7 +110,7 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq):
     wp = np.array(preset_wp[left_or_right])
     # Traditional wp
     steps = (wp[:, -1] * ctrl_freq).round().astype(np.int32)  # seconds -> ctrl steps
-    pos = create_trajectory(init_anc_pos, wp[:, :3], steps, ctrl_freq)  # [:,3:]
+    pos = create_traj(init_anc_pos, wp[:, :3], steps, ctrl_freq)  # [:,3:]
     traj = pos[:, 3:]
     #
     # Using the savgol_filter

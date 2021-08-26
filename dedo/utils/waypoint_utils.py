@@ -8,7 +8,13 @@ import numpy as np
 from scipy.signal import savgol_filter
 
 
-def interpolate_waypts(waypts, steps_per_waypt):
+def create_traj_savgol(waypts, steps_per_waypt):
+    '''
+
+    :param waypts:
+    :param steps_per_waypt:
+    :return:
+    '''
     """A scratch function to smooth trajectory."""
     waypts = waypts.reshape(-1, 3)
     n_waypts = waypts.shape[0]
@@ -33,21 +39,15 @@ def interpolate_waypts(waypts, steps_per_waypt):
     print('dense_waypts', dense_waypts.shape)
     return dense_waypts
 
-
-def target_pos_to_velocity(sim, anchor_bullet_id, tgt_pos, t):
-    anc_pos, anc_or = sim.getBasePositionAndOrientation(anchor_bullet_id)
-    print('t=', t)
-    pos_diff = np.array(tgt_pos) - np.array(anc_pos)
-    print('d_pos', pos_diff)
-    tgt_vel = (pos_diff) / t
-    return tgt_vel
-
-
-#
-# TODO: remove all the code below and use interpolate_waypts instead.
-#
-def create_trajectory(init_pos, waypoints, steps_per_waypoint, frequency):
-    # Create a smoothed trajectory through the given waypoints.
+def create_traj(init_pos, waypoints, steps_per_waypoint, frequency):
+    '''
+    Create a smoothed velocity based trajectory through a given waypoints.
+    :param init_pos: Initial position of the anchor
+    :param waypoints: way points for each anchor [ n_waypoints,  3]
+    :param steps_per_waypoint: Number of steps per way point [ n_waypoints ]
+    :param frequency: Control frequency
+    :return: A trajectory (of velocities) passing through all way points. []
+    '''
     assert(len(waypoints)== len(steps_per_waypoint))
     init_pos = np.array(init_pos)
     waypoints = np.array(waypoints)
@@ -66,7 +66,7 @@ def create_trajectory(init_pos, waypoints, steps_per_waypoint, frequency):
         tgt_pos = waypoints[wpt]
         dur = steps_per_waypoint[wpt-1]
         Y, Yd, Ydd = plan_min_jerk_trajectory(prev_pos, tgt_pos, dur*dt, dt)
-        traj[t:t+dur,0:3] = Y[:]
+        traj[t:t+dur,0:3] = Y[:]    # position
         traj[t:t+dur,3:6] = Yd[:]   # velocity
         # traj[t:t+dur,6:9] = Ydd[:]  # acceleration
         t += dur
@@ -77,6 +77,7 @@ def create_trajectory(init_pos, waypoints, steps_per_waypoint, frequency):
 
 
 def calculate_min_jerk_step(y_curr, yd_curr, ydd_curr, goal, rem_dur, dt):
+    '''Math'''
 
     if rem_dur < 0:
         return
