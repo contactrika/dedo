@@ -1,4 +1,5 @@
 # DEDO: Dynamic Environments with Deformable Objects
+TODO: SHORT DESCRIPTION HERE
 
 **Table of Contents:**<br />
 [Tasks](#tasks)<br />
@@ -8,7 +9,7 @@
 [Customization](#custom)<br />
 
 ## Tasks:
-
+TODO: Tasks overview here
 All tasks have `-v0` that randomizes textures and meshes.
 
 All tasks have `-v1` and `-v2` with a particular choice of meshes and textures
@@ -20,7 +21,7 @@ generate random cloth objects for all versions (but randomize textures only
 in `v0`).
 
 ### HangBag
-
+Over View Here
 `HangBag-v0`: selects one of 108 bag meshes; randomized textures
 
 `HangBag-v[1-3]`: three bag versions with textures shown below:
