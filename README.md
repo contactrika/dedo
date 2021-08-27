@@ -15,9 +15,9 @@ loading custom objects, adjusting texture and material properties.
 **Table of Contents:**<br />
 [Installation](#install)<br />
 [GettingStarted](#examples)<br />
+[Tasks](#tasks)<br />
 [Use with RL](#rl)<br />
 [Use with VAE](#svae)<br />
-[Tasks](#tasks)<br />
 [Customization](#custom)<br />
 
 For Full Documentation, please refer to **[Wiki](../../wiki)**
@@ -295,3 +295,6 @@ python -m dedo.demo --env=HangGarment-v0 --viz --debug \
    --deform_scale 2.0 --anchor_init_pos -0.10 0.40 0.70 \
    --other_anchor_init_pos 0.10 0.40 0.70
 ```
+
+## Addtional Asset
+`BGarment` dataset comes from [Berkeley Garment Library](http://graphics.berkeley.edu/resources/GarmentLibrary/)
