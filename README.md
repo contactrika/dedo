@@ -3,7 +3,7 @@
 DEDO is a lightweight and customizable suite of environments with
 deformable objects. It is aimed for researchers in the machine learning, 
 reinforcement learning, robotics and computer vision communities.
-The environment a set of every day tasks that involve deformable objects, 
+The suite provides a set of every day tasks that involve deformables, 
 such as hanging cloth, dressing a person, and buttoning buttons. 
 We have provided examples for integrating two popular 
 reinforcement learning libraries: [StableBaselines3](https://github.com/DLR-RM/stable-baselines3) and [RLlib](https://docs.ray.io/en/latest/rllib.html).
