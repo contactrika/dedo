@@ -25,6 +25,9 @@ from dedo.utils.args import get_args
 from dedo.utils.rl_sb3_utils import CustomCallback, play
 from dedo.utils.train_utils import init_train
 
+import numpy as np
+import torch
+
 
 def do_play(args, num_episodes=10):
     checkpt = os.path.join(args.load_checkpt, 'agent.zip')
@@ -39,6 +42,8 @@ def do_play(args, num_episodes=10):
 
 
 def main(args):
+    np.random.seed(args.seed)
+    torch.random.manual_seed(args.seed)
     if args.play:
         do_play(args)
         return  # no training, just playing
@@ -83,4 +88,5 @@ def main(args):
 
 
 if __name__ == "__main__":
+
     main(get_args())
