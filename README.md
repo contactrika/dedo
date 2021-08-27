@@ -1,6 +1,6 @@
 ![DEDO  - Dynamic Environments with Deformable Objects](misc/imgs/header.jpg)
 ### DEDO  - Dynamic Environments with Deformable Objects
-Dedo is a lightweight and customizable suite of environments with
+DEDO is a lightweight and customizable suite of environments with
 deformable objects. It is aimed for researchers in the machine learning, 
 reinforcement learning, robotics and computer vision communities.
 The environment a set of every day tasks that involve deformable objects, 
