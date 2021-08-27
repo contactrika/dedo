@@ -6,7 +6,7 @@ reinforcement learning, robotics and computer vision communities.
 The environment a set of every day tasks that involve deformable objects, 
 such as hanging cloth, dressing a person, and buttoning buttons. 
 We have provided examples for integrating two popular 
-reinforcement learning libraries: [https://github.com/DLR-RM/stable-baselines3][StableBaselines3] and (https://docs.ray.io/en/latest/rllib.html)[RLlib].
+reinforcement learning libraries: [StableBaselines3](https://github.com/DLR-RM/stable-baselines3) and [RLlib](https://docs.ray.io/en/latest/rllib.html).
 We also provided reference implementaionts for training a various 
 Variational Autoencoder variants with our environment. 
 Dedo is easy to set up and has few dependencies, it is
