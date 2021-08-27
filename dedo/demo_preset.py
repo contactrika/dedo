@@ -37,7 +37,7 @@ def play(env, num_episodes, args):
     preset_wp = preset_traj[deform_obj]['waypoints']
 
     if WRITE_TO_VID:
-        savepath = os.path.join(args.logdir, f'{args.env}.mp4')
+        savepath = os.path.join(args.logdir, f'{args.env}_{args.seed}.mp4')
         vidwriter = cv2.VideoWriter(
             savepath, cv2.VideoWriter_fourcc(*'mp4v'), 24, (640, 480))
         print('saving to ', savepath)
@@ -69,7 +69,7 @@ def play(env, num_episodes, args):
                 bgr_obs = obs[...,::-1]
                 vidwriter.write(bgr_obs)
             # gif_frames.append(obs)
-            if step > len(traj) + 50: break;
+            if step > len(traj) + 20: break;
             # if done: break;
             obs = next_obs
             step += 1

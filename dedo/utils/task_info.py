@@ -590,7 +590,7 @@ DEFORM_INFO = {
         'deform_texture_file': 'textures/deform/pb_lightblue_rings.png',
     },
     'cloth/apron_1.obj': {
-        'deform_init_pos': [0, 5, 5.5],
+        'deform_init_pos': [0, 5, 8],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 3,
         'deform_elastic_stiffness': 50,
@@ -616,7 +616,7 @@ DEFORM_INFO = {
         'deform_texture_file': 'textures/deform/pd_goldpattern.jpg',
     },
     'cloth/apron_2.obj': {
-        'deform_init_pos': [0, 5, 5.5],
+        'deform_init_pos': [0, 5, 8],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 3,
         'deform_elastic_stiffness': 50,
@@ -641,7 +641,7 @@ DEFORM_INFO = {
         'deform_texture_file': 'textures/deform/pb_pink_silk.jpg',
     },
     'cloth/apron_3.obj': {
-        'deform_init_pos': [0, 5, 5.5],
+        'deform_init_pos': [0, 5, 8],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 3,
         'deform_elastic_stiffness': 50,
@@ -672,7 +672,7 @@ DEFORM_INFO = {
         'deform_texture_file': 'textures/deform/pd_gold.jpg',
     },
     'cloth/apron_4.obj': {
-        'deform_init_pos': [0, 5, 5.5],
+        'deform_init_pos': [0, 5, 8],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 3,
         'deform_elastic_stiffness': 50,

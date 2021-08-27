@@ -2,9 +2,9 @@
 A data colleciton script for storing trajectories into numpy files with a very basic preset trajectory
 
 examples:
-python -m dedo.vae.datacollect --env=ProcHangCloth-v0 --logdir=/tmp/
-python -m dedo.vae.datacollect --cam_resolution=400 --env=ProcHangCloth-v0 --max_episode_len=999 --logdir=/tmp/  --dtype='float16'
-python -m dedo.vae.datacollect --cam_resolution=400 --env=Sewing-v0 --max_episode_len=999 --logdir=/tmp/ --bundle_size=128 --action_noise=0.01 --dtype='float16'
+python -m dedo.datacollect --env=ProcHangCloth-v0 --logdir=/tmp/
+python -m dedo.datacollect --cam_resolution=400 --env=ProcHangCloth-v0 --max_episode_len=999 --logdir=/tmp/  --dtype='float16'
+python -m dedo.datacollect --cam_resolution=400 --env=Sewing-v0 --max_episode_len=999 --logdir=/tmp/ --bundle_size=128 --action_noise=0.01 --dtype='float16'
 
 @yonkshi
 
