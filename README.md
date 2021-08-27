@@ -214,7 +214,7 @@ python -m dedo.run_rllib --env=HangGarment-v0 \
     --logdir=/tmp/dedo --num_play_runs=3 --viz --debug
 ```
 
-For documentation, please refer to [Argument References](../../wiki/Basic-commands) page in wiki
+For documentation, please refer to [Arguments Reference](../../wiki/Arguments-Reference) page in wiki
 
 To launch the Tensorboard:
 ```
@@ -295,6 +295,7 @@ python -m dedo.demo --env=HangGarment-v0 --viz --debug \
    --deform_scale 2.0 --anchor_init_pos -0.10 0.40 0.70 \
    --other_anchor_init_pos 0.10 0.40 0.70
 ```
+See more in **[Customization Wiki](../../wiki/Customization)**
 
 ## Addtional Asset
 `BGarment` dataset comes from [Berkeley Garment Library](http://graphics.berkeley.edu/resources/GarmentLibrary/)
