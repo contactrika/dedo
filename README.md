@@ -1,4 +1,4 @@
-![DEDO  - Dynamic Environments with Deformable Objects](misc/imgs/header.jpg)
+![DEDO  - Dynamic Environments with Deformable Objects](images/imgs/header.jpg)
 ### DEDO  - Dynamic Environments with Deformable Objects
 DEDO is a lightweight and customizable suite of environments with
 deformable objects. It is aimed for researchers in the machine learning, 
@@ -65,7 +65,7 @@ python -m dedo.demo --env=HangBag-v1 --viz --debug
 See more in **[Usage-guide](../../wiki/Usage-guide)**
 
 
-![misc/imgs/hang_task_ui.jpg](misc/gifs/HangBag-v1_0.gif)
+![images/imgs/hang_task_ui.jpg](images/gifs/HangBag-v1_0.gif)
 
 
 ## Tasks
@@ -84,7 +84,7 @@ generate random cloth objects for all versions (but randomize textures only
 in `v0`).
 
 ### HangBag
-![misc/gifs/HangGarment-v1.gif](misc/gifs/HangBag-v1_0.gif)
+![images/gifs/HangGarment-v1.gif](images/gifs/HangBag-v1_0.gif)
 ```
 python -m dedo.demo_preset --env=HangBag-v1 --viz
 ```
@@ -92,31 +92,31 @@ python -m dedo.demo_preset --env=HangBag-v1 --viz
 
 `HangBag-v[1-3]`: three bag versions with textures shown below:
 
-![misc/imgs/hang_bags_annotated.jpg](misc/imgs/hang_bags_annotated.jpg)
+![images/imgs/hang_bags_annotated.jpg](images/imgs/hang_bags_annotated.jpg)
 
 
 ### HangGarment
-![misc/gifs/HangGarment-v1.gif](misc/gifs/HangGarment-v1_0.gif)
+![images/gifs/HangGarment-v1.gif](images/gifs/HangGarment-v1_0.gif)
 ```
 python -m dedo.demo_preset --env=HangGarment-v1 --viz
 ```
 `HangGarment-v0`: hang garment with randomized textures 
 (a few examples below):
 
-![misc/gifs/HangGarment-v1.gif](misc/gifs/HangGarment-v1_0.gif)
+![images/gifs/HangGarment-v1.gif](images/gifs/HangGarment-v1_0.gif)
 
 `HangGarment-v[1-5]`: 5 apron meshes and texture combos shown below:
 
-![misc/imgs/hang_garments_5.jpg](misc/imgs/hang_garments_5.jpg)
+![images/imgs/hang_garments_5.jpg](images/imgs/hang_garments_5.jpg)
 
 
 `HangGarment-v[6-10]`: 5 shirt meshes and texture combos shown below:
 
-![misc/imgs/hang_shirts_5.jpg](misc/imgs/hang_shirts_5.jpg)
+![images/imgs/hang_shirts_5.jpg](images/imgs/hang_shirts_5.jpg)
 
 
 ### HangProcCloth
-![misc/gifs/HangGarment-v1.gif](misc/gifs/HangProcCloth-v1_0.gif)
+![images/gifs/HangGarment-v1.gif](images/gifs/HangProcCloth-v1_0.gif)
 ```
 python -m dedo.demo_preset --env=HangProcCloth-v1 --viz
 ```
@@ -125,10 +125,10 @@ procedurally generated cloth with 1 and 2 holes.
 
 `HangProcCloth-v[1-2]`: same, but with either 1 or 2 holes
 
-![misc/imgs/hang_proc_cloth.jpg](misc/imgs/hang_proc_cloth.jpg)
+![images/imgs/hang_proc_cloth.jpg](images/imgs/hang_proc_cloth.jpg)
 
 ### Buttoning
-![misc/gifs/HangGarment-v1.gif](misc/gifs/Button-v1_0.gif)
+![images/gifs/HangGarment-v1.gif](images/gifs/Button-v1_0.gif)
 ```
 python -m dedo.demo_preset --env=Button-v1 --viz
 ```
@@ -137,26 +137,26 @@ python -m dedo.demo_preset --env=Button-v1 --viz
 
 `ButtonProc-v[1-2]`: procedurally generated cloth, 1 or two holes.
 
-![misc/imgs/button_proc.jpg](misc/imgs/button_proc.jpg)
+![images/imgs/button_proc.jpg](images/imgs/button_proc.jpg)
 
 `Button-v0`: randomized textures, but fixed cloth and button positions.
 
 `Button-v1`:  fixed cloth and button positions with one texture 
 (see image below):
 
-![misc/imgs/button.jpg](misc/imgs/button.jpg)
+![images/imgs/button.jpg](images/imgs/button.jpg)
 
 
 ### Hoop
-![misc/gifs/HangGarment-v1.gif](misc/gifs/Hoop-v1_0.gif)
+![images/gifs/HangGarment-v1.gif](images/gifs/Hoop-v1_0.gif)
 ```
 python -m dedo.demo_preset --env=Hoop-v1 --viz
 ```
 `Hoop-v0`: randomized textures
 `Hoop-v1`: pre-selected textures
-![misc/imgs/hoop_and_lasso.jpg](misc/imgs/hoop_and_lasso.jpg)
+![images/imgs/hoop_and_lasso.jpg](images/imgs/hoop_and_lasso.jpg)
 ### Lasso
-![misc/gifs/HangGarment-v1.gif](misc/gifs/Lasso-v1_0.gif)
+![images/gifs/HangGarment-v1.gif](images/gifs/Lasso-v1_0.gif)
 ```
 python -m dedo.demo_preset --env=Lasso-v1 --viz
 ```
@@ -167,28 +167,28 @@ python -m dedo.demo_preset --env=Lasso-v1 --viz
 
 
 ### DressBag
-![misc/gifs/HangGarment-v1.gif](misc/gifs/DressBag-v1_0.gif)
+![images/gifs/HangGarment-v1.gif](images/gifs/DressBag-v1_0.gif)
 ```
 python -m dedo.demo_preset --env=DressBag-v1 --viz
 ```
 `DressBag-v0`, `DressBag-v[1-5]`: demo for `-v1` shown below
 
-![misc/imgs/dress_bag.jpg](misc/imgs/dress_bag.jpg)
+![images/imgs/dress_bag.jpg](images/imgs/dress_bag.jpg)
 
 Visualizations of the 5 backpack mesh and texture variants for `DressBag-v[1-5]`:
 
-![misc/imgs/backpack_meshes.jpg](misc/imgs/backpack_meshes.jpg)
+![images/imgs/backpack_meshes.jpg](images/imgs/backpack_meshes.jpg)
 ### DressGarment
-![misc/gifs/HangGarment-v1.gif](misc/gifs/DressGarment-v1_0.gif)
+![images/gifs/HangGarment-v1.gif](images/gifs/DressGarment-v1_0.gif)
 ```
 python -m dedo.demo_preset --env=DressGarment-v1 --viz
 ```
 `DressGarment-v0`, `DressGarment-v[1-5]`: demo for `-v1` shown below
 
-![misc/imgs/dress_garment.jpg](misc/imgs/dress_garment.jpg)
+![images/imgs/dress_garment.jpg](images/imgs/dress_garment.jpg)
 
 ### Mask
-![misc/gifs/HangGarment-v1.gif](misc/gifs/Mask-v1_0.gif)
+![images/gifs/HangGarment-v1.gif](images/gifs/Mask-v1_0.gif)
 ```
 python -m dedo.demo_preset --env=Mask-v1 --viz
 ```
