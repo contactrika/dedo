@@ -1,11 +1,16 @@
-![DEDO  - Dynamic Environments with Deformable Objects](misc/imgs/header.png)
+![DEDO  - Dynamic Environments with Deformable Objects](misc/imgs/header.jpg)
 ### DEDO  - Dynamic Environments with Deformable Objects
-Dedo is a lightweight, deterministic, and customizable deformable object gym environment aimed towards researchers in the reinforcement learning
+Dedo is a lightweight, deterministic, and customizable deformable object 
+gym environment aimed towards researchers in the reinforcement learning
 and robotics community. 
-The environment a set of every day tasks involving deformable objects such as hanging cloth, dressing a person, and buttoning buttons. 
+The environment a set of every day tasks involving deformable objects 
+such as hanging cloth, dressing a person, and buttoning buttons. 
 We have provided examples for integrating two popular 
-reinforcement learning libraries (stable_baseline3 and rllib) and an example for collecting and training a Variational Autoencoder with our environment. Dedo is easy to set up with very few dependencies,
-highly parallelizable and supports a wide range of customizations: loading custom objects, adjusting texture and material properties. 
+reinforcement learning libraries (stable_baseline3 and rllib) and 
+an example for collecting and training a Variational Autoencoder 
+with our environment. Dedo is easy to set up with very few dependencies,
+highly parallelizable and supports a wide range of customizations: 
+loading custom objects, adjusting texture and material properties. 
 
 **Table of Contents:**<br />
 [Installation](#install)<br />
