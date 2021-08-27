@@ -20,7 +20,7 @@ loading custom objects, adjusting texture and material properties.
 [Use with VAE](#svae)<br />
 [Customization](#custom)<br />
 
-For Full Documentation, please refer to **[Wiki](../../wiki)**
+Please refer to **[Wiki for the full documentation ](../../wiki)**
 
 <a name="install"></a>
 ## Installation
