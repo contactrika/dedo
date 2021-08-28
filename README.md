@@ -65,9 +65,6 @@ python -m dedo.demo --env=HangGarment-v1 --viz --debug
 See more in **[Usage-guide](../../wiki/Usage-guide)**
 
 
-![images/gifs/HangGarment-v1.gif](images/gifs/HangGarment-v1_0.gif)
-
-
 ## Tasks
 See more in **[Task Overview](../../wiki/Tasks-Overview)**
 
