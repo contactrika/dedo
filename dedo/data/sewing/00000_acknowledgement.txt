@@ -3,6 +3,6 @@ https://www.dropbox.com/sh/s7np66uisrr5g3k/AAA9mBUMNs2hLQpGio-Uu2O1a/Dataset%20o
 
 This is a subset of a larger dataset with roughly 22,000 objects plus procedural generation code.
 
-The garment objects were simplified using Blender script from 10,000+ vertices to 200 ~ 2,000 vertices. The blender script is located under 'scripts/blender_sewing_dataset_decimation.py'
+The garment objects were simplified using Blender script from 10,000+ vertices to 200 ~ 2,000 vertices. The blender script is located at 'scripts/blender_sewing_dataset_decimation.py'
 
-Please refer to the Wiki on the repo page for instructions on using the blender script.
+Please refer to the Wiki on the repo page for instructions to use the blender script.
