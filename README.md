@@ -297,5 +297,7 @@ python -m dedo.demo --env=HangGarment-v0 --viz --debug \
 ```
 See more in **[Customization Wiki](../../wiki/Customization)**
 
-## Addtional Asset
-`BGarment` dataset comes from [Berkeley Garment Library](http://graphics.berkeley.edu/resources/GarmentLibrary/)
+### Additonal Assets
+`BGarment` dataset is adapter from [Berkeley Garment Library](http://graphics.berkeley.edu/resources/GarmentLibrary/)
+
+`Sewing` dataset is adapted from [Generating Datasets of 3D Garments with Sewing Patterns](https://openreview.net/forum?id=Pq8FBz0gZHY)
