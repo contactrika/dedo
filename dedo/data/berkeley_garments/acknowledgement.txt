@@ -1,0 +1,2 @@
+`BGarment` dataset comes from  Berkeley Garment Library (http://graphics.berkeley.edu/resources/GarmentLibrary/) with minimal modifications:
+Reorienting axis, centering of objects

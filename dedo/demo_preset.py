@@ -19,7 +19,7 @@ from dedo.utils.anchor_utils import create_anchor_geom
 from dedo.utils.waypoint_utils import create_traj, create_traj_savgol
 from dedo.utils.preset_info import preset_traj
 
-WRITE_TO_VID = True
+WRITE_TO_VID = False
 if WRITE_TO_VID:
     import cv2
 

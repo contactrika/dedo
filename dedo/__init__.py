@@ -8,13 +8,13 @@ from .utils.task_info import (
 
 
 bp = os.path.dirname(__file__)
-sewing_dir = Path(bp, 'data/sewing_dataset')
+sewing_dir = Path(bp, 'data/sewing/')
 if os.path.exists(sewing_dir):
     versions = []
     for file in os.listdir(sewing_dir):
         if not file.endswith('.obj'):
             continue  # skip files that are not in .obj format
-        versions.append(os.path.join('sewing_dataset',file))
+        versions.append(os.path.join('sewing',file))
     TASK_INFO['Sewing'] = versions
 
 for task, versions in TASK_INFO.items():
