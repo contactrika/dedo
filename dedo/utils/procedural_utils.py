@@ -197,9 +197,6 @@ def create_cloth_obj(min_point, max_point, node_density,
                      ):
     def validate_and_integerize(hole):
 
-        # TODO Hole overlap check
-        # TODO Complete boundary check
-        # TODO Overlaop boundary check
         # Parameter checks and conversions
 
         # Convert ratio to aboslute

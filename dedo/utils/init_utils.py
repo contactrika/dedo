@@ -34,7 +34,6 @@ def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori,
         rigid_id = sim.createMultiBody(
             baseMass=0.0,  # mass==0 => fixed at the position where it is loaded
             basePosition=init_pos,
-            # useMaximalCoordinates=1, # TODO Delete me
             baseCollisionShapeIndex=col_shape_id,
             baseVisualShapeIndex=viz_shape_id,
             baseOrientation=pybullet.getQuaternionFromEuler(init_ori))

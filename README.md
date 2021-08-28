@@ -194,7 +194,7 @@ python -m dedo.demo_preset --env=Mask-v1 --viz
 ```
 
 `Mask-v0`, `Mask-v[1-5]`: a few texture variants shown below:
-
+![images/imgs/dress_garment.jpg](images/imgs/mask_0.jpg)
 <a name="rl"></a>
 ## RL Examples
 

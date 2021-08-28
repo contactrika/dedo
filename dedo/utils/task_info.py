@@ -350,7 +350,7 @@ DEFORM_INFO = {
         'deform_texture_file': 'textures/deform/pb_pink_fur.jpg',
 
     },
-    'bags/backpack_2.obj': {  # TODO: fix mesh issues
+    'bags/backpack_2.obj': {
         'deform_init_pos': [-0.2, 2, 4],
         'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
         'deform_scale': 3,
@@ -380,7 +380,7 @@ DEFORM_INFO = {
         'rigid_texture_file': "textures/rigid/darkbrownwood.jpg",
         'deform_texture_file': 'textures/deform/pd_gold.jpg',
     },
-    'bags/backpack_3.obj': {  # TODO: fix mesh issues
+    'bags/backpack_3.obj': {
         'deform_init_pos': [-0.2, 2, 4],
         'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
         'deform_scale': 3,
@@ -410,7 +410,7 @@ DEFORM_INFO = {
         'deform_texture_file': 'textures/deform/pb_pink_silk.jpg',
 
     },
-    'bags/backpack_4.obj': {  # TODO: fix mesh issues
+    'bags/backpack_4.obj': {
         'deform_init_pos': [-0.2, 2, 4],
         'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
         'deform_scale': 3,

@@ -2,7 +2,7 @@
 #
 # @pyshi
 #
-# TODO(later): replace slashes for Windows users and test on Windows.
+#
 #
 
 from .task_info import (

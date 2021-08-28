@@ -47,8 +47,6 @@ def main(args):
     for i_run in range(n_runs):
         obs = vec_env.reset()
 
-
-
         # TODO Add fuzzy Camera position
         # TODO Add fuzzy Spawning  Noise
         act = np.zeros((args.num_envs, 6,))

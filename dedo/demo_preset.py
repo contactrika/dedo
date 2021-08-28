@@ -1,9 +1,6 @@
 """
 A simple demo with preset trajectories.
 
-TODO(Yonk): clean up this file when trajectories are finalized.
-tODO(Yonk): remove old control code, use simple trajectory interpolation.
-
 @pyshi
 
 """
@@ -16,10 +13,10 @@ import numpy as np
 
 from dedo.utils.args import get_args
 from dedo.utils.anchor_utils import create_anchor_geom
-from dedo.utils.waypoint_utils import create_traj, create_traj_savgol
+from dedo.utils.waypoint_utils import create_traj
 from dedo.utils.preset_info import preset_traj
 
-WRITE_TO_VID = False
+WRITE_TO_VID = False # Hard coded flag for recording video
 if WRITE_TO_VID:
     import cv2
 
