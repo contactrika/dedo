@@ -52,7 +52,7 @@ See more in **[Installation Guide in wiki](../../wiki/Installation)**
 To get started, one can run one of the following commands to visualize the tasks through a hard-coded policy. 
 
 ```
-python -m dedo.demo --env=HangBag-v1 --viz --debug
+python -m dedo.demo --env=HangGarment-v1 --viz --debug
 ```
 
 * `dedo.demo` is the demo module
@@ -65,7 +65,7 @@ python -m dedo.demo --env=HangBag-v1 --viz --debug
 See more in **[Usage-guide](../../wiki/Usage-guide)**
 
 
-![images/imgs/hang_task_ui.jpg](images/gifs/HangBag-v1_0.gif)
+![images/gifs/HangGarment-v1.gif](images/gifs/HangGarment-v1_0.gif)
 
 
 ## Tasks
@@ -103,7 +103,7 @@ python -m dedo.demo_preset --env=HangGarment-v1 --viz
 `HangGarment-v0`: hang garment with randomized textures 
 (a few examples below):
 
-![images/gifs/HangGarment-v1.gif](images/gifs/HangGarment-v1_0.gif)
+
 
 `HangGarment-v[1-5]`: 5 apron meshes and texture combos shown below:
 
