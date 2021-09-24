@@ -181,6 +181,34 @@ class DeformEnv(gym.Env):
             rigid_ids.append(id)
 
         #
+        # Load the robot
+        #
+        # TODO: make this optional.
+        robot_path = os.path.join(data_path, 'robots', 'fetch', 'fetch.urdf')
+        print('Loading robot from', robot_path)
+        robot_init_pos = args.deform_init_pos - np.array([-5.0, -7.0, 0])
+        robot_init_pos[2] = 0.0  # put on the floor
+        # robot_id = sim.loadURDF(robot_path, robot_init_pos,
+        #                         pybullet.getQuaternionFromEuler([0, 0, np.pi]),
+        #                         useFixedBase=0, globalScaling=8.0)
+        from ..utils.bullet_manipulator import BulletManipulator
+        robot = BulletManipulator(
+            sim, robot_path, control_mode='velocity',
+            ee_joint_name='gripper_axis', ee_link_name='gripper_link',
+            base_pos=robot_init_pos,
+            base_quat=pybullet.getQuaternionFromEuler([0, 0, np.pi]),
+            global_scaling=8.0,
+            # rest_arm_qpos
+            dt=1.0/args.sim_freq,
+            visualize=False, cam_dist=0.8, cam_yaw=80, cam_pitch=-15,
+            cam_target=(0.3, 0, 0.3))
+        for i in range(1000):
+            robot.move_to_ee_pos(robot_init_pos + np.array([5.0, 0, 5.0]),
+                                 np.array(pybullet.getQuaternionFromEuler([0, 0, 0])),
+                                 kp=1000, kd=10)
+            sim.stepSimulation()
+
+        #
         # Load deformable object.
         #
         texture_path = os.path.join(
