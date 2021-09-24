@@ -184,7 +184,7 @@ class DeformEnv(gym.Env):
         # Load the robot
         #
         # TODO: make this optional.
-        if False:  # trying to make this do something useful
+        if True:  # trying to make this do something useful
             robot_path = os.path.join(data_path, 'robots', 'fetch', 'fetch.urdf')
             print('Loading robot from', robot_path)
             robot_init_pos = args.deform_init_pos - np.array([-5.0, -7.0, 0])
@@ -199,12 +199,11 @@ class DeformEnv(gym.Env):
                 base_pos=robot_init_pos,
                 base_quat=pybullet.getQuaternionFromEuler([0, 0, np.pi]),
                 global_scaling=8.0,
+                use_fixed_base=False,
                 # rest_arm_qpos
-                dt=1.0/args.sim_freq,
-                visualize=False, cam_dist=0.8, cam_yaw=80, cam_pitch=-15,
-                cam_target=(0.3, 0, 0.3))
+            )
             for i in range(1000):
-                robot.move_to_ee_pos(robot_init_pos + np.array([5.0, 0, 5.0]),
+                robot.move_to_ee_pos(robot_init_pos + np.array([5.0, 0, 15.0]),
                                      np.array(pybullet.getQuaternionFromEuler([0, 0, 0])),
                                      kp=1000, kd=10)
                 sim.stepSimulation()

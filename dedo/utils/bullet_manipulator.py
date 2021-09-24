@@ -69,17 +69,12 @@ class BulletManipulator:
                  left_ee_joint_name=None, left_ee_link_name=None,
                  left_fing_link_prefix=None, left_joint_suffix=None,
                  left_rest_arm_qpos=None,
-                 dt=1.0/240.0, kp=0.1, kd=1.0, min_z=0.0,
-                 visualize=False, cam_dist=1.5, cam_yaw=25, cam_pitch=-35,
-                 cam_target=(0.5, 0, 0), debug_level=0):
+                 use_fixed_base=False, kp=0.1, kd=1.0, min_z=0.0):
         assert(control_mode in
                ('ee_position', 'position', 'velocity', 'torque'))
         self.control_mode = control_mode
-        self.dt = dt; self.kp = kp; self.kd = kd; self.min_z = min_z
-        self.debug_level = debug_level
-        self.visualize = visualize; self.cam_dist = cam_dist
-        self.cam_yaw = cam_yaw; self.cam_pitch = cam_pitch
-        self.cam_target = list(cam_target)
+        self.kp = kp; self.kd = kd; self.min_z = min_z
+        self.debug_level = 0
         self.sim = sim
         # Load robot from URDF.
         if not os.path.isabs(robot_desc_file):
@@ -91,13 +86,8 @@ class BulletManipulator:
             left_ee_joint_name, left_ee_link_name,
             left_fing_link_prefix, left_joint_suffix,
             base_pos=base_pos, base_quat=base_quat,
+            use_fixed_base=use_fixed_base,
             global_scaling=global_scaling)
-        # Set simulation parameters.
-        # time step: https://github.com/bulletphysics/bullet3/issues/1460
-        self.sim.setRealTimeSimulation(0)
-        self.sim.setGravity(0, 0, BulletManipulator.GRAVITY)
-        self.sim.setPhysicsEngineParameter(
-            fixedTimeStep=self.dt, numSolverIterations=5, numSubSteps=2)
         # Reset to initial position and visualize.
         self.rest_qpos = (self.info.joint_maxpos+self.info.joint_minpos)/2
         if rest_arm_qpos is not None:
@@ -107,17 +97,14 @@ class BulletManipulator:
             assert(len(self.info.left_arm_jids_lst)==len(left_rest_arm_qpos))
             self.rest_qpos[self.info.left_arm_jids_lst] = left_rest_arm_qpos[:]
         self.reset()
-        if self.visualize:
-            pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING,1)
-            self.refresh_viz()
 
     def load_robot(self, robot_path, ee_joint_name, ee_link_name,
                    left_ee_joint_name, left_ee_link_name,
                    left_fing_link_prefix, left_joint_suffix,
-                   base_pos, base_quat, global_scaling):
+                   base_pos, base_quat, use_fixed_base, global_scaling):
         robot_id = self.sim.loadURDF(
             robot_path, basePosition=base_pos, baseOrientation=base_quat,
-            useFixedBase=True, flags=pybullet.URDF_USE_SELF_COLLISION,
+            useFixedBase=use_fixed_base, flags=pybullet.URDF_USE_SELF_COLLISION,
             globalScaling=global_scaling)
         joint_ids = []; joint_names = []
         joint_minpos = []; joint_maxpos = []
@@ -126,6 +113,7 @@ class BulletManipulator:
         left_ee_link_id = None; left_ee_jid = None
         finger_jids_lst = []; left_finger_jids_lst = []
         arm_jids_lst = []; left_arm_jids_lst = []
+        # Skip some joints of the fetch robot for now.
         skip_jnames = ['wheel', 'torso']
         for j in range(pybullet.getNumJoints(robot_id)):
             _, jname, jtype, _, _, _, _, _, \
@@ -178,8 +166,6 @@ class BulletManipulator:
                 jointIndex=self.info.joint_ids[jid],
                 targetValue=qpos[jid], targetVelocity=0)
         self.clear_motor_control()
-        if self.visualize:
-            self.refresh_viz()
 
     def clear_motor_control(self):
         # We need these to be called after every reset. This fact is not
@@ -191,12 +177,6 @@ class BulletManipulator:
         self.sim.setJointMotorControlArray(
             self.info.robot_id, self.info.joint_ids.tolist(),
             pybullet.TORQUE_CONTROL, forces=[0]*self.info.dof)
-
-    def refresh_viz(self):
-        time.sleep(0.1)
-        self.sim.resetDebugVisualizerCamera(
-            cameraDistance=self.cam_dist, cameraYaw=self.cam_yaw,
-            cameraPitch=self.cam_pitch, cameraTargetPosition=self.cam_target)
 
     def reset_objects(self, ids, poses, quats):
         for objid in range(len(ids)):
@@ -311,24 +291,10 @@ class BulletManipulator:
             targetValue=jpos, targetVelocity=jvel)
 
     def get_ok_qvel(self, tgt_qvel):
-        # A code that is also reasonable for hardware Yumi sanity checks.
-        if 'yumi' in self.info.joint_names[0]:
-            HW_VEL_SCALING = 0.5 #0.1  # for 500Hz in sim instead of 100Hz on hw
-            ok_tgt_qvel = np.copy(tgt_qvel)*HW_VEL_SCALING
-            LIM_SC = 0.8
-            # Hard joint limits to prevent real robot from getting into very
-            # awkward poses (for reasonable hardware exploration runs).
-            JOINT_MINPOS = np.array([
-                0.8000, -1.5000, -2.9409*LIM_SC, -2.1555*LIM_SC,
-                -5.0615*LIM_SC, -1.5359*LIM_SC, -3.9968*LIM_SC])
-            JOINT_MAXPOS = np.array(
-                [2.9409*LIM_SC, 0.7592*LIM_SC, 1.0000, 0.6000,
-                 5.0615*LIM_SC, 2.4086*LIM_SC, 3.9968*LIM_SC])
-        else:
-            ok_tgt_qvel = np.copy(tgt_qvel)
-            LIM_SC = 0.95
-            JOINT_MINPOS = np.copy(self.info.joint_minpos[0:7])*LIM_SC
-            JOINT_MAXPOS = np.copy(self.info.joint_maxpos[0:7])*LIM_SC
+        ok_tgt_qvel = np.copy(tgt_qvel)
+        LIM_SC = 0.95
+        JOINT_MINPOS = np.copy(self.info.joint_minpos[0:7])*LIM_SC
+        JOINT_MAXPOS = np.copy(self.info.joint_maxpos[0:7])*LIM_SC
         qpos = self.get_qpos()
         for jid in range(JOINT_MINPOS.shape[0]):
             if qpos[jid]<JOINT_MINPOS[jid] or qpos[jid]>JOINT_MAXPOS[jid]:
@@ -513,58 +479,6 @@ class BulletManipulator:
         qpos = self.get_qpos()
         assert((qpos>=self.info.joint_minpos).all())
         assert((qpos<=self.info.joint_maxpos).all())
-
-    def render_debug(self, width=600):
-        view_matrix = pybullet.computeViewMatrixFromYawPitchRoll(
-            cameraTargetPosition=self.cam_target, distance=self.cam_dist,
-            yaw=self.cam_yaw, pitch=self.cam_pitch, roll=0, upAxisIndex=2)
-        height = width
-        proj_matrix = self.sim.computeProjectionMatrixFOV(
-            fov=90, aspect=float(width)/height, nearVal=0.01, farVal=100.0)
-        w, h, rgba_px, depth_px, segment_mask = self.sim.getCameraImage(
-            width=width, height=height, viewMatrix=view_matrix,
-            projectionMatrix=proj_matrix, renderer=pybullet.ER_TINY_RENDERER)
-        #import scipy.misc
-        #scipy.misc.imsave('/tmp/outfile.png', rgba_px)
-        return rgba_px  # HxWxRGBA uint8
-
-    def render_debug_kinova(self, width=640):
-        view_matrix = pybullet.computeViewMatrixFromYawPitchRoll(
-            cameraTargetPosition=self.cam_target, distance=self.cam_dist,
-            yaw=self.cam_yaw, pitch=self.cam_pitch, roll=0, upAxisIndex=2)
-        height = 480
-        proj_matrix = self.sim.computeProjectionMatrixFOV(
-            fov=77, aspect=float(width)/height, nearVal=0.01, farVal=100.0)
-        w, h, rgba_px, depth_px, segment_mask = self.sim.getCameraImage(
-            width=width, height=height, viewMatrix=view_matrix,
-            projectionMatrix=proj_matrix, renderer=pybullet.ER_TINY_RENDERER)
-        #import scipy.misc
-        #scipy.misc.imsave('/tmp/outfile.png', rgba_px)
-        return rgba_px, segment_mask  # HxWxRGBA uint8
-
-    def create_visual_area(self, shape, center, radius, rgba):
-        assert(shape==pybullet.GEOM_SPHERE or pybullet.GEOM_CYLINDER)
-        kwargs = {'shapeType':shape}
-        viz_kwargs = copy(kwargs); col_kwargs = copy(kwargs)
-        if shape == pybullet.GEOM_SPHERE or shape == pybullet.GEOM_CYLINDER:
-            viz_kwargs['radius'] = radius
-            col_kwargs['radius'] = radius
-        if shape == pybullet.GEOM_CYLINDER:
-            viz_kwargs['length'] = 0.02; col_kwargs['height'] = 0.02
-        if shape == pybullet.GEOM_BOX:
-            viz_kwargs['halfExtents'] = radius
-            col_kwargs['halfExtents'] = radius
-        viz_shp_id = pybullet.createVisualShape(
-            visualFramePosition=[0,0,0], rgbaColor=rgba, **viz_kwargs)
-        col_shp_id = pybullet.createCollisionShape(
-            collisionFramePosition=[100,100,100], **col_kwargs)  # outside
-        # Only using this for visualization, so mass=0 (fixed body).
-        sphere_body_id = pybullet.createMultiBody(
-            baseMass=0, baseInertialFramePosition=[0,0,0],
-            baseCollisionShapeIndex=col_shp_id,
-            baseVisualShapeIndex=viz_shp_id,
-            basePosition=center, useMaximalCoordinates=True)
-        return sphere_body_id
 
     def ee_pos_to_qpos(self, ee_pos, ee_quat, fing_dist,
                        left_ee_pos=None, left_ee_quat=None, left_fing_dist=0.0,
