@@ -41,7 +41,7 @@ class DeformEnv(gym.Env):
         self.sim = bclient.BulletClient(
             connection_mode=pybullet.GUI if args.viz else pybullet.DIRECT)
         reset_bullet(args, self.sim, debug=args.debug)
-        self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos = \
+        self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos, self.robot = \
             self.load_objects(self.sim, self.args)
         self.max_episode_len = self.args.max_episode_len
         # Define sizes of observation and action spaces.
@@ -187,7 +187,7 @@ class DeformEnv(gym.Env):
         if True:  # trying to make this do something useful
             robot_path = os.path.join(data_path, 'robots', 'fetch', 'fetch.urdf')
             print('Loading robot from', robot_path)
-            robot_init_pos = args.deform_init_pos - np.array([-5.0, -7.0, 0])
+            robot_init_pos = args.deform_init_pos - np.array([-8.0, 2.5, 0])
             robot_init_pos[2] = 0.0  # put on the floor
             # robot_id = sim.loadURDF(robot_path, robot_init_pos,
             #                         pybullet.getQuaternionFromEuler([0, 0, np.pi]),
@@ -198,24 +198,10 @@ class DeformEnv(gym.Env):
                 ee_joint_name='gripper_axis', ee_link_name='gripper_link',
                 base_pos=robot_init_pos,
                 base_quat=pybullet.getQuaternionFromEuler([0, 0, np.pi]),
-                global_scaling=8.0,
+                global_scaling=10.0,
                 use_fixed_base=True,
                 # rest_arm_qpos
             )
-            # Control doesn't work yet, likely something with joint/link mapping...
-            ee_pos, ee_quat, _, _ = robot.get_ee_pos_ori_vel()
-            qpos = robot.get_qpos()
-            print('ee_pos', ee_pos, 'ee_quat', ee_quat, 'qpos', qpos)
-            ee_pos += np.array([0, 0, 5.0])
-            qpos = robot.ee_pos_to_qpos(ee_pos, ee_quat, fing_dist=0)
-            input('continue')
-            robot.reset_to_qpos(qpos)
-            for i in range(1000):
-                robot.reset_to_qpos(qpos)
-                # robot.move_to_ee_pos(ee_pos, ee_quat, kp=1000, kd=10)
-                sim.stepSimulation()
-            print('Done testing robot loading')
-
         #
         # Load deformable object.
         #
@@ -242,7 +228,7 @@ class DeformEnv(gym.Env):
                 alpha = 1 if i == 0 else 0.3  # primary vs secondary goal
                 create_anchor_geom(sim, goal_pos, mass=0.0,
                                    rgba=(0, 1, 0, alpha), use_collision=False)
-        return rigid_ids, deform_id, deform_obj, np.array(goal_poses)
+        return rigid_ids, deform_id, deform_obj, np.array(goal_poses), robot
 
     def seed(self, seed):
         np.random.seed(seed)
@@ -257,7 +243,7 @@ class DeformEnv(gym.Env):
             self.args.data_path,  self.get_texture_path(
                 self.args.plane_texture_file))
         reset_bullet(self.args, self.sim, plane_texture=plane_texture_path)
-        self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos = \
+        self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos, self.robot = \
             self.load_objects(self.sim, self.args)
 
         # Special case for Procedural Cloth tasks that can have two holes:
@@ -271,6 +257,8 @@ class DeformEnv(gym.Env):
            self.debug_viz_cent_loop()
 
         # Setup dynamic anchors.
+        anchor_pos = None
+        anchor_vertices = None
         for i in range(DeformEnv.NUM_ANCHORS):  # make anchors
             anchor_init_pos = self.args.anchor_init_pos if (i % 2) == 0 else \
                 self.args.other_anchor_init_pos
@@ -283,6 +271,25 @@ class DeformEnv(gym.Env):
             attach_anchor(self.sim, anchor_id, anchor_vertices, self.deform_id)
             self.anchors[anchor_id] = {'pos': anchor_pos,
                                        'vertices': anchor_vertices}
+        #
+        # Try to move the robot's gripper to anchor pos and attach to anchor.
+        #
+        # Control doesn't work yet...
+        ee_pos, ee_quat, _, _ = self.robot.get_ee_pos_ori_vel()
+        qpos = self.robot.get_qpos()
+        print('ee_pos', ee_pos, 'ee_quat', ee_quat, 'qpos', qpos)
+        print('anchor_pos', anchor_pos)
+        # ee_pos += np.array([0, -3.0, 5.0])
+        qpos = self.robot.ee_pos_to_qpos(anchor_pos, ee_quat, fing_dist=0)
+        self.robot.reset_to_qpos(qpos)
+        ee_pos, ee_quat, _, _ = self.robot.get_ee_pos_ori_vel()
+        qpos = self.robot.get_qpos()
+        print('after move: ee_pos', ee_pos, 'ee_quat', ee_quat, 'qpos', qpos)
+        # Attach mesh anchor vertex to robot's EE link.
+        # Messes up anchor control, so turning off for now.
+        # self.sim.createSoftBodyAnchor(
+        #     self.deform_id, anchor_vertices[0],
+        #     self.robot.info.robot_id, self.robot.info.ee_link_id)
         #
         # Set up viz.
         if self.args.viz:  # loading done, so enable debug rendering if needed
