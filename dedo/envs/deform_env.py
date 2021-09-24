@@ -199,14 +199,22 @@ class DeformEnv(gym.Env):
                 base_pos=robot_init_pos,
                 base_quat=pybullet.getQuaternionFromEuler([0, 0, np.pi]),
                 global_scaling=8.0,
-                use_fixed_base=False,
+                use_fixed_base=True,
                 # rest_arm_qpos
             )
+            # Control doesn't work yet, likely something with joint/link mapping...
+            ee_pos, ee_quat, _, _ = robot.get_ee_pos_ori_vel()
+            qpos = robot.get_qpos()
+            print('ee_pos', ee_pos, 'ee_quat', ee_quat, 'qpos', qpos)
+            ee_pos += np.array([0, 0, 5.0])
+            qpos = robot.ee_pos_to_qpos(ee_pos, ee_quat, fing_dist=0)
+            input('continue')
+            robot.reset_to_qpos(qpos)
             for i in range(1000):
-                robot.move_to_ee_pos(robot_init_pos + np.array([5.0, 0, 15.0]),
-                                     np.array(pybullet.getQuaternionFromEuler([0, 0, 0])),
-                                     kp=1000, kd=10)
+                robot.reset_to_qpos(qpos)
+                # robot.move_to_ee_pos(ee_pos, ee_quat, kp=1000, kd=10)
                 sim.stepSimulation()
+            print('Done testing robot loading')
 
         #
         # Load deformable object.
