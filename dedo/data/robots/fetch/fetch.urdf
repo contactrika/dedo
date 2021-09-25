@@ -92,7 +92,7 @@
       <damping value="30000"/>
     </contact>
   </link>
-  <joint name="r_wheel_joint" type="continuous">
+  <joint name="r_wheel_joint" type="fixed"><!-- type="continuous" -->
     <origin rpy="-6.123E-17 0 0" xyz="0.0012914 -0.18738 0.055325" />
     <parent link="base_link" />
     <child link="r_wheel_link" />
@@ -127,7 +127,7 @@
     </contact>
 
   </link>
-  <joint name="l_wheel_joint" type="continuous">
+  <joint name="l_wheel_joint" type="fixed"><!-- type="continuous" -->
     <origin rpy="-6.123E-17 0 0" xyz="0.0012914 0.18738 0.055325" />
     <parent link="base_link" />
     <child link="l_wheel_link" />
@@ -309,7 +309,7 @@
     <child link="upperarm_roll_link" />
     <axis xyz="1 0 0" />
     <dynamics damping="5.0" />
-    <limit effort="76.94" velocity="1.571" />
+    <limit effort="76.94" velocity="1.571" lower="-1.251" upper="1.251"/>
   </joint>
   <link name="elbow_flex_link">
     <inertial>
@@ -369,7 +369,7 @@
     <child link="forearm_roll_link" />
     <axis xyz="1 0 0" />
     <dynamics damping="5.0" />
-    <limit effort="29.35" velocity="1.571" />
+    <limit effort="29.35" velocity="1.571"  lower="-1.251" upper="1.251"/>
   </joint>
   <link name="wrist_flex_link">
     <inertial>
@@ -428,7 +428,7 @@
     <parent link="wrist_flex_link" />
     <child link="wrist_roll_link" />
     <axis xyz="1 0 0" />
-    <limit effort="7.36" velocity="2.268" />
+    <limit effort="7.36" velocity="2.268" lower="-1.251" upper="1.251"/>
     <dynamics damping="5.0" />
   </joint>
   <link name="gripper_link">

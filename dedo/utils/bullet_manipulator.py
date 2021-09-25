@@ -86,8 +86,16 @@ class BulletManipulator:
             left_ee_joint_name, left_ee_link_name,
             left_fing_link_prefix, left_joint_suffix,
             base_pos=base_pos, base_quat=base_quat,
-            use_fixed_base=use_fixed_base,
+            use_fixed_base=False,
             global_scaling=global_scaling)
+        
+        #note this constraint is not as rigid as using use_fixed_base while loading
+        #but it looks okay to keep balance of the platform and could allow us to move the basis as the VR example
+        if use_fixed_base:
+            self.base_cid = sim.createConstraint(self.info.robot_id, -1, -1, -1, sim.JOINT_FIXED, [0.0, 0, 0], [0.0, 0, 0],base_pos, )
+        else:
+            self.base_cid = None
+
         # Reset to initial position and visualize.
         self.rest_qpos = (self.info.joint_maxpos+self.info.joint_minpos)/2
         if rest_arm_qpos is not None:
@@ -120,8 +128,16 @@ class BulletManipulator:
             jlowlim, jhighlim, jmaxforce, jmaxvel, link_name, _, _, _, _ = \
                 pybullet.getJointInfo(robot_id, j)
             jname = jname.decode("utf-8"); link_name = link_name.decode("utf-8")
-            if jname in skip_jnames:
+            # if jname in skip_jnames:
+            #     continue
+            ignore = False
+            for skip_key in skip_jnames:
+                if jname.find(skip_key) != -1:
+                    ignore = True
+                    break
+            if ignore:
                 continue
+            
             if jtype in [pybullet.JOINT_REVOLUTE, pybullet.JOINT_PRISMATIC]:
                 joint_ids.append(j); joint_names.append(jname)
                 joint_minpos.append(jlowlim); joint_maxpos.append(jhighlim)
@@ -487,3 +503,39 @@ class BulletManipulator:
             ee_pos, ee_quat, fing_dist,
             left_ee_pos, left_ee_quat, left_fing_dist, debug=debug)
         return qpos
+    
+    def get_relative_pose(self, pos, quat=None):
+        #get pose relative to the basis
+        base_state = self.sim.getLinkState(
+            self.info.robot_id, 0, computeLinkVelocity=0)
+        base_pos = base_state[0]
+        base_quat = base_state[1]
+
+        inv_trans, inv_rot = self.sim.invertTransform(
+        base_pos, base_quat)
+        
+        quat_input = (0, 0, 0, 1) if quat is None else quat
+        
+        local_pos, local_quat = self.sim.multiplyTransforms(
+            inv_trans, inv_rot, pos, quat_input)
+
+        return np.array(local_pos), None if quat is None else np.array(local_quat)
+    
+    def move_base(self, lin_vel, rot_vel, dt=1./240):
+        #change fixed constraint spec to move the base: assuming the mobile base is omnidirectional
+        #we can also animate differential drive by having the wheel distance
+        assert(self.base_cid is not None)
+        base_state = self.sim.getLinkState(
+            self.info.robot_id, 0, computeLinkVelocity=0)
+        base_pos = base_state[0]
+        base_quat = base_state[1]
+        # print(base_pos, base_quat)
+        # delta_quat = self.sim.getQuaternionFromEuler([0, 0, rot_vel*dt])
+        # tar_base_pos, tar_base_ori = self.sim.multiplyTransforms(base_pos, base_quat, [lin_vel[0] * dt, lin_vel[1] * dt, 0], delta_quat)
+        next_base_pos = np.add(np.array(base_pos), np.array([lin_vel[0]*dt, lin_vel[1]*dt, 0])).tolist()
+        next_base_ori = np.add(np.array(self.sim.getEulerFromQuaternion(base_quat)), np.array([0, 0, rot_vel*dt]))
+        next_base_ori = self.sim.getQuaternionFromEuler(next_base_ori.tolist())
+        #user need to specify dt since it is specified by the user so better let user to track it
+        # print(next_base_pos, next_base_ori)
+        self.sim.changeConstraint(self.base_cid, next_base_pos, next_base_ori, maxForce=1000)
+        return
