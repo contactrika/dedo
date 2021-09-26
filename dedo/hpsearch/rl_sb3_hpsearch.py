@@ -105,19 +105,11 @@ def main():
     if args.cam_resolution > 0 and args.uint8_pixels:
         policy_name = 'CnnPolicy'
 
-    print('debug:EVAL AGENT', file=sys.stderr)
-    print('YOYOYO')
-    print('debug: rl_kwargs', rl_kwargs, file=sys.stderr)
     rl_agent = eval(args.rl_algo)(policy_name, vec_env, **rl_kwargs)
-    print('debug:callback', file=sys.stderr)
     cb = CustomCallback(eval_env, args.logdir, n_envs, args,
                         num_steps_between_save=num_steps_between_save,
                         viz=args.viz, debug=args.debug)
-    print('debug:LEARN', file=sys.stderr)
-    print('Start SB3 RL training')
     rl_agent.learn(total_timesteps=args.total_env_steps, callback=cb)
-
-    print('debug:CLEAN UP', file=sys.stderr)
     vec_env.close()
     wandb.finish()
     # reset logdir
