@@ -66,8 +66,14 @@ class DeformEnv(gym.Env):
         if self.args.viz:
             self.sim.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 1)
         if self.args.debug:
-            print('Created DeformEnv with obs', self.observation_space, 'act',
-                  self.action_space)
+            print('Created DeformEnv with obs', self.observation_space,
+                  'low', type(self.observation_space.low),
+                  f'{self.observation_space.low.min():e}',
+                  f'{self.observation_space.low.max():e}',
+                  'high', type(self.observation_space.high),
+                  f'{self.observation_space.high.min():e}',
+                  f'{self.observation_space.high.max():e}',
+                  'act', self.action_space)
 
     @property
     def anchor_ids(self):
@@ -443,9 +449,11 @@ class DeformEnv(gym.Env):
                 obs = np.clip(obs, 0, 1)
         if self.args.flat_obs:
             obs = obs.reshape(-1)
-        if not self.observation_space.contains(obs):
+        atol = 0.0001
+        if ((obs < self.observation_space.low-atol).any() or
+            (obs > self.observation_space.high+atol).any()):
             print('obs', obs.shape, f'{np.min(obs):e}, n{np.max(obs):e}')
-        # assert self.observation_space.contains(obs)
+            assert self.observation_space.contains(obs)
 
         return obs, done
 
