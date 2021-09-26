@@ -445,7 +445,7 @@ class DeformEnv(gym.Env):
             obs = obs.reshape(-1)
         if not self.observation_space.contains(obs):
             print('obs', obs.shape, f'{np.min(obs):e}, n{np.max(obs):e}')
-        assert self.observation_space.contains(obs)
+        # assert self.observation_space.contains(obs)
 
         return obs, done
 
