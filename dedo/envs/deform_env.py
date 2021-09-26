@@ -460,10 +460,10 @@ class DeformEnv(gym.Env):
             pts = np.array(vertex_positions)
             cent_pts = pts[true_loop_vertices]
             cent_pts = cent_pts[~np.isnan(cent_pts).any(axis=1)]  # remove nans
-            # if len(cent_pts) == 0 or np.isnan(cent_pts).any():
-            #     dist = DeformEnv.WORKSPACE_BOX_SIZE*num_holes_to_track
-            #     if self.args.reward_strategy == 0:
-            #         dist *= DeformEnv.FINAL_REWARD_MULT
+            if len(cent_pts) == 0 or np.isnan(cent_pts).any():
+                dist = DeformEnv.WORKSPACE_BOX_SIZE*num_holes_to_track
+                if self.args.reward_strategy == 0:
+                    dist *= DeformEnv.FINAL_REWARD_MULT
             #     # Save a screenshot for debugging.
             #     obs = self.render(mode='rgb_array', width=300, height=300)
             #     pth = f'nan_{self.args.env}_s{self.stepnum}.npy'
