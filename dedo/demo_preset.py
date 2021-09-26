@@ -18,7 +18,7 @@ from dedo.utils.preset_info import preset_traj
 import wandb
 
 WRITE_TO_VID = False # Hard coded flag for recording video
-WRITE_TO_WANDB = False
+WRITE_TO_WANDB = True
 if WRITE_TO_VID:
     import cv2
 

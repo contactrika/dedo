@@ -31,9 +31,9 @@ parameters:
   HP_batch_size:
     values: [64, 128, 256]
   HP_learning_starts:
-    values: [100,1000,10000,100000]
+    values: [1000,10000]
   HP_gamma:
     min: 0.960
     max: 0.999
   HP_buffer_size:
-    values: [1000000, 200000, 500000, 1000000]
+    values: [50000, 200000]
