@@ -443,7 +443,8 @@ class DeformEnv(gym.Env):
                 obs = np.clip(obs, 0, 1)
         if self.args.flat_obs:
             obs = obs.reshape(-1)
-        print('obs', obs.shape, f'{np.min(obs):e}, n{np.max(obs):e}')
+        if not self.observation_space.contains(obs):
+            print('obs', obs.shape, f'{np.min(obs):e}, n{np.max(obs):e}')
         assert self.observation_space.contains(obs)
 
         return obs, done
