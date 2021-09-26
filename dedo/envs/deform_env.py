@@ -435,13 +435,14 @@ class DeformEnv(gym.Env):
             obs = anc_obs
         else:
             obs = self.render(mode='rgb_array', width=self.args.cam_resolution,
-                            height=self.args.cam_resolution)
+                              height=self.args.cam_resolution)
             if self.args.uint8_pixels:
                 obs = obs.astype(np.uint8)  # already in [0,255]
             else:
                 obs = obs.astype(np.float32)/255.0  # to [0,1]
         if self.args.flat_obs:
             obs = obs.reshape(-1)
+        print('obs', obs.shape, np.min(obs), np.max(obs))
         assert self.observation_space.contains(obs)
 
         return obs, done
