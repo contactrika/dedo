@@ -468,7 +468,7 @@ class DeformEnv(gym.Env):
             #     obs = self.render(mode='rgb_array', width=300, height=300)
             #     pth = f'nan_{self.args.env}_s{self.stepnum}.npy'
             #     np.save(os.path.join(self.args.logdir, pth), obs)
-            #     break
+                    break
             cent_pos = cent_pts.mean(axis=0)
             dist.append(np.linalg.norm(cent_pos - goal_pos))
 
