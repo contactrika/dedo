@@ -23,7 +23,7 @@ def object_to_str(obj):
     return text_str
 
 
-def init_train(algo, args):
+def init_train(algo, args, tags=None):
     np.set_printoptions(precision=4, linewidth=150, suppress=True)
     if platform.system() == 'Linux':
         os.environ['IMAGEIO_FFMPEG_EXE'] = '/usr/bin/ffmpeg'
@@ -33,9 +33,15 @@ def init_train(algo, args):
         subdir = '_'.join([algo, tstamp, args.env])
         logdir = os.path.join(os.path.expanduser(args.logdir), subdir)
         if args.use_wandb:
-            wandb.init(config=vars(args), project='dedo', name=logdir)
+
+            wandb.init(config=vars(args), project='dedo', name=logdir, tags=tags)
             wandb.init(sync_tensorboard=False)
-            wandb.tensorboard.patch(tensorboardX=True, pytorch=True)
+
+            try: # Patch only once, if more than one run, ignore error
+                wandb.tensorboard.patch(tensorboardX=True, pytorch=True)
+            except ValueError as e:
+                pass
+
     device = args.device
     if not torch.cuda.is_available():
         device = 'cpu'

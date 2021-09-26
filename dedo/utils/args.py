@@ -31,7 +31,7 @@ def get_args_parser():
                                  'PPO', 'SAC', 'TD3'],
                         help='Name of RL algo from Stable Baselines to train')
     parser.add_argument('--play', action='store_true',
-                        help='Load saved model from --load_checkpt_path and'
+                        help='Load saved model from --load_checkp and'
                              'play (no training)')
     parser.add_argument('--total_env_steps', type=int, default=int(10e6),
                         help='Total number of env steps for training')

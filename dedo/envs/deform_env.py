@@ -31,7 +31,7 @@ class DeformEnv(gym.Env):
     WORKSPACE_BOX_SIZE = 20.0  # workspace box limits (needs to be >=1)
     STEPS_AFTER_DONE = 500     # steps after releasing anchors at the end
     FORCE_REWARD_MULT = 1e-4   # scaling for the force penalties
-    FINAL_REWARD_MULT = 50     # multiply the final reward (for sparse rewards)
+    FINAL_REWARD_MULT = 400     # multiply the final reward (for sparse rewards)
     SUCESS_REWARD_TRESHOLD = 2.5  # approx. threshold for task success/failure
 
     def __init__(self, args):
@@ -318,6 +318,7 @@ class DeformEnv(gym.Env):
             last_rwd = self.get_reward() * DeformEnv.FINAL_REWARD_MULT
             info['is_success'] = np.abs(last_rwd) < self.SUCESS_REWARD_TRESHOLD
             reward += last_rwd
+            print('final_reward', reward)
 
         self.episode_reward += reward  # update episode reward
 
@@ -372,15 +373,15 @@ class DeformEnv(gym.Env):
             pts = np.array(vertex_positions)
             cent_pts = pts[true_loop_vertices]
             cent_pts = cent_pts[~np.isnan(cent_pts).any(axis=1)]  # remove nans
-            if len(cent_pts) == 0 or np.isnan(cent_pts).any():
-                dist = DeformEnv.WORKSPACE_BOX_SIZE*num_holes_to_track
-                if self.args.reward_strategy == 0:
-                    dist *= DeformEnv.FINAL_REWARD_MULT
-                # Save a screenshot for debugging.
-                obs = self.render(mode='rgb_array', width=300, height=300)
-                pth = f'nan_{self.args.env}_s{self.stepnum}.npy'
-                np.save(os.path.join(self.args.logdir, pth), obs)
-                break
+            # if len(cent_pts) == 0 or np.isnan(cent_pts).any():
+            #     dist = DeformEnv.WORKSPACE_BOX_SIZE*num_holes_to_track
+            #     if self.args.reward_strategy == 0:
+            #         dist *= DeformEnv.FINAL_REWARD_MULT
+            #     # Save a screenshot for debugging.
+            #     obs = self.render(mode='rgb_array', width=300, height=300)
+            #     pth = f'nan_{self.args.env}_s{self.stepnum}.npy'
+            #     np.save(os.path.join(self.args.logdir, pth), obs)
+            #     break
             cent_pos = cent_pts.mean(axis=0)
             dist.append(np.linalg.norm(cent_pos - goal_pos))
 

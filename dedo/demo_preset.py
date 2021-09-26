@@ -15,8 +15,10 @@ from dedo.utils.args import get_args
 from dedo.utils.anchor_utils import create_anchor_geom
 from dedo.utils.waypoint_utils import create_traj
 from dedo.utils.preset_info import preset_traj
+import wandb
 
 WRITE_TO_VID = False # Hard coded flag for recording video
+WRITE_TO_WANDB = False
 if WRITE_TO_VID:
     import cv2
 
@@ -38,6 +40,8 @@ def play(env, num_episodes, args):
         vidwriter = cv2.VideoWriter(
             savepath, cv2.VideoWriter_fourcc(*'mp4v'), 24, (640, 480))
         print('saving to ', savepath)
+    if WRITE_TO_WANDB:
+        wandb.init(project='dedo', name=f'{args.env}-preset', config={'env': f'{args.task}-preset'},tags=['preset', args.env])
 
     for epsd in range(num_episodes):
         print('------------ Play episode ', epsd, '------------------')
@@ -54,6 +58,7 @@ def play(env, num_episodes, args):
         traj = merge_traj(traj_a, traj_b)
         gif_frames = []
         rwds = []
+        print('max_episode_len', args.max_episode_len)
         while True:
             assert (not isinstance(env.action_space, gym.spaces.Discrete))
 
@@ -66,10 +71,18 @@ def play(env, num_episodes, args):
                 bgr_obs = obs[...,::-1]
                 vidwriter.write(bgr_obs)
             # gif_frames.append(obs)
-            if step > len(traj) + 20: break;
-            # if done: break;
+            if done: break;
+            # if step > len(traj) + 50: break;
             obs = next_obs
+
             step += 1
+        print('traj_length', len(traj))
+        print('episode reward', env.episode_reward)
+        if WRITE_TO_WANDB:
+            mean_rwd = np.sum(rwds)
+            for i in range(31):
+                wandb.log({'rollout/ep_rew_mean': mean_rwd, 'Step':i}, step=i)
+
         if WRITE_TO_VID:
             vidwriter.release()
 

@@ -1,0 +1,28 @@
+name: Hoop_ET  - "--num_envs"
+  - "0"
+description: explore different params for a Stable Baselines3
+method: bayes # can be random, grid, or bayes, which needs an objective metric to optimize
+metric:
+  name: rollout/ep_rew_mean
+  goal: maximize
+early_terminate:
+  type: hyperband
+  min_iter: 3
+parameters:
+  HP_seed:
+    values: [1, 2, 3, 4, 5]
+  HP_learning_rate:
+    distribution: log_uniform
+    min: 0.00001
+    max: 0.1
+  HP_batch_size:
+    values: [64, 128, 256]
+  HP_learning_starts:
+    values: [100,1000,10000,100000]
+  HP_gamma:
+    min: 0.960
+    max: 0.999
+  HP_buffer_size:
+    values: [1000000, 200000, 500000, 1000000]
+  HP_policy_kwargs:
+    values: [null, "dict(net_arch=[400, 300])"]
