@@ -425,7 +425,7 @@ class DeformEnv(gym.Env):
                 anc_obs.extend(pos)
                 anc_obs.extend((np.array(linvel) / DeformEnv.MAX_OBS_VEL).tolist())
 
-        anc_obs = np.array(anc_obs)
+        anc_obs = np.nan_to_num(np.array(anc_obs))
         if (np.abs(anc_obs) > self.anchor_lims).any():  # reached workspace lims
             if self.args.debug:
                 print('clipping anchor obs', anc_obs)
