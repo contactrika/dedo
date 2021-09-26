@@ -319,7 +319,7 @@ class DeformEnv(gym.Env):
             info['is_success'] = np.abs(last_rwd) < self.SUCESS_REWARD_TRESHOLD
             reward += last_rwd
             info['final_reward'] = reward
-            print('final_reward', reward)
+            print(f'final_reward: {reward:.4f}')
 
         self.episode_reward += reward  # update episode reward
 

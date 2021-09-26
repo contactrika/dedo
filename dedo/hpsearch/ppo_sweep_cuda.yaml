@@ -30,8 +30,6 @@ parameters:
     max: -2.30258509299
   HP_batch_size:
     values: [64, 128, 256]
-  HP_learning_starts:
-    values: [100,1000,10000,100000]
   HP_gamma:
     min: 0.960
     max: 0.999

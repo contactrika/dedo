@@ -45,6 +45,7 @@ def play(env, num_episodes, args):
 
     for epsd in range(num_episodes):
         print('------------ Play episode ', epsd, '------------------')
+
         obs = env.reset()
         if args.debug:
             viz_waypoints(env.sim, preset_wp['a'], (1, 0, 0, 1))
@@ -58,7 +59,7 @@ def play(env, num_episodes, args):
         traj = merge_traj(traj_a, traj_b)
         gif_frames = []
         rwds = []
-        print('max_episode_len', args.max_episode_len)
+        print(f'# {args.env}:')
         while True:
             assert (not isinstance(env.action_space, gym.spaces.Discrete))
 
@@ -76,8 +77,9 @@ def play(env, num_episodes, args):
             obs = next_obs
 
             step += 1
-        print('traj_length', len(traj))
-        print('episode reward', env.episode_reward)
+
+        print(f'episode reward: {env.episode_reward:.4f}')
+        print('traj_length:', len(traj))
         if WRITE_TO_WANDB:
             mean_rwd = np.sum(rwds)
             for i in range(31):
