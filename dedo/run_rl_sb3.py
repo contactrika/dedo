@@ -6,8 +6,8 @@ python -m dedo.run_rl_sb3 --env=HangGarment-v1 --rl_algo PPO --logdir=/tmp/dedo
 tensorboard --logdir=/tmp/dedo --bind_all --port 6006
 
 Play the saved policy (e.g. logged to PPO_210825_204955_HangGarment-v1):
-python -m dedo.run_rl_sb3 --env=HangGarment-v1 \
-    --play=/tmp/dedo/PPO_210825_204955_HangGarment-v1
+python -m dedo.run_rl_sb3 --env=HangGarment-v1 --play \
+    --load_checkpt=/tmp/dedo/PPO_210825_204955_HangGarment-v1
 
 @contactrika
 

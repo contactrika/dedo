@@ -89,7 +89,7 @@ def create_anchor(sim, anchor_pos, anchor_idx, preset_vertices, mesh,
     return anchor_geom_id, anchor_pos, anchor_vertices
 
 
-def command_anchor_velocity(sim, anchor_bullet_id, tgt_vel,  debug=False):
+def command_anchor_velocity(sim, anchor_bullet_id, tgt_vel, debug=False):
     anc_linvel, _ = sim.getBaseVelocity(anchor_bullet_id)
     vel_diff = tgt_vel - np.array(anc_linvel)
     raw_force = CTRL_PD_KD * vel_diff
@@ -112,6 +112,7 @@ def release_anchor(sim, anchor_id):
     sim.changeVisualShape(anchor_id, -1, rgbaColor=[0.5, 0.5, 0.5, 1])
     # sim.changeVisualShape(anchor_id, -1, rgbaColor=ANCHOR_RGBA_INACTIVE)
     pass
+
 
 def pin_fixed(sim, deform_id, vert_ids):
     _, v_pos_list = get_mesh_data(sim, deform_id)
