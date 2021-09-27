@@ -332,10 +332,10 @@ class DeformEnv(gym.Env):
                 self.args.deform_true_loop_vertices):
             cent_pos = v[true_loop_vertices].mean(axis=0)
 
-            alpha = 1 if i == 0 else 0.3  # solid or transparent
-            print('cent_pos', cent_pos)
-            create_anchor_geom(self.sim, cent_pos, mass=0.0,
-                               rgba=(0, 1, 0.8, alpha), use_collision=False)
+            # alpha = 1 if i == 0 else 0.3  # solid or transparent
+            # print('cent_pos', cent_pos)
+            # create_anchor_geom(self.sim, cent_pos, mass=0.0,
+            #                     rgba=(0, 1, 0.8, alpha), use_collision=False)
 
     def step(self, action, unscaled_velocity=False):
         # action is num_anchors x 3 for 3D velocity for anchors/grippers;

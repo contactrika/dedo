@@ -8,5 +8,5 @@ setup(name='dedo',
             'numpy', 'gym', 'pybullet==3.1.7',
             'torch', 'stable_baselines3',
             'matplotlib', 'tensorboard', 'tensorboardX', 'moviepy', 'wandb',
-            'pyaml'
+            'pyaml', 'opencv-python',
       ])

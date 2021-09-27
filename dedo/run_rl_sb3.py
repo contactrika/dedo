@@ -29,7 +29,7 @@ import numpy as np
 import torch
 
 
-def do_play(args, num_episodes=10):
+def do_play(args, num_episodes=100):
     checkpt = os.path.join(args.load_checkpt, 'agent.zip')
     print('Loading RL agent checkpoint from', checkpt)
     args = pickle.load(open(os.path.join(args.load_checkpt, 'args.pkl'), 'rb'))
@@ -40,8 +40,9 @@ def do_play(args, num_episodes=10):
     print('args', args)
     eval_env = gym.make(args.env, args=args)
     eval_env.seed(args.seed)
-    rl_agent = TD3.load(checkpt, buffer_size=10)
-    play(eval_env, num_episodes=num_episodes, rl_agent=rl_agent, debug=False)
+    rl_agent = eval(args.rl_algo).load(checkpt, buffer_size=10)
+    play(eval_env, num_episodes=num_episodes, rl_agent=rl_agent, debug=False,
+         logdir=None)
 
 
 def main(args):

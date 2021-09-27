@@ -7,31 +7,49 @@ Utilities for RL training and eval.
 import os
 import pickle
 
+import cv2
 import torch
 
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.logger import Video
 
-from dedo.utils.args import get_args
 from dedo.utils.train_utils import object_to_str
 
 
-def play(env, num_episodes, rl_agent, debug=False):
+def play(env, num_episodes, rl_agent, debug=False, logdir=None):
+    vidwriter = None
+    if logdir is not None:
+        if not os.path.exists(logdir):
+            os.mkdir(logdir)
+        vidwriter = cv2.VideoWriter(
+                logdir, cv2.VideoWriter_fourcc(*'mp4v'), 24, (640, 480))
     for epsd in range(num_episodes):
+        episode_rwd = 0.0
         if debug:
             print('------------ Play episode ', epsd, '------------------')
         obs = env.reset()
+        if vidwriter is not None:
+            img = env.render(mode='rgb_array', width=640, height=480)
+            vidwriter.write(img[...,::-1])
         step = 0
         while True:
             # rl_agent.predict() to get acts, not forcing deterministic.
             act, _states = rl_agent.predict(obs)
             next_obs, rwd, done, info = env.step(act)
+            episode_rwd += rwd
+            if vidwriter is not None:
+                img = env.render(mode='rgb_array', width=640, height=480)
+                vidwriter.write(img[...,::-1])
             if done:
+                if debug:
+                    print(f'episode reward {episode_rwd:0.2f}')
                 break
             obs = next_obs
             step += 1
-        # input('Episode ended; press enter to go on')
+        input('Episode ended; press enter to go on')
+    if vidwriter is not None:
+        vidwriter.release()
 
 
 class CustomCallback(BaseCallback):
