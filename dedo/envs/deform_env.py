@@ -66,14 +66,8 @@ class DeformEnv(gym.Env):
         if self.args.viz:
             self.sim.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 1)
         if self.args.debug:
-            print('Created DeformEnv with obs', self.observation_space,
-                  'low', type(self.observation_space.low),
-                  f'{self.observation_space.low.min():e}',
-                  f'{self.observation_space.low.max():e}',
-                  'high', type(self.observation_space.high),
-                  f'{self.observation_space.high.min():e}',
-                  f'{self.observation_space.high.max():e}',
-                  'act', self.action_space)
+            print('Created DeformEnv with obs', self.observation_space.shape,
+                  'act', self.action_space.shape)
 
     @property
     def anchor_ids(self):

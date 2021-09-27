@@ -17,20 +17,23 @@ from stable_baselines3.common.logger import Video
 from dedo.utils.train_utils import object_to_str
 
 
-def play(env, num_episodes, rl_agent, debug=False, logdir=None):
+def play(env, num_episodes, rl_agent, debug=False, logdir=None,
+         cam_resolution=None):
     vidwriter = None
     if logdir is not None:
         if not os.path.exists(logdir):
             os.mkdir(logdir)
         vidwriter = cv2.VideoWriter(
-                logdir, cv2.VideoWriter_fourcc(*'mp4v'), 24, (640, 480))
+            os.path.join(logdir, f'play.mp4'), cv2.VideoWriter_fourcc(*'mp4v'),
+            24, (cam_resolution, cam_resolution))
     for epsd in range(num_episodes):
         episode_rwd = 0.0
         if debug:
             print('------------ Play episode ', epsd, '------------------')
         obs = env.reset()
         if vidwriter is not None:
-            img = env.render(mode='rgb_array', width=640, height=480)
+            img = env.render(mode='rgb_array', width=cam_resolution,
+                             height=cam_resolution)
             vidwriter.write(img[...,::-1])
         step = 0
         while True:
@@ -39,7 +42,8 @@ def play(env, num_episodes, rl_agent, debug=False, logdir=None):
             next_obs, rwd, done, info = env.step(act)
             episode_rwd += rwd
             if vidwriter is not None:
-                img = env.render(mode='rgb_array', width=640, height=480)
+                img = env.render(mode='rgb_array', width=cam_resolution,
+                                 height=cam_resolution)
                 vidwriter.write(img[...,::-1])
             if done:
                 if debug:
@@ -47,7 +51,7 @@ def play(env, num_episodes, rl_agent, debug=False, logdir=None):
                 break
             obs = next_obs
             step += 1
-        input('Episode ended; press enter to go on')
+        # input('Episode ended; press enter to go on')
     if vidwriter is not None:
         vidwriter.release()
 
