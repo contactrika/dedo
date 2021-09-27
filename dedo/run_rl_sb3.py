@@ -33,6 +33,7 @@ def do_play(args, num_episodes=1):
     checkpt = os.path.join(args.load_checkpt, 'agent.zip')
     print('Loading RL agent checkpoint from', checkpt)
     logdir = args.logdir
+    cam_resolution = args.cam_resolution
     args = pickle.load(open(os.path.join(args.load_checkpt, 'args.pkl'), 'rb'))
     args.debug = True
     args.viz = logdir is None  # viz if not logging a video
@@ -43,7 +44,7 @@ def do_play(args, num_episodes=1):
     eval_env.seed(args.seed)
     rl_agent = eval(args.rl_algo).load(checkpt, buffer_size=10)
     play(eval_env, num_episodes=num_episodes, rl_agent=rl_agent, debug=False,
-         logdir=logdir, cam_resolution=args.cam_resolution)
+         logdir=logdir, cam_resolution=cam_resolution)
 
 
 def main(args):
