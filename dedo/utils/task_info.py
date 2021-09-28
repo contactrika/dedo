@@ -1229,19 +1229,27 @@ DEFAULT_CAM_PROJECTION = {
 
 
 ROBOT_INFO = {
-   'franka': {
-       'ee_joint_name': 'panda_joint7',
-       'ee_link_name': 'panda_hand',
-       'global_scaling': 10.0,
-       'use_fixed_base': True,
-       'base_pos': np.array([5.0, 1.5, 0]),
-       'rest_arm_qpos': np.array(
-           [-0.7732, -0.0135,  0.1112, -0.778,   0.0978, 2.0841, -0.5592])
+    'franka': {
+        'file_name': 'franka_dual.urdf',
+        'ee_joint_name': 'panda_joint7_r',
+        'ee_link_name': 'panda_hand_r',
+        'left_ee_joint_name': 'panda_joint7_l',
+        'left_ee_link_name': 'panda_hand_l',
+        'global_scaling': 10.0,
+        'use_fixed_base': True,
+        'base_pos': np.array([5.0, 1.5, 0]),
+        'rest_arm_qpos': np.array(
+           [-0.7732, -0.0135,  0.1112, -0.778,   0.0978, 2.0841, -0.5592]),
+        'left_rest_arm_qpos': np.array(
+            [0.7732, -0.0135,  0.1112, -0.778,   0.0978, 2.0841, -0.5592])
    },
-    'fetch' : {
-       'ee_joint_name': 'wrist_roll_joint',
-       'ee_link_name': 'gripper_link',
-       'global_scaling': 10.0,
+    'fetch_not_fully_supported_yet': {
+        'file_name': 'fetch.urdf',
+        'ee_joint_name': 'wrist_roll_joint',
+        'ee_link_name': 'gripper_link',
+        'left_ee_joint_name': None,
+        'left_ee_link_name': None,
+        'global_scaling': 10.0,
         'use_fixed_base': False,
         'base_pos': np.array([-10.0, 2.5, 0]),
         'rest_arm_qpos': None,

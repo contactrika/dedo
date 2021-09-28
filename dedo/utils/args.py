@@ -117,8 +117,6 @@ def get_args_parser():
     # Training args.
     parser.add_argument('--lr', type=float, default=1e-4,
                         help='Learning rate for training')
-    parser.add_argument('--reward_strategy', type=int, default=0,
-                        help='Which reward strategy to use')
     parser.add_argument('--uint8_pixels', action='store_true',
                         help='Use CNNs for RL and uint8 in [0,255] for pixels')
     parser.add_argument('--flat_obs', action='store_true',

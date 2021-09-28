@@ -185,10 +185,10 @@ class DeformEnv(gym.Env):
         #
         robot = None
         if self.args.robot != 'anchor':
-            robot_path = os.path.join(data_path, 'robots', self.args.robot,
-                                      self.args.robot+'.urdf')
-            print('Loading robot from', robot_path)
             robot_info = ROBOT_INFO.get(self.args.robot, None)
+            robot_path = os.path.join(data_path, 'robots', self.args.robot,
+                                      robot_info['file_name'])
+            print('Loading robot from', robot_path)
             if robot_info is None:
                 print('This robot is not yet supported:', self.args.robot)
             robot = BulletManipulator(
@@ -199,7 +199,11 @@ class DeformEnv(gym.Env):
                 base_quat=pybullet.getQuaternionFromEuler([0, 0, np.pi]),
                 global_scaling=robot_info['global_scaling'],
                 use_fixed_base=robot_info['use_fixed_base'],
-                rest_arm_qpos=robot_info['rest_arm_qpos']
+                rest_arm_qpos=robot_info['rest_arm_qpos'],
+                left_ee_joint_name=robot_info['left_ee_joint_name'],
+                left_ee_link_name=robot_info['left_ee_link_name'],
+                left_fing_link_prefix='panda_hand_l_', left_joint_suffix='_l',
+                left_rest_arm_qpos=robot_info['left_rest_arm_qpos'],
             )
         #
         # Load deformable object.
@@ -211,8 +215,7 @@ class DeformEnv(gym.Env):
             args.deform_init_pos, args.deform_init_ori,
             args.deform_bending_stiffness, args.deform_damping_stiffness,
             args.deform_elastic_stiffness, args.deform_friction_coeff,
-            not args.disable_self_collision,
-            args.debug)
+            not args.disable_self_collision, args.debug)
         if scene_name == 'button':  # pin cloth edge for buttoning task
             assert ('deform_fixed_anchor_vertex_ids' in DEFORM_INFO[deform_obj])
             pin_fixed(sim, deform_id,
@@ -269,10 +272,15 @@ class DeformEnv(gym.Env):
                 attach_anchor(self.sim, anchor_id, anchor_vertices, self.deform_id)
                 self.anchors[anchor_id] = {'pos': anchor_pos,
                                            'vertices': anchor_vertices}
-            elif i == 0:  # attach robot gripper to the 1st anchor
+            else:  # attach robot gripper to the 1st anchor
                 assert(preset_dynamic_anchor_vertices is not None)
+                anchor_pos = np.array(mesh[preset_dynamic_anchor_vertices[i][0]])
+                if not np.isfinite(anchor_pos).all():
+                    print('anchor_pos not sane:', anchor_pos)
+                    input('Press enter to exit')
+                    exit(1)
                 self.sim.createSoftBodyAnchor(
-                    self.deform_id, preset_dynamic_anchor_vertices[0][0],
+                    self.deform_id, preset_dynamic_anchor_vertices[i][0],
                     self.robot.info.robot_id, self.robot.info.ee_link_id)
         #
         # Set up viz.
@@ -293,7 +301,6 @@ class DeformEnv(gym.Env):
         for i, true_loop_vertices in enumerate(
                 self.args.deform_true_loop_vertices):
             cent_pos = v[true_loop_vertices].mean(axis=0)
-
             # alpha = 1 if i == 0 else 0.3  # solid or transparent
             # print('cent_pos', cent_pos)
             # create_anchor_geom(self.sim, cent_pos, mass=0.0,
@@ -301,24 +308,34 @@ class DeformEnv(gym.Env):
 
     def do_robot_action(self, action):
         tgt_ee_pos = action  # position control for the robot
-        ee_pos, ee_quat, _, _ = \
-            self.robot.get_ee_pos_ori_vel()
+        ee_pos, ee_quat, _, _ = self.robot.get_ee_pos_ori_vel()
+        left_ee_pos, left_ee_quat, _, _ = self.robot.get_ee_pos_ori_vel(
+            left=True)
+        full_ee_pos = np.vstack([ee_pos, left_ee_pos])
         tgt_qpos = self.robot.ee_pos_to_qpos(
-            tgt_ee_pos, ee_quat, fing_dist=0.01)
+            ee_pos=tgt_ee_pos[0], ee_quat=ee_quat, fing_dist=0.01,
+            left_ee_pos=tgt_ee_pos[1], left_ee_quat=left_ee_quat,
+            left_fing_dist=0.01)
         n_slack = 500  # substeps to reach robot pose
         sub_i = 0
-        while np.linalg.norm(tgt_ee_pos - ee_pos) > 0.01:
+        ee_th = 0.01
+        diff = tgt_ee_pos - full_ee_pos
+        while (diff > ee_th).any():
             self.robot.move_to_qpos(
                 tgt_qpos, mode=pybullet.POSITION_CONTROL,
                 kp=0.1, kd=1.0)
             self.sim.stepSimulation()
             ee_pos = self.robot.get_ee_pos()
-            sub_i +=1
+            left_ee_pos = self.robot.get_ee_pos(left=True)
+            full_ee_pos = np.vstack([ee_pos, left_ee_pos])
+            diff = tgt_ee_pos - full_ee_pos
+            sub_i += 1
             if sub_i >= n_slack:
-                ee_pos = tgt_ee_pos  # set while loop to done
+                diff = np.zeros_like(diff)  # set while loop to done
         if self.args.debug:
-            print('tgt_ee_pos', tgt_ee_pos, 'vs current ee_pos',
-                  self.robot.get_ee_pos(), 'sub_i', sub_i)
+            print('tgt_ee_pos', tgt_ee_pos, 'vs current',
+                  ee_pos, left_ee_pos, 'sub_i', sub_i)
+        return full_ee_pos
 
     def step(self, action, unscaled=False):
         # action is num_anchors x 3 for 3D velocity for anchors/grippers;
@@ -340,18 +357,14 @@ class DeformEnv(gym.Env):
                     curr_force = command_anchor_velocity(
                         self.sim, self.anchor_ids[i], action[i])
                     raw_force_accum += np.linalg.norm(curr_force)
-                else:  # robot Cartesian position control
-                    if i == 0:
-                        self.do_robot_action(action[i])
+            if self.args.robot != 'anchor':  # robot Cartesian position control
+                new_ee_pos = self.do_robot_action(action)
             self.sim.stepSimulation()
-            print('new_ee_pos', self.robot.get_ee_pos())
+            print('new_ee_pos', new_ee_pos)
         mean_raw_force = raw_force_accum/self.args.sim_steps_per_action
-        force_penalty = DeformEnv.FORCE_REWARD_MULT*mean_raw_force
         # Get next obs, reward, done.
         next_obs, done = self.get_obs()
         reward = self.get_reward()
-        if self.args.reward_strategy > 0:
-            reward -= force_penalty
         if done:  # if terminating early use reward from current step for rest
             reward *= (self.max_episode_len - self.stepnum)
         done = (done or self.stepnum >= self.max_episode_len)
@@ -360,8 +373,10 @@ class DeformEnv(gym.Env):
         if done:
             # release_anchor(self.sim, self.anchor_ids[0])
             # release_anchor(self.sim, self.anchor_ids[1])
-            final_tgt_ee_pos = self.robot.get_ee_pos()  # keep same ee pos
-            print('final_tgt_ee_pos', final_tgt_ee_pos)
+            final_tgt_ee_pos = np.vstack([  # keep same ee pos
+                self.robot.get_ee_pos(), self.robot.get_ee_pos(left=True)])
+            if self.args.debug:
+                print('final_tgt_ee_pos', final_tgt_ee_pos)
             for sim_step in range(self.STEPS_AFTER_DONE):
                 # For lasso pull the string at the end to test lasso loop.
                 if self.args.task.lower() == 'lasso':
@@ -386,8 +401,7 @@ class DeformEnv(gym.Env):
         self.episode_reward += reward  # update episode reward
 
         if self.args.debug and self.stepnum % 10 == 0:
-            print(f'step {self.stepnum:d} reward {reward:0.4f}',
-                  f' force_penalty {force_penalty:0.4f}')
+            print(f'step {self.stepnum:d} reward {reward:0.4f}')
             if done:
                 print(f'episode reward {self.episode_reward:0.4f}')
             
@@ -453,13 +467,12 @@ class DeformEnv(gym.Env):
             cent_pts = cent_pts[~np.isnan(cent_pts).any(axis=1)]  # remove nans
             if len(cent_pts) == 0 or np.isnan(cent_pts).any():
                 dist = DeformEnv.WORKSPACE_BOX_SIZE*num_holes_to_track
-                if self.args.reward_strategy == 0:
-                    dist *= DeformEnv.FINAL_REWARD_MULT
-            #     # Save a screenshot for debugging.
-            #     obs = self.render(mode='rgb_array', width=300, height=300)
-            #     pth = f'nan_{self.args.env}_s{self.stepnum}.npy'
-            #     np.save(os.path.join(self.args.logdir, pth), obs)
-                    break
+                dist *= DeformEnv.FINAL_REWARD_MULT
+                # Save a screenshot for debugging.
+                # obs = self.render(mode='rgb_array', width=300, height=300)
+                # pth = f'nan_{self.args.env}_s{self.stepnum}.npy'
+                # np.save(os.path.join(self.args.logdir, pth), obs)
+                break
             cent_pos = cent_pts.mean(axis=0)
             dist.append(np.linalg.norm(cent_pos - goal_pos))
 

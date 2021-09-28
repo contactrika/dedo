@@ -124,7 +124,7 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq):
         anc_id = list(env.anchors.keys())[anchor_idx]
         init_anc_pos = env.anchors[anc_id]['pos']
     else:
-        init_anc_pos = env.robot.get_ee_pos()
+        init_anc_pos = env.robot.get_ee_pos(left=anchor_idx>0)
     print(f'init_anc_pos {left_or_right}', init_anc_pos)
     wp = np.array(preset_wp[left_or_right])
     # Traditional wp

@@ -240,15 +240,16 @@ class BulletManipulator:
         fing_dists = [joint_states[i][0] for i in self.info.finger_jids_lst]
         return np.array(fing_dists).sum()
 
-    def get_ee_pos(self):
-        pos, _, _, _ = self.get_ee_pos_ori_vel()
+    def get_ee_pos(self, left=False):
+        pos, _, _, _ = self.get_ee_pos_ori_vel(left)
         return pos
 
-    def get_ee_pos_ori_vel(self):
+    def get_ee_pos_ori_vel(self, left=False):
         # Returns (in world coords): EE 3D position, quaternion orientation,
         # linear and angular velocity.
+        ee_link_id = self.info.left_ee_link_id if left else self.info.ee_link_id
         ee_state = self.sim.getLinkState(
-            self.info.robot_id, self.info.ee_link_id, computeLinkVelocity=1)
+            self.info.robot_id, ee_link_id, computeLinkVelocity=1)
         return np.array(ee_state[0]), np.array(ee_state[1]),\
                np.array(ee_state[6]), np.array(ee_state[7])
 
@@ -269,19 +270,27 @@ class BulletManipulator:
             # Note that large num iterations could slow down the compute enough
             # s.t. visualizer shows differences in rate of following traj.
         qpos = np.array(qpos)
-        if debug: print('_ee_pos_to_qpos_raw() qpos from IK', qpos)
+        if debug:
+            print('_ee_pos_to_qpos_raw() qpos from IK', qpos)
         for jid in self.info.finger_jids_lst:
             qpos[jid] = np.clip(  # finger info (not set by IK)
                 fing_dist/2.0, self.info.joint_minpos[jid],
                 self.info.joint_maxpos[jid])
+        #
         # Take care of left arm, if needed.
+        #
         if len(self.info.left_arm_jids_lst)>0:
             if left_ee_pos is not None:
                 left_qpos = np.array(pybullet.calculateInverseKinematics(
                     self.info.robot_id, self.info.left_ee_link_id,
                     left_ee_pos.tolist(),
                     None if left_ee_quat is None else left_ee_quat.tolist(),
-                    maxNumIterations=1000, residualThreshold=0.0001))
+                    lowerLimits=self.info.joint_minpos.tolist(),
+                    upperLimits=self.info.joint_maxpos.tolist(),
+                    jointRanges=(self.info.joint_maxpos -
+                                 self.info.joint_minpos).tolist(),
+                    restPoses=self.rest_qpos.tolist(),
+                    maxNumIterations=500, residualThreshold=0.005))
             else:
                 left_qpos = self.get_qpos()
             qpos[self.info.left_arm_jids_lst] = \
@@ -291,7 +300,7 @@ class BulletManipulator:
                 left_fing_dist/2.0, self.info.joint_minpos[jid],
                 self.info.joint_maxpos[jid])
         # IK will find solutions outside of joint limits, so clip.
-        qpos = np.clip(qpos, self.info.joint_minpos, self.info.joint_maxpos)
+        # qpos = np.clip(qpos, self.info.joint_minpos, self.info.joint_maxpos)
         return qpos
 
     def move_to_qpos(self, tgt_qpos, mode, kp=None, kd=None):
