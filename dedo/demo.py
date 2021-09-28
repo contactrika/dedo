@@ -68,6 +68,7 @@ def play(env, num_episodes, args):
 
 
 def main(args):
+    assert(args.robot == 'anchor'), 'This is a simple demo for anchors only'
     np.set_printoptions(precision=4, linewidth=150, suppress=True)
     kwargs = {'args': args}
     env = gym.make(args.env, **kwargs)

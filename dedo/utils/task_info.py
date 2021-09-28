@@ -1239,19 +1239,8 @@ ROBOT_INFO = {
         'use_fixed_base': True,
         'base_pos': np.array([5.0, 1.5, 0]),
         'rest_arm_qpos': np.array(
-           [-0.7732, -0.0135,  0.1112, -0.778,   0.0978, 2.0841, -0.5592]),
+           [-0.7332, -0.0135,  0.1112, -0.718,   0.0978, 1.99, -0.5592]),
         'left_rest_arm_qpos': np.array(
             [0.7732, -0.0135,  -0.0212, -0.68,   0.0978, 1.99, -0.5592]),
-   },
-    'fetch_not_fully_supported_yet': {
-        'file_name': 'fetch.urdf',
-        'ee_joint_name': 'wrist_roll_joint',
-        'ee_link_name': 'gripper_link',
-        'left_ee_joint_name': None,
-        'left_ee_link_name': None,
-        'global_scaling': 10.0,
-        'use_fixed_base': False,
-        'base_pos': np.array([-10.0, 2.5, 0]),
-        'rest_arm_qpos': None,
-    }
+   }
 }

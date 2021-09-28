@@ -46,12 +46,12 @@ class DeformEnv(gym.Env):
             self.load_objects(self.sim, self.args)
         self.max_episode_len = self.args.max_episode_len
         # Define sizes of observation and action spaces.
-        self.anchor_lims = np.tile(np.concatenate(
+        self.gripper_lims = np.tile(np.concatenate(
             [DeformEnv.WORKSPACE_BOX_SIZE * np.ones(3),  # 3D pos
              np.ones(3)]), DeformEnv.NUM_ANCHORS)        # 3D linvel/MAX_OBS_VEL
-        if args.cam_resolution <= 0:  # report anchor positions as low-dim obs
+        if args.cam_resolution <= 0:  # report gripper positions as low-dim obs
             self.observation_space = gym.spaces.Box(
-                -1.0 * self.anchor_lims, self.anchor_lims)
+                -1.0 * self.gripper_lims, self.gripper_lims)
         else:  # RGB WxHxC
             shape = (args.cam_resolution, args.cam_resolution, 3)
             if args.flat_obs:
@@ -273,20 +273,18 @@ class DeformEnv(gym.Env):
                 attach_anchor(self.sim, anchor_id, anchor_vertices, self.deform_id)
                 self.anchors[anchor_id] = {'pos': anchor_pos,
                                            'vertices': anchor_vertices}
-            else:  # attach robot gripper to the 1st anchor
+            else:  # attach robot fingers to cloth grasping locations
                 assert(preset_dynamic_anchor_vertices is not None)
                 anchor_pos = np.array(mesh[preset_dynamic_anchor_vertices[i][0]])
                 if not np.isfinite(anchor_pos).all():
                     print('anchor_pos not sane:', anchor_pos)
                     input('Press enter to exit')
                     exit(1)
-
+                link_id = self.robot.info.ee_link_id if i==0 else \
+                              self.robot.info.left_ee_link_id
                 self.sim.createSoftBodyAnchor(
                     self.deform_id, preset_dynamic_anchor_vertices[i][0],
-                    self.robot.info.robot_id, self.robot.info.ee_link_id if i==0 else self.robot.info.left_ee_link_id,
-                    #try to apply an offset, no effect
-                    # robot_info['anchor_frame_pos'] if i==0 else robot_info['left_anchor_frame_pos'])
-                )
+                    self.robot.info.robot_id, link_id)
 
         #           
         # Set up viz.
@@ -322,14 +320,13 @@ class DeformEnv(gym.Env):
             ee_pos=tgt_ee_pos[0], ee_quat=ee_quat, fing_dist=0.01,
             left_ee_pos=tgt_ee_pos[1], left_ee_quat=left_ee_quat,
             left_fing_dist=0.01)
-        n_slack = 1  # substeps to reach robot pose: original 500
+        n_slack = 1  # use > 1 if robot has trouble reaching the pose
         sub_i = 0
         ee_th = 0.01
-        diff = np.abs(tgt_ee_pos - full_ee_pos) #
+        diff = np.abs(tgt_ee_pos - full_ee_pos)
         while (diff > ee_th).any():
             self.robot.move_to_qpos(
-                tgt_qpos, mode=pybullet.POSITION_CONTROL,
-                kp=0.1, kd=1) #0.1, 1.0
+                tgt_qpos, mode=pybullet.POSITION_CONTROL, kp=0.1, kd=1.0)
             self.sim.stepSimulation()
             ee_pos = self.robot.get_ee_pos()
             left_ee_pos = self.robot.get_ee_pos(left=True)
@@ -338,7 +335,6 @@ class DeformEnv(gym.Env):
             sub_i += 1
             if sub_i >= n_slack:
                 diff = np.zeros_like(diff)  # set while loop to done
-
         if self.args.debug:
             print('tgt_ee_pos', tgt_ee_pos, 'vs current',
                   ee_pos, left_ee_pos, 'tgt_qpos', tgt_qpos, 'sub_i', sub_i)
@@ -353,7 +349,10 @@ class DeformEnv(gym.Env):
         if not unscaled:
             assert self.action_space.contains(action)
             assert ((np.abs(action) <= 1.0).all()), 'action must be in [-1, 1]'
-            action *= DeformEnv.MAX_ACT_VEL
+            if self.robot is None:  # velocity control for anchors
+                action *= DeformEnv.MAX_ACT_VEL
+            else:
+                action *= DeformEnv.WORKSPACE_BOX_SIZE  # pos control for robots
         action = action.reshape(DeformEnv.NUM_ANCHORS, 3)
 
         # Step through physics simulation.
@@ -374,14 +373,16 @@ class DeformEnv(gym.Env):
             reward *= (self.max_episode_len - self.stepnum)
         done = (done or self.stepnum >= self.max_episode_len)
         info = {}
+        final_tgt_ee_pos = None
         # Compute final reward by releasing anchor and letting the object fall.
         if done:
             # release_anchor(self.sim, self.anchor_ids[0])
             # release_anchor(self.sim, self.anchor_ids[1])
-            final_tgt_ee_pos = np.vstack([  # keep same ee pos
-                self.robot.get_ee_pos(), self.robot.get_ee_pos(left=True)])
-            if self.args.debug:
-                print('final_tgt_ee_pos', final_tgt_ee_pos)
+            if self.robot is not None:
+                final_tgt_ee_pos = np.vstack([  # keep same ee pos
+                    self.robot.get_ee_pos(), self.robot.get_ee_pos(left=True)])
+                if self.args.debug:
+                    print('final_tgt_ee_pos', final_tgt_ee_pos)
             for sim_step in range(self.STEPS_AFTER_DONE):
                 # For lasso pull the string at the end to test lasso loop.
                 if self.args.task.lower() == 'lasso':
@@ -393,7 +394,7 @@ class DeformEnv(gym.Env):
                             if self.args.robot == 'anchor':
                                 command_anchor_velocity(
                                     self.sim, self.anchor_ids[i], action)
-                if self.robot != 'anchor':
+                if self.robot is not None:
                     self.do_robot_action(final_tgt_ee_pos)
                     # self.sim.removeConstraint(self.robot.info.robot_id)
                 self.sim.stepSimulation()
@@ -417,24 +418,33 @@ class DeformEnv(gym.Env):
     def get_obs(self):
         anc_obs = []
         done = False
-        for i in range(DeformEnv.NUM_ANCHORS):
-            if self.args.robot == 'anchor':
-                pos, _ = self.sim.getBasePositionAndOrientation(self.anchor_ids[i])
+        if self.args.robot == 'anchor':
+            for i in range(DeformEnv.NUM_ANCHORS):
+                pos, _ = self.sim.getBasePositionAndOrientation(
+                    self.anchor_ids[i])
                 linvel, _ = self.sim.getBaseVelocity(self.anchor_ids[i])
                 anc_obs.extend(pos)
-                anc_obs.extend((np.array(linvel) / DeformEnv.MAX_OBS_VEL).tolist())
-            else:
-                #TODO: decide obs for robots, ee/base/joint?
-                pos, _ = self.sim.getBasePositionAndOrientation(self.robot.info.robot_id)
+                anc_obs.extend((np.array(linvel)/DeformEnv.MAX_OBS_VEL))
+        else:
+            ee_pos, _, ee_linvel, _ = self.robot.get_ee_pos_ori_vel()
+            anc_obs.extend(ee_pos)
+            anc_obs.extend((np.array(ee_linvel)/DeformEnv.MAX_OBS_VEL))
+            if self.args.robot == 'franka':  # EE pos, vel of left arm
+                left_ee_pos, _, left_ee_linvel, _ = \
+                    self.robot.get_ee_pos_ori_vel(left=True)
+                anc_obs.extend(left_ee_pos)
+                anc_obs.extend((np.array(left_ee_linvel)/DeformEnv.MAX_OBS_VEL))
+            else:  # EE pos, vel of the base for mobile robots
+                pos, _ = self.sim.getBasePositionAndOrientation(
+                    self.robot.info.robot_id)
                 linvel, _ = self.sim.getBaseVelocity(self.robot.info.robot_id)
                 anc_obs.extend(pos)
-                anc_obs.extend((np.array(linvel) / DeformEnv.MAX_OBS_VEL).tolist())
-
+                anc_obs.extend((np.array(linvel)/DeformEnv.MAX_OBS_VEL))
         anc_obs = np.nan_to_num(np.array(anc_obs))
-        if (np.abs(anc_obs) > self.anchor_lims).any():  # reached workspace lims
+        if (np.abs(anc_obs) > self.gripper_lims).any():  # reached workspace lims
             if self.args.debug:
                 print('clipping anchor obs', anc_obs)
-            anc_obs = np.clip(anc_obs, -1.0*self.anchor_lims, self.anchor_lims)
+            anc_obs = np.clip(anc_obs, -1.0*self.gripper_lims, self.gripper_lims)
             done = True
         if self.args.cam_resolution <= 0:
             obs = anc_obs
