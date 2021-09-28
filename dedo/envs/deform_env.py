@@ -335,9 +335,9 @@ class DeformEnv(gym.Env):
             sub_i += 1
             if sub_i >= n_slack:
                 diff = np.zeros_like(diff)  # set while loop to done
-        if self.args.debug:
-            print('tgt_ee_pos', tgt_ee_pos, 'vs current',
-                  ee_pos, left_ee_pos, 'tgt_qpos', tgt_qpos, 'sub_i', sub_i)
+        # if self.args.debug:
+        #     print('tgt_ee_pos', tgt_ee_pos, 'vs current',
+        #           ee_pos, left_ee_pos, 'tgt_qpos', tgt_qpos, 'sub_i', sub_i)
         return full_ee_pos
 
     def step(self, action, unscaled=False):
