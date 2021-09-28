@@ -70,6 +70,7 @@ def play(env, num_episodes, args):
         else:
             traj = merge_traj(pos_traj_a, pos_traj_b)
             last_action = traj[-1]
+
         gif_frames = []
         rwds = []
         print(f'# {args.env}:')

@@ -123,14 +123,14 @@ class BulletManipulator:
             robot_path, basePosition=base_pos, baseOrientation=base_quat,
             useFixedBase=use_fixed_base, flags=pybullet.URDF_USE_SELF_COLLISION,
             globalScaling=global_scaling)
-        joint_ids, joint_names = [], []
-        joint_minpos, joint_maxpos = [], []
-        joint_maxforce, joint_maxvel = [], []
-        ee_link_id, ee_jid = None, None
-        left_ee_link_id, left_ee_jid = None, None
-        finger_jids_lst, left_finger_jids_lst = [], []
-        finger_link_ids, left_finger_link_ids = [], []
-        arm_jids_lst, left_arm_jids_lst = [], []
+
+        joint_ids = []; joint_names = []
+        joint_minpos = []; joint_maxpos = []
+        joint_maxforce = []; joint_maxvel = []
+        ee_link_id = None; ee_jid = None
+        left_ee_link_id = None; left_ee_jid = None
+        finger_jids_lst = []; left_finger_jids_lst = []
+        arm_jids_lst = []; left_arm_jids_lst = []
         for j in range(pybullet.getNumJoints(robot_id)):
             _, jname, jtype, _, _, _, _, _, \
             jlowlim, jhighlim, jmaxforce, jmaxvel, link_name, _, _, _, _ = \

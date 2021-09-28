@@ -184,6 +184,7 @@ class DeformEnv(gym.Env):
         # Load the robot if needed.
         #
         robot = None
+
         if self.args.robot != 'anchor':
             robot_info = ROBOT_INFO.get(self.args.robot, None)
             robot_path = os.path.join(data_path, 'robots', self.args.robot,
@@ -279,14 +280,15 @@ class DeformEnv(gym.Env):
                     print('anchor_pos not sane:', anchor_pos)
                     input('Press enter to exit')
                     exit(1)
-                link_id = self.robot.info.finger_link_ids[0] if i==0 else \
-                    self.robot.info.left_finger_link_ids[0]
-                loc, *_ = self.sim.getLinkState(
-                    self.robot.info.robot_id, link_id)
+
                 self.sim.createSoftBodyAnchor(
                     self.deform_id, preset_dynamic_anchor_vertices[i][0],
-                    self.robot.info.robot_id, link_id, loc)
-        #
+                    self.robot.info.robot_id, self.robot.info.ee_link_id if i==0 else self.robot.info.left_ee_link_id,
+                    #try to apply an offset, no effect
+                    # robot_info['anchor_frame_pos'] if i==0 else robot_info['left_anchor_frame_pos'])
+                )
+
+        #           
         # Set up viz.
         #
         if self.args.viz:  # loading done, so enable debug rendering if needed
@@ -320,14 +322,14 @@ class DeformEnv(gym.Env):
             ee_pos=tgt_ee_pos[0], ee_quat=ee_quat, fing_dist=0.01,
             left_ee_pos=tgt_ee_pos[1], left_ee_quat=left_ee_quat,
             left_fing_dist=0.01)
-        n_slack = 500  # substeps to reach robot pose
+        n_slack = 1  # substeps to reach robot pose: original 500
         sub_i = 0
         ee_th = 0.01
-        diff = tgt_ee_pos - full_ee_pos
+        diff = np.abs(tgt_ee_pos - full_ee_pos) #
         while (diff > ee_th).any():
             self.robot.move_to_qpos(
                 tgt_qpos, mode=pybullet.POSITION_CONTROL,
-                kp=0.1, kd=1.0)
+                kp=0.1, kd=1) #0.1, 1.0
             self.sim.stepSimulation()
             ee_pos = self.robot.get_ee_pos()
             left_ee_pos = self.robot.get_ee_pos(left=True)
@@ -336,9 +338,10 @@ class DeformEnv(gym.Env):
             sub_i += 1
             if sub_i >= n_slack:
                 diff = np.zeros_like(diff)  # set while loop to done
+
         if self.args.debug:
             print('tgt_ee_pos', tgt_ee_pos, 'vs current',
-                  ee_pos, left_ee_pos, 'sub_i', sub_i)
+                  ee_pos, left_ee_pos, 'tgt_qpos', tgt_qpos, 'sub_i', sub_i)
         return full_ee_pos
 
     def step(self, action, unscaled=False):
