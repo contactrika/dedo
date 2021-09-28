@@ -273,7 +273,7 @@
   <link name="panda_hand_r_finger_l">
     <visual>
       <geometry>
-        <mesh filename="meshes/visual/finger_long.dae" />
+        <mesh filename="meshes/visual/finger.dae" />
       </geometry>
       <material name="panda_gray"/>
     </visual>
@@ -293,7 +293,7 @@
     <visual>
       <origin rpy="0 0 3.14159265359" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/visual/finger_long.dae" />
+        <mesh filename="meshes/visual/finger.dae" />
       </geometry>
       <material name="panda_gray"/>
     </visual>
@@ -587,7 +587,7 @@
   <link name="panda_hand_l_finger_l">
     <visual>
       <geometry>
-        <mesh filename="meshes/visual/finger_long.dae" />
+        <mesh filename="meshes/visual/finger.dae" />
       </geometry>
       <material name="panda_gray"/>
     </visual>
@@ -607,7 +607,7 @@
     <visual>
       <origin rpy="0 0 3.14159265359" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/visual/finger_long.dae" />
+        <mesh filename="meshes/visual/finger.dae" />
       </geometry>
       <material name="panda_gray"/>
     </visual>
