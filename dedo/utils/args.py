@@ -15,7 +15,7 @@ def get_args_parser():
     parser.add_argument('--env', type=str,
                         default='HangGarment-v1', help='Env name')
     parser.add_argument('--robot', type=str, default='anchor',
-                        choices=['anchor', 'fetch', 'stretch'],
+                        choices=['anchor', 'fetch', 'stretch', 'franka'],
                         help='Robot agents to manipulate object.')
     parser.add_argument('--max_episode_len', type=int,
                         default=200, help='Max steps per episode')

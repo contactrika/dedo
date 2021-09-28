@@ -39,6 +39,7 @@ def create_traj_savgol(waypts, steps_per_waypt):
     print('dense_waypts', dense_waypts.shape)
     return dense_waypts
 
+
 def create_traj(init_pos, waypoints, steps_per_waypoint, frequency):
     '''
     Create a smoothed velocity based trajectory through a given waypoints.

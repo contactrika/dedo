@@ -86,15 +86,18 @@ class BulletManipulator:
             left_ee_joint_name, left_ee_link_name,
             left_fing_link_prefix, left_joint_suffix,
             base_pos=base_pos, base_quat=base_quat,
-            use_fixed_base=False,
+            use_fixed_base=use_fixed_base,
             global_scaling=global_scaling)
         
-        #note this constraint is not as rigid as using use_fixed_base while loading
-        #but it looks okay to keep balance of the platform and could allow us to move the basis as the VR example
-        if use_fixed_base:
-            self.base_cid = sim.createConstraint(self.info.robot_id, -1, -1, -1, sim.JOINT_FIXED, [0.0, 0, 0], [0.0, 0, 0],base_pos, )
-        else:
-            self.base_cid = None
+        # Create a constraint for the mobile manipulator to stay on the floor.
+        # Note this constraint is not as rigid as using use_fixed_base while
+        # loading, but it looks okay to keep balance of the platform and could
+        # allow us to move the basis as the VR pybullet example.
+        self.base_cid = None
+        if not use_fixed_base:
+            self.base_cid = sim.createConstraint(
+                self.info.robot_id, -1, -1, -1, sim.JOINT_FIXED, [0.0, 0, 0],
+                [0.0, 0, 0], base_pos)
 
         # Reset to initial position and visualize.
         self.rest_qpos = (self.info.joint_maxpos+self.info.joint_minpos)/2
@@ -121,28 +124,21 @@ class BulletManipulator:
         left_ee_link_id = None; left_ee_jid = None
         finger_jids_lst = []; left_finger_jids_lst = []
         arm_jids_lst = []; left_arm_jids_lst = []
-        # Skip some joints of the fetch robot for now.
-        skip_jnames = ['wheel', 'torso']
         for j in range(pybullet.getNumJoints(robot_id)):
             _, jname, jtype, _, _, _, _, _, \
             jlowlim, jhighlim, jmaxforce, jmaxvel, link_name, _, _, _, _ = \
                 pybullet.getJointInfo(robot_id, j)
-            jname = jname.decode("utf-8"); link_name = link_name.decode("utf-8")
-            # if jname in skip_jnames:
-            #     continue
-            ignore = False
-            for skip_key in skip_jnames:
-                if jname.find(skip_key) != -1:
-                    ignore = True
-                    break
-            if ignore:
-                continue
-            
+            jname = jname.decode("utf-8")
+            link_name = link_name.decode("utf-8")
+            # print('load jname', jname, 'jtype', jtype, 'link_name', link_name)
             if jtype in [pybullet.JOINT_REVOLUTE, pybullet.JOINT_PRISMATIC]:
-                joint_ids.append(j); joint_names.append(jname)
-                joint_minpos.append(jlowlim); joint_maxpos.append(jhighlim)
-                joint_maxforce.append(jmaxforce); joint_maxvel.append(jmaxvel)
-            jid = len(joint_ids)-1 # internal index (not pybullet id)
+                joint_ids.append(j)
+                joint_names.append(jname)
+                joint_minpos.append(jlowlim)
+                joint_maxpos.append(jhighlim)
+                joint_maxforce.append(jmaxforce*global_scaling)
+                joint_maxvel.append(jmaxvel*global_scaling)
+            jid = len(joint_ids)-1  # internal index (not pybullet id)
             if jtype == pybullet.JOINT_REVOLUTE:
                 if (left_joint_suffix is not None and
                         jname.endswith(left_joint_suffix)):
@@ -155,10 +151,14 @@ class BulletManipulator:
                     left_finger_jids_lst.append(jid)
                 else:
                     finger_jids_lst.append(jid)
-            if jname == ee_joint_name: ee_jid = jid
-            if link_name == ee_link_name: ee_link_id = j  # for IK
-            if jname == left_ee_joint_name: left_ee_jid = jid
-            if link_name == left_ee_link_name: left_ee_link_id = j  # for IK
+            if jname == ee_joint_name:
+                ee_jid = jid
+            if link_name == ee_link_name:
+                ee_link_id = j  # for IK
+            if jname == left_ee_joint_name:
+                left_ee_jid = jid
+            if link_name == left_ee_link_name:
+                left_ee_link_id = j  # for IK
         assert(ee_link_id is not None)
         assert(ee_jid is not None)
         info = ManipulatorInfo(
@@ -264,8 +264,8 @@ class BulletManipulator:
             jointRanges=(self.info.joint_maxpos-self.info.joint_minpos).tolist(),
             restPoses=self.rest_qpos.tolist(),
             maxNumIterations=500, residualThreshold=0.005)
-            #solver=pybullet.IK_SDLS,
-            #maxNumIterations=1000, residualThreshold=0.0001)
+            # solver=pybullet.IK_SDLS,
+            # maxNumIterations=1000, residualThreshold=0.0001)
             # Note that large num iterations could slow down the compute enough
             # s.t. visualizer shows differences in rate of following traj.
         qpos = np.array(qpos)
@@ -382,11 +382,13 @@ class BulletManipulator:
                 forces=self.info.joint_maxforce.tolist())  # see docs page 22
         # self.obey_joint_limits()
 
-    def move_to_ee_pos(self, tgt_ee_pos, tgt_ee_quat, fing_dist=0.0,
+    def move_to_ee_pos(self, tgt_ee_pos, tgt_ee_quat=None, fing_dist=0.0,
                        left_ee_pos=None, left_ee_quat=None, left_fing_dist=0.0,
                        mode=pybullet.POSITION_CONTROL, kp=None, kd=None,
                        debug=True):
         qpos = None; num_tries = 10
+        if tgt_ee_quat is None:
+            _, tgt_ee_quat, _, _ = self.get_ee_pos_ori_vel()
         for i in range(num_tries):
             qpos = self.ee_pos_to_qpos(
                 tgt_ee_pos, tgt_ee_quat, fing_dist,
@@ -456,7 +458,7 @@ class BulletManipulator:
         self.sim.setJointMotorControlArray(
             bodyIndex=self.info.robot_id, jointIndices=self.info.joint_ids,
             controlMode=pybullet.TORQUE_CONTROL, forces=torque.tolist())
-        self.sim.stepSimulation()
+        # self.sim.stepSimulation()
         # self.obey_joint_limits()
 
     def get_ee_jacobian(self, left=False):
@@ -496,16 +498,15 @@ class BulletManipulator:
         assert((qpos>=self.info.joint_minpos).all())
         assert((qpos<=self.info.joint_maxpos).all())
 
-    def ee_pos_to_qpos(self, ee_pos, ee_quat, fing_dist,
-                       left_ee_pos=None, left_ee_quat=None, left_fing_dist=0.0,
-                       debug=False):
+    def ee_pos_to_qpos(self, ee_pos, ee_quat, fing_dist, left_ee_pos=None,
+                       left_ee_quat=None, left_fing_dist=0.0, debug=False):
         qpos = self._ee_pos_to_qpos_raw(
             ee_pos, ee_quat, fing_dist,
             left_ee_pos, left_ee_quat, left_fing_dist, debug=debug)
         return qpos
-    
+
     def get_relative_pose(self, pos, quat=None):
-        #get pose relative to the basis
+        # Get pose relative to the base.
         base_state = self.sim.getLinkState(
             self.info.robot_id, 0, computeLinkVelocity=0)
         base_pos = base_state[0]
@@ -522,8 +523,9 @@ class BulletManipulator:
         return np.array(local_pos), None if quat is None else np.array(local_quat)
     
     def move_base(self, lin_vel, rot_vel, dt=1./240):
-        #change fixed constraint spec to move the base: assuming the mobile base is omnidirectional
-        #we can also animate differential drive by having the wheel distance
+        # Change fixed constraint spec to move the base: assuming the mobile
+        # base is omnidirectional, we can also animate differential drive by
+        # having the wheel distance.
         assert(self.base_cid is not None)
         base_state = self.sim.getLinkState(
             self.info.robot_id, 0, computeLinkVelocity=0)
@@ -531,11 +533,18 @@ class BulletManipulator:
         base_quat = base_state[1]
         # print(base_pos, base_quat)
         # delta_quat = self.sim.getQuaternionFromEuler([0, 0, rot_vel*dt])
-        # tar_base_pos, tar_base_ori = self.sim.multiplyTransforms(base_pos, base_quat, [lin_vel[0] * dt, lin_vel[1] * dt, 0], delta_quat)
-        next_base_pos = np.add(np.array(base_pos), np.array([lin_vel[0]*dt, lin_vel[1]*dt, 0])).tolist()
-        next_base_ori = np.add(np.array(self.sim.getEulerFromQuaternion(base_quat)), np.array([0, 0, rot_vel*dt]))
+        # tar_base_pos, tar_base_ori = self.sim.multiplyTransforms(base_pos,
+        #     base_quat, [lin_vel[0] * dt, lin_vel[1] * dt, 0], delta_quat)
+        next_base_pos = np.add(np.array(base_pos),
+                               np.array([lin_vel[0]*dt,
+                                         lin_vel[1]*dt, 0])).tolist()
+        next_base_ori = np.add(np.array(
+            self.sim.getEulerFromQuaternion(base_quat)),
+            np.array([0, 0, rot_vel*dt]))
         next_base_ori = self.sim.getQuaternionFromEuler(next_base_ori.tolist())
-        #user need to specify dt since it is specified by the user so better let user to track it
+        # User needs to specify dt since it is specified by the user so
+        # better let user to track it.
         # print(next_base_pos, next_base_ori)
-        self.sim.changeConstraint(self.base_cid, next_base_pos, next_base_ori, maxForce=1000)
+        self.sim.changeConstraint(self.base_cid, next_base_pos, next_base_ori,
+                                  maxForce=1000)
         return

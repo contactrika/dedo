@@ -1226,3 +1226,24 @@ DEFAULT_CAM_PROJECTION = {
                          0.0, 0.0, -1.0000200271606445, -1.0,
                          0.0, 0.0, -0.02000020071864128, 0.0)
 }
+
+
+ROBOT_INFO = {
+   'franka': {
+       'ee_joint_name': 'panda_joint7',
+       'ee_link_name': 'panda_hand',
+       'global_scaling': 10.0,
+       'use_fixed_base': True,
+       'base_pos': np.array([5.0, 1.5, 0]),
+       'rest_arm_qpos': np.array(
+           [-0.7732, -0.0135,  0.1112, -0.778,   0.0978, 2.0841, -0.5592])
+   },
+    'fetch' : {
+       'ee_joint_name': 'wrist_roll_joint',
+       'ee_link_name': 'gripper_link',
+       'global_scaling': 10.0,
+        'use_fixed_base': False,
+        'base_pos': np.array([-10.0, 2.5, 0]),
+        'rest_arm_qpos': None,
+    }
+}

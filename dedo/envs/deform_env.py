@@ -14,11 +14,12 @@ import pybullet_utils.bullet_client as bclient
 from ..utils.anchor_utils import (
     create_anchor, attach_anchor, create_anchor_geom, command_anchor_velocity,
     release_anchor, pin_fixed, get_closest)
+from ..utils.bullet_manipulator import BulletManipulator
 from ..utils.init_utils import (
     load_deform_object, load_rigid_object, reset_bullet, get_preset_properties)
 from ..utils.mesh_utils import get_mesh_data
 from ..utils.task_info import (
-    DEFAULT_CAM_PROJECTION, DEFORM_INFO, SCENE_INFO, TASK_INFO,
+    DEFAULT_CAM_PROJECTION, DEFORM_INFO, ROBOT_INFO, SCENE_INFO, TASK_INFO,
     TOTE_MAJOR_VERSIONS, TOTE_VARS_PER_VERSION)
 from ..utils.procedural_utils import (
     gen_procedural_hang_cloth, gen_procedural_button_cloth)
@@ -179,33 +180,27 @@ class DeformEnv(gym.Env):
                 kwargs['basePosition'], kwargs['baseOrientation'],
                 texture_file, rgba_color)
             rigid_ids.append(id)
-
-
-        if self.args.robot == 'fetch':
-            #
-            # Load the robot
-            #
-            if True:  # trying to make this do something useful
-                robot_path = os.path.join(data_path, 'robots', 'fetch', 'fetch.urdf')
-                print('Loading robot from', robot_path)
-                robot_init_pos = args.deform_init_pos - np.array([-10.0, 2.5, 0])
-                robot_init_pos[2] = 0.0  # put on the floor
-                # robot_id = sim.loadURDF(robot_path, robot_init_pos,
-                #                         pybullet.getQuaternionFromEuler([0, 0, np.pi]),
-                #                         useFixedBase=0, globalScaling=8.0)
-                from ..utils.bullet_manipulator import BulletManipulator
-                robot = BulletManipulator(
-                    sim, robot_path, control_mode='velocity',
-                    ee_joint_name='gripper_axis', ee_link_name='gripper_link',
-                    base_pos=robot_init_pos,
-                    base_quat=pybullet.getQuaternionFromEuler([0, 0, np.pi]),
-                    global_scaling=10.0,
-                    use_fixed_base=True,
-                    # rest_arm_qpos
-                )
-        else:
-            robot = None
-
+        #
+        # Load the robot if needed.
+        #
+        robot = None
+        if self.args.robot != 'anchor':
+            robot_path = os.path.join(data_path, 'robots', self.args.robot,
+                                      self.args.robot+'.urdf')
+            print('Loading robot from', robot_path)
+            robot_info = ROBOT_INFO.get(self.args.robot, None)
+            if robot_info is None:
+                print('This robot is not yet supported:', self.args.robot)
+            robot = BulletManipulator(
+                sim, robot_path, control_mode='velocity',
+                ee_joint_name=robot_info['ee_joint_name'],
+                ee_link_name=robot_info['ee_link_name'],
+                base_pos=robot_info['base_pos'],
+                base_quat=pybullet.getQuaternionFromEuler([0, 0, np.pi]),
+                global_scaling=robot_info['global_scaling'],
+                use_fixed_base=robot_info['use_fixed_base'],
+                rest_arm_qpos=robot_info['rest_arm_qpos']
+            )
         #
         # Load deformable object.
         #
@@ -261,8 +256,6 @@ class DeformEnv(gym.Env):
            self.debug_viz_cent_loop()
 
         # Setup dynamic anchors.
-        anchor_pos = [None] * DeformEnv.NUM_ANCHORS
-        anchor_vertices = [None] * DeformEnv.NUM_ANCHORS
         for i in range(DeformEnv.NUM_ANCHORS):  # make anchors
             anchor_init_pos = self.args.anchor_init_pos if (i % 2) == 0 else \
                 self.args.other_anchor_init_pos
@@ -270,45 +263,20 @@ class DeformEnv(gym.Env):
                 DEFORM_INFO, self.deform_obj, 'deform_anchor_vertices')
             _, mesh = get_mesh_data(self.sim, self.deform_id)
             if self.args.robot == 'anchor':
-                anchor_id, anchor_pos[i], anchor_vertices[i] = create_anchor(
+                anchor_id, anchor_pos, anchor_vertices = create_anchor(
                     self.sim, anchor_init_pos, i,
                     preset_dynamic_anchor_vertices, mesh)
-                attach_anchor(self.sim, anchor_id, anchor_vertices[i], self.deform_id)
-                self.anchors[anchor_id] = {'pos': anchor_pos[i],
-                                        'vertices': anchor_vertices[i]}
-            else:
-                #just figure out anchor pos
-                if preset_dynamic_anchor_vertices is not None:
-                    anchor_vertices[i] = preset_dynamic_anchor_vertices[i]
-                    anchor_pos[i] = np.array(mesh)[anchor_vertices[i]].mean(axis=0)
-                else:
-                    anchor_pos[i], anchor_vertices[i] = get_closest(anchor_pos[i], np.array(mesh))
-            
-
-        if self.args.robot != 'anchor':
-            #
-            # Try to move the robot's gripper to anchor pos and attach to anchor.
-            #
-            # Control doesn't work yet...
-            ee_pos, ee_quat, _, _ = self.robot.get_ee_pos_ori_vel()
-            qpos = self.robot.get_qpos()
-            print('ee_pos', ee_pos, 'ee_quat', ee_quat, 'qpos', qpos)
-            print('anchor_pos', anchor_pos[0])
-            # ee_pos += np.array([0, -3.0, 5.0])
-
-            qpos = self.robot.ee_pos_to_qpos(anchor_pos[0], ee_quat, fing_dist=0)
-            self.robot.reset_to_qpos(qpos)
-            ee_pos, ee_quat, _, _ = self.robot.get_ee_pos_ori_vel()
-            qpos = self.robot.get_qpos()
-            print('after move: ee_pos', ee_pos, 'ee_quat', ee_quat, 'qpos', qpos)
-            # Attach mesh anchor vertex to robot's EE link.
-            # Messes up anchor control, so turning off for now.
-            self.sim.createSoftBodyAnchor(
-                self.deform_id, anchor_vertices[0][0],
-                self.robot.info.robot_id, self.robot.info.ee_link_id)
-        
-
+                attach_anchor(self.sim, anchor_id, anchor_vertices, self.deform_id)
+                self.anchors[anchor_id] = {'pos': anchor_pos,
+                                           'vertices': anchor_vertices}
+            elif i == 0:  # attach robot gripper to the 1st anchor
+                assert(preset_dynamic_anchor_vertices is not None)
+                self.sim.createSoftBodyAnchor(
+                    self.deform_id, preset_dynamic_anchor_vertices[0][0],
+                    self.robot.info.robot_id, self.robot.info.ee_link_id)
+        #
         # Set up viz.
+        #
         if self.args.viz:  # loading done, so enable debug rendering if needed
             time.sleep(0.1)  # wait for debug visualizer to catch up
             self.sim.stepSimulation()  # step once to get initial state
@@ -331,21 +299,38 @@ class DeformEnv(gym.Env):
             # create_anchor_geom(self.sim, cent_pos, mass=0.0,
             #                     rgba=(0, 1, 0.8, alpha), use_collision=False)
 
-    def step(self, action, unscaled_velocity=False):
+    def do_robot_action(self, action):
+        tgt_ee_pos = action  # position control for the robot
+        ee_pos, ee_quat, _, _ = \
+            self.robot.get_ee_pos_ori_vel()
+        tgt_qpos = self.robot.ee_pos_to_qpos(
+            tgt_ee_pos, ee_quat, fing_dist=0.01)
+        n_slack = 500  # substeps to reach robot pose
+        sub_i = 0
+        while np.linalg.norm(tgt_ee_pos - ee_pos) > 0.01:
+            self.robot.move_to_qpos(
+                tgt_qpos, mode=pybullet.POSITION_CONTROL,
+                kp=0.1, kd=1.0)
+            self.sim.stepSimulation()
+            ee_pos = self.robot.get_ee_pos()
+            sub_i +=1
+            if sub_i >= n_slack:
+                ee_pos = tgt_ee_pos  # set while loop to done
+        if self.args.debug:
+            print('tgt_ee_pos', tgt_ee_pos, 'vs current ee_pos',
+                  self.robot.get_ee_pos(), 'sub_i', sub_i)
+
+    def step(self, action, unscaled=False):
         # action is num_anchors x 3 for 3D velocity for anchors/grippers;
         # assume action in [-1,1], we convert to [-MAX_ACT_VEL, MAX_ACT_VEL].
 
         if self.args.debug:
             print('action', action)
-        if not unscaled_velocity:
+        if not unscaled:
             assert self.action_space.contains(action)
             assert ((np.abs(action) <= 1.0).all()), 'action must be in [-1, 1]'
             action *= DeformEnv.MAX_ACT_VEL
         action = action.reshape(DeformEnv.NUM_ANCHORS, 3)
-
-
-        #test move base
-        # self.robot.move_base([10, 10], 0)
 
         # Step through physics simulation.
         raw_force_accum = 0.0
@@ -355,12 +340,11 @@ class DeformEnv(gym.Env):
                     curr_force = command_anchor_velocity(
                         self.sim, self.anchor_ids[i], action[i])
                     raw_force_accum += np.linalg.norm(curr_force)
-                else:
-                    #TODO: action for robots. ee/base/joint?
-                    #note we need one way to figure out raw force if robot controller is different from anchors'
-                    pass
-
+                else:  # robot Cartesian position control
+                    if i == 0:
+                        self.do_robot_action(action[i])
             self.sim.stepSimulation()
+            print('new_ee_pos', self.robot.get_ee_pos())
         mean_raw_force = raw_force_accum/self.args.sim_steps_per_action
         force_penalty = DeformEnv.FORCE_REWARD_MULT*mean_raw_force
         # Get next obs, reward, done.
@@ -376,6 +360,8 @@ class DeformEnv(gym.Env):
         if done:
             # release_anchor(self.sim, self.anchor_ids[0])
             # release_anchor(self.sim, self.anchor_ids[1])
+            final_tgt_ee_pos = self.robot.get_ee_pos()  # keep same ee pos
+            print('final_tgt_ee_pos', final_tgt_ee_pos)
             for sim_step in range(self.STEPS_AFTER_DONE):
                 # For lasso pull the string at the end to test lasso loop.
                 if self.args.task.lower() == 'lasso':
@@ -387,9 +373,9 @@ class DeformEnv(gym.Env):
                             if self.args.robot == 'anchor':
                                 command_anchor_velocity(
                                     self.sim, self.anchor_ids[i], action)
-                            else:
-                                #TODO: action for robots. ee/base/joint?
-                                pass
+                if self.robot != 'anchor':
+                    self.do_robot_action(final_tgt_ee_pos)
+                    # self.sim.removeConstraint(self.robot.info.robot_id)
                 self.sim.stepSimulation()
             last_rwd = self.get_reward() * DeformEnv.FINAL_REWARD_MULT
             info['is_success'] = np.abs(last_rwd) < self.SUCESS_REWARD_TRESHOLD
