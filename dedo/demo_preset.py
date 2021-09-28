@@ -64,7 +64,7 @@ def play(env, num_episodes, args):
         pos_traj_b, traj_b = build_traj(
             env, preset_wp, 'b', anchor_idx=1, ctrl_freq=ctrl_freq)
         # traj_b = np.zeros_like(traj_b)
-        if env.robot == 'anchor':
+        if env.robot is None:
             traj = merge_traj(traj_a, traj_b)
             last_action = np.zeros_like(traj[0])
         else:
@@ -121,7 +121,7 @@ def merge_traj(traj_a, traj_b):
 
 
 def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq):
-    if env.robot == 'anchor':
+    if env.robot is None:
         anc_id = list(env.anchors.keys())[anchor_idx]
         init_anc_pos = env.anchors[anc_id]['pos']
     else:
