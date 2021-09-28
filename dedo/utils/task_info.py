@@ -573,8 +573,8 @@ DEFORM_INFO = {
         'deform_bending_stiffness': 1,
         'deform_damping_stiffness': 0.01,
         'deform_anchor_vertices': [
-            [15],  # 10, 12, 13, 14, 15],
-            [170],  # 163, 165, 167, 168, 170],
+            [22],   # 15, 10, 12, 13, 14, 15],
+            [175],  # 170, 163, 165, 167, 168, 170],
         ],
         'cam_viewmat': [8.8, -12.6, 314, -0.4, 0.6, 5.3],
         'deform_true_loop_vertices': [
@@ -1239,9 +1239,9 @@ ROBOT_INFO = {
         'use_fixed_base': True,
         'base_pos': np.array([5.0, 1.5, 0]),
         'rest_arm_qpos': np.array(
-           [-0.7732, -0.0135,  0.1112, -0.778,   0.0978, 2.0841, -0.5592]),
+           [-0.7732, -0.0135,  0.1112, -0.778, 0.0978, 2.0841, -0.5592]),
         'left_rest_arm_qpos': np.array(
-            [0.7732, -0.0135,  0.1112, -0.778,   0.0978, 2.0841, -0.5592])
+            [0.4732, -0.1135,  0.1112, -0.828, 0.0978, 2.0941, -0.5592])
    },
     'fetch_not_fully_supported_yet': {
         'file_name': 'fetch.urdf',

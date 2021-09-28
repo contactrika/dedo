@@ -279,9 +279,13 @@ class DeformEnv(gym.Env):
                     print('anchor_pos not sane:', anchor_pos)
                     input('Press enter to exit')
                     exit(1)
+                link_id = self.robot.info.finger_link_ids[0] if i==0 else \
+                    self.robot.info.left_finger_link_ids[0]
+                loc, *_ = self.sim.getLinkState(
+                    self.robot.info.robot_id, link_id)
                 self.sim.createSoftBodyAnchor(
                     self.deform_id, preset_dynamic_anchor_vertices[i][0],
-                    self.robot.info.robot_id, self.robot.info.ee_link_id)
+                    self.robot.info.robot_id, link_id, loc)
         #
         # Set up viz.
         #
@@ -358,10 +362,8 @@ class DeformEnv(gym.Env):
                         self.sim, self.anchor_ids[i], action[i])
                     raw_force_accum += np.linalg.norm(curr_force)
             if self.args.robot != 'anchor':  # robot Cartesian position control
-                new_ee_pos = self.do_robot_action(action)
+                self.do_robot_action(action)
             self.sim.stepSimulation()
-            print('new_ee_pos', new_ee_pos)
-        mean_raw_force = raw_force_accum/self.args.sim_steps_per_action
         # Get next obs, reward, done.
         next_obs, done = self.get_obs()
         reward = self.get_reward()

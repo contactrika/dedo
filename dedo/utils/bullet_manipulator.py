@@ -19,9 +19,11 @@ class ManipulatorInfo:
     def __init__(self, robot_id, joint_ids, joint_names,
                  joint_minpos, joint_maxpos,
                  joint_maxforce, joint_maxvel,
-                 ee_link_id, arm_jids_lst, ee_jid, finger_jids_lst,
+                 ee_link_id, arm_jids_lst, ee_jid, finger_link_ids,
+                 finger_jids_lst,
                  left_ee_link_id=None, left_arm_jids_lst=None,
-                 left_ee_jid=None, left_finger_jids_lst=None):
+                 left_ee_jid=None, left_finger_link_ids=None,
+                 left_finger_jids_lst=None):
         self.robot_id = robot_id
         self.joint_ids = joint_ids
         self.joint_names = joint_names
@@ -32,10 +34,12 @@ class ManipulatorInfo:
         self.ee_link_id = ee_link_id
         self.arm_jids_lst = arm_jids_lst
         self.ee_jid = ee_jid
+        self.finger_link_ids = finger_link_ids
         self.finger_jids_lst = finger_jids_lst
         self.left_ee_link_id = left_ee_link_id
         self.left_arm_jids_lst = left_arm_jids_lst
         self.left_ee_jid = left_ee_jid
+        self.left_finger_link_ids = left_finger_link_ids
         self.left_finger_jids_lst = left_finger_jids_lst
         self.dof = len(joint_ids)
 
@@ -50,10 +54,12 @@ class ManipulatorInfo:
               '\n ee_link_id', self.ee_link_id,
               '\n right_arm_jids_lst', self.arm_jids_lst,
               '\n ee_jid', self.ee_jid,
+              '\n finger_link_ids', self.finger_link_ids,
               '\n finger_jids_lst', self.finger_jids_lst,
               '\n left_ee_link_id', self.left_ee_link_id,
               '\n left_arm_jids_lst', self.left_arm_jids_lst,
               '\n left_ee_jid', self.left_ee_jid,
+              '\n left_finger_link_ids', self.left_finger_link_ids,
               '\n left_finger_jids_lst', self.left_finger_jids_lst)
 
 
@@ -117,13 +123,14 @@ class BulletManipulator:
             robot_path, basePosition=base_pos, baseOrientation=base_quat,
             useFixedBase=use_fixed_base, flags=pybullet.URDF_USE_SELF_COLLISION,
             globalScaling=global_scaling)
-        joint_ids = []; joint_names = []
-        joint_minpos = []; joint_maxpos = []
-        joint_maxforce = []; joint_maxvel = []
-        ee_link_id = None; ee_jid = None
-        left_ee_link_id = None; left_ee_jid = None
-        finger_jids_lst = []; left_finger_jids_lst = []
-        arm_jids_lst = []; left_arm_jids_lst = []
+        joint_ids, joint_names = [], []
+        joint_minpos, joint_maxpos = [], []
+        joint_maxforce, joint_maxvel = [], []
+        ee_link_id, ee_jid = None, None
+        left_ee_link_id, left_ee_jid = None, None
+        finger_jids_lst, left_finger_jids_lst = [], []
+        finger_link_ids, left_finger_link_ids = [], []
+        arm_jids_lst, left_arm_jids_lst = [], []
         for j in range(pybullet.getNumJoints(robot_id)):
             _, jname, jtype, _, _, _, _, _, \
             jlowlim, jhighlim, jmaxforce, jmaxvel, link_name, _, _, _, _ = \
@@ -159,15 +166,19 @@ class BulletManipulator:
                 left_ee_jid = jid
             if link_name == left_ee_link_name:
                 left_ee_link_id = j  # for IK
+            if link_name.endswith('finger') or link_name.endswith('finger_r'):
+                finger_link_ids.append(j)
+            if link_name.endswith('finger_l'):
+                left_finger_link_ids.append(j)
         assert(ee_link_id is not None)
         assert(ee_jid is not None)
         info = ManipulatorInfo(
             robot_id, np.array(joint_ids), np.array(joint_names),
             np.array(joint_minpos), np.array(joint_maxpos),
             np.array(joint_maxforce), np.array(joint_maxvel),
-            ee_link_id, arm_jids_lst, ee_jid, finger_jids_lst,
+            ee_link_id, arm_jids_lst, ee_jid, finger_link_ids, finger_jids_lst,
             left_ee_link_id, left_arm_jids_lst,
-            left_ee_jid, left_finger_jids_lst)
+            left_ee_jid, left_finger_link_ids, left_finger_jids_lst)
         if self.debug_level>=0: info.print()
         return info
 
@@ -473,7 +484,8 @@ class BulletManipulator:
     def get_ee_jacobian(self, left=False):
         qpos = self.get_qpos(); qvel = self.get_qvel()
         ee_link_id = self.info.ee_link_id
-        if left: ee_link_id = self.info.left_ee_link_id
+        if left:
+            ee_link_id = self.info.left_ee_link_id
         J_lin, J_ang = self.sim.calculateJacobian(
             bodyUniqueId=self.info.robot_id, linkIndex=ee_link_id,
             localPosition=[0, 0, 0],

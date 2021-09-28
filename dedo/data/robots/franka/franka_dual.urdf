@@ -273,7 +273,7 @@
   <link name="panda_hand_r_finger_l">
     <visual>
       <geometry>
-        <mesh filename="meshes/visual/finger.dae" />
+        <mesh filename="meshes/visual/finger_long.dae" />
       </geometry>
       <material name="panda_gray"/>
     </visual>
@@ -293,7 +293,7 @@
     <visual>
       <origin rpy="0 0 3.14159265359" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/visual/finger.dae" />
+        <mesh filename="meshes/visual/finger_long.dae" />
       </geometry>
       <material name="panda_gray"/>
     </visual>
@@ -329,7 +329,7 @@
   <joint name="robot_l_to_world" type="fixed">
     <parent link="world"/>
     <child link="panda_link0_l"/>
-    <origin rpy="0 0 3.14159" xyz="0.9 0 0"/>
+    <origin rpy="0 0 3.141" xyz="0.9 0 0"/>
     <dynamics damping="1.0"/>
   </joint>
   <link name="panda_link0_l">
@@ -587,7 +587,7 @@
   <link name="panda_hand_l_finger_l">
     <visual>
       <geometry>
-        <mesh filename="meshes/visual/finger.dae" />
+        <mesh filename="meshes/visual/finger_long.dae" />
       </geometry>
       <material name="panda_gray"/>
     </visual>
@@ -607,7 +607,7 @@
     <visual>
       <origin rpy="0 0 3.14159265359" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/visual/finger.dae" />
+        <mesh filename="meshes/visual/finger_long.dae" />
       </geometry>
       <material name="panda_gray"/>
     </visual>
