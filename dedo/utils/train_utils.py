@@ -30,18 +30,19 @@ def init_train(algo, args, tags=None):
     logdir = None
     if args.logdir is not None:
         tstamp = datetime.strftime(datetime.today(), '%y%m%d_%H%M%S')
-        subdir = '_'.join([algo, tstamp, args.env])
+        lst = [algo, tstamp, args.env]
+        if args.robot != 'anchor':
+            lst.append(args.robot)
+        subdir = '_'.join(lst)
         logdir = os.path.join(os.path.expanduser(args.logdir), subdir)
         if args.use_wandb:
-
-            wandb.init(config=vars(args), project='dedo', name=logdir, tags=tags)
+            wandb.init(config=vars(args), project='dedo',
+                       name=logdir, tags=tags)
             wandb.init(sync_tensorboard=False)
-
-            try: # Patch only once, if more than one run, ignore error
+            try:  # patch only once, if more than one run, ignore error
                 wandb.tensorboard.patch(tensorboardX=True, pytorch=True)
             except ValueError as e:
                 pass
-
     device = args.device
     if not torch.cuda.is_available():
         device = 'cpu'

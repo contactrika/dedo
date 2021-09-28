@@ -43,7 +43,7 @@ class DeformEnv(gym.Env):
             connection_mode=pybullet.GUI if args.viz else pybullet.DIRECT)
         reset_bullet(args, self.sim, debug=args.debug)
         self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos, self.robot = \
-            self.load_objects(self.sim, self.args)
+            self.load_objects(self.sim, self.args, debug=True)
         self.max_episode_len = self.args.max_episode_len
         # Define sizes of observation and action spaces.
         self.gripper_lims = np.tile(np.concatenate(
@@ -83,7 +83,7 @@ class DeformEnv(gym.Env):
             file_path = os.path.join(parent, randfile)
         return file_path
 
-    def load_objects(self, sim, args):
+    def load_objects(self, sim, args, debug):
         scene_name = self.args.task.lower()
         if scene_name in ['hanggarment', 'bgarments', 'sewing','hangproccloth']:
            scene_name = 'hangcloth'  # same hanger for garments and cloths
@@ -189,7 +189,8 @@ class DeformEnv(gym.Env):
             robot_info = ROBOT_INFO.get(self.args.robot, None)
             robot_path = os.path.join(data_path, 'robots', self.args.robot,
                                       robot_info['file_name'])
-            print('Loading robot from', robot_path)
+            if debug:
+                print('Loading robot from', robot_path)
             if robot_info is None:
                 print('This robot is not yet supported:', self.args.robot)
             robot = BulletManipulator(
@@ -205,6 +206,7 @@ class DeformEnv(gym.Env):
                 left_ee_link_name=robot_info['left_ee_link_name'],
                 left_fing_link_prefix='panda_hand_l_', left_joint_suffix='_l',
                 left_rest_arm_qpos=robot_info['left_rest_arm_qpos'],
+                debug=debug
             )
         #
         # Load deformable object.
@@ -216,7 +218,7 @@ class DeformEnv(gym.Env):
             args.deform_init_pos, args.deform_init_ori,
             args.deform_bending_stiffness, args.deform_damping_stiffness,
             args.deform_elastic_stiffness, args.deform_friction_coeff,
-            not args.disable_self_collision, args.debug)
+            not args.disable_self_collision, debug)
         if scene_name == 'button':  # pin cloth edge for buttoning task
             assert ('deform_fixed_anchor_vertex_ids' in DEFORM_INFO[deform_obj])
             pin_fixed(sim, deform_id,
@@ -225,7 +227,7 @@ class DeformEnv(gym.Env):
         # Mark the goal.
         #
         goal_poses = SCENE_INFO[scene_name]['goal_pos']
-        if args.viz and args.debug:
+        if args.viz and debug:
             for i, goal_pos in enumerate(goal_poses):
                 print(f'goal_pos{i}', goal_pos)
                 alpha = 1 if i == 0 else 0.3  # primary vs secondary goal
@@ -247,7 +249,7 @@ class DeformEnv(gym.Env):
                 self.args.plane_texture_file))
         reset_bullet(self.args, self.sim, plane_texture=plane_texture_path)
         self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos, self.robot = \
-            self.load_objects(self.sim, self.args)
+            self.load_objects(self.sim, self.args, self.args.debug)
 
         # Special case for Procedural Cloth tasks that can have two holes:
         # reward is based on the closest hole.

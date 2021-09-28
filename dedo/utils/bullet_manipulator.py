@@ -75,18 +75,19 @@ class BulletManipulator:
                  left_ee_joint_name=None, left_ee_link_name=None,
                  left_fing_link_prefix=None, left_joint_suffix=None,
                  left_rest_arm_qpos=None,
-                 use_fixed_base=False, kp=0.1, kd=1.0, min_z=0.0):
+                 use_fixed_base=False, kp=0.1, kd=1.0, min_z=0.0, debug=False):
         assert(control_mode in
                ('ee_position', 'position', 'velocity', 'torque'))
         self.control_mode = control_mode
         self.kp = kp; self.kd = kd; self.min_z = min_z
-        self.debug_level = 0
+        self.debug = debug
         self.sim = sim
         # Load robot from URDF.
         if not os.path.isabs(robot_desc_file):
             robot_desc_file = os.path.join(os.path.split(__file__)[0], '..',
                                            'envs', 'data', robot_desc_file)
-        print('robot_desc_file', robot_desc_file)
+        if debug:
+            print('robot_desc_file', robot_desc_file)
         self.info = self.load_robot(
             robot_desc_file, ee_joint_name, ee_link_name,
             left_ee_joint_name, left_ee_link_name,
@@ -180,7 +181,8 @@ class BulletManipulator:
             ee_link_id, arm_jids_lst, ee_jid, finger_link_ids, finger_jids_lst,
             left_ee_link_id, left_arm_jids_lst,
             left_ee_jid, left_finger_link_ids, left_finger_jids_lst)
-        if self.debug_level>=0: info.print()
+        if self.debug:
+            info.print()
         return info
 
     def reset(self):
@@ -509,7 +511,7 @@ class BulletManipulator:
             if jpos > self.info.joint_maxpos[jid]:
                 jpos = self.info.joint_maxpos[jid]; ok = False
             if not ok:
-                if self.debug_level>0:
+                if self.debug:
                     print('fixing joint', self.info.joint_ids[jid],
                           'from pos', qpos[jid], 'to', jpos)
                 self.sim.resetJointState(
