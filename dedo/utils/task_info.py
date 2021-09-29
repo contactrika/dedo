@@ -58,7 +58,8 @@ TASK_INFO = {
               ],
     'FoodPacking': [
         # 'food/bagel.obj',
-        'ycb/005_tomato_soup_can/google_16k/08178_sparse_textured_ok.obj',
+        'ycb/018_plum/google_16k/08194_sparse_textured_ok.obj',
+        # 'ycb/005_tomato_soup_can/google_16k/08178_sparse_textured_ok.obj',
         # 'ycb/018_plum/google_16k/textured_ok.obj',
     ],
 }
@@ -212,29 +213,29 @@ SCENE_INFO = {
     },
     'foodpacking': {
         'entities': {
-            'urdf/brick.urdf': {
-                'basePosition': [-4.0, 4.0, 0.01],
+            'urdf/borders.urdf': {
+                'basePosition': [-1.5, 2.0, 0.5],
                 'baseOrientation': [0, 0, 0],
-                'globalScaling': 20.0,
-                'mass': 0.2,
+                'globalScaling': 4.0,
+                'mass': 0,
                 'useTexture': True,
             },
             'ycb/003_cracker_box/google_16k/textured.obj': {
-                'basePosition': [-2.0, 0.00, 1.0],
+                'basePosition': [2.0, 1.7, 0.25],
                 'baseOrientation': [0, 0, 0],
-                'globalScaling': 10.0,
+                'globalScaling': 8.0,
                 'mass': 0.2,
                 'rgbaColor': (0.9, 0.75, 0.65, 1),
             },
             'ycb/002_master_chef_can/google_16k/textured.obj': {
-                'basePosition': [2.0, 0.00, 0.7],
+                'basePosition': [1.0, 1.5, 0.25],
                 'baseOrientation': [0, 0, 0],
                 'globalScaling': 10.0,
                 'mass': 0.2,
                 'rgbaColor': (0.9, 0.75, 0.65, 1),
             },
         },
-        'goal_pos': [[-1, -0.23, 1.0]],
+        'goal_pos': [[-2.5, 2.0, 0.5]],
     },
 }
 
@@ -1242,26 +1243,12 @@ DEFORM_INFO = {
         'rigid_texture_file': "textures/rigid/lightwood.jpg",
         'deform_texture_file': 'textures/deform/pb_jeans.jpg',
     },
-    'ycb/018_plum/google_16k/textured_ok.obj': {
-        'deform_init_pos': [0, 5, 8],
-        'deform_init_ori': [np.pi/2, 0, 0],
-        'deform_scale': 0.05,
-        'anchor_init_pos': [1, 4.4722, 10.4271],
-        'other_anchor_init_pos': [-1,  4.4708, 10.4309],
-        'deform_elastic_stiffness': 30.0,
-        'deform_bending_stiffness': 10.0,
-        'deform_damping_stiffness': 0.01,
-        'cam_viewmat': [5, -9.8, 328, -0.44, 1.37, 8.7],
-        'plane_texture_file': 'textures/plane/brown_yellow_carpet.jpg',
-        'rigid_texture_file': "textures/rigid/lightwood.jpg",
-        'deform_texture_file': 'ycb/018_plum/google_16k/texture_map.png',
-    },
-    'ycb/005_tomato_soup_can/google_16k/08178_sparse_textured_ok.obj': {
-        'deform_init_pos': [2, 3, 1],
+    'ycb/018_plum/google_16k/08194_sparse_textured_ok.obj': {
+        'deform_init_pos': [1.0, 2.5, 0.6],
         'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
-        'deform_scale': 10.0,
-        'deform_elastic_stiffness': 100,
-        'deform_bending_stiffness': 10,
+        'deform_scale': 20.0,
+        'deform_elastic_stiffness': 30.0,
+        'deform_bending_stiffness': 30.0,
         'deform_damping_stiffness': 0.1,
         'cam_viewmat': [4.4, -45, 267, -0.03, 1.18, 3.2],
         'deform_anchor_vertices': [
@@ -1270,7 +1257,7 @@ DEFORM_INFO = {
         ],
         'rigid_texture_file': "textures/rigid/lightwood.jpg",
         'plane_texture_file': 'textures/plane/blue_carpet.jpg',
-        'deform_texture_file': 'textures/deform/pd_gold.jpg',
+        'deform_texture_file': 'ycb/018_plum/google_16k/texture_map.png',
     },
 }
 
@@ -1312,6 +1299,8 @@ ROBOT_INFO = {
         'use_fixed_base': True,
         'base_pos': np.array([5.0, 1.5, 0]),
         'rest_arm_qpos': np.array(
-           [-0.0988, 0.719, 0.0948, -1.9623, -0.0733, 2.6373, 0.758]),
+           # [-0.0671,  0.579,   0.0248, -2.8384, -0.0907,  3.3751,  0.7612]
+           [-0.0423,  0.6842, -0.0049, -3.0501, -0.0769,  3.6858,  0.7382]
+        )
    }
 }

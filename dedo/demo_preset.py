@@ -27,6 +27,8 @@ def play(env, num_episodes, args):
         deform_obj = 'cloth/button_cloth.obj'
     elif args.task == 'HangProcCloth':
         deform_obj = 'cloth/apron_0.obj'
+    elif args.task == 'FoodPacking':
+        deform_obj = 'food'
     else:
         deform_obj = env.deform_obj
 
@@ -137,7 +139,7 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq):
     traj_pos_vel = create_traj(init_anc_pos, wp[:, :3], steps, ctrl_freq)
     pos_traj = traj_pos_vel[:, :3]
     vel_traj = traj_pos_vel[:, 3:]
-    # plot_traj(pos_traj)
+    plot_traj(pos_traj)
     from scipy.interpolate import interp1d
     # xi = interp1d(ids, waypoints[:, 0], kind='cubic')(interp_i)
     # yi = interp1d(ids, waypoints[:, 1], kind='cubic')(interp_i)

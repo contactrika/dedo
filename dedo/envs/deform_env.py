@@ -208,6 +208,11 @@ class DeformEnv(gym.Env):
                 left_rest_arm_qpos=robot_info.get('left_rest_arm_qpos', None),
                 debug=debug
             )
+            #ee_pos = np.array([3.0, 1.5, 0.5])
+            #_, ee_quat, _, _ = robot.get_ee_pos_ori_vel()
+            #qpos = robot.ee_pos_to_qpos(ee_pos, ee_quat, fing_dist=0.01)
+            #print('qpos', qpos)
+            #input('cont')
         #
         # Load deformable object.
         #
@@ -326,7 +331,7 @@ class DeformEnv(gym.Env):
                            'left_ee_quat': left_ee_quat,
                            'left_fing_dist': 0.01})
         tgt_qpos = self.robot.ee_pos_to_qpos(**kwargs)
-        n_slack = 1  # use > 1 if robot has trouble reaching the pose
+        n_slack = 1 # use > 1 if robot has trouble reaching the pose
         sub_i = 0
         ee_th = 0.01
         diff = np.abs(tgt_ee_pos - full_ee_pos)
