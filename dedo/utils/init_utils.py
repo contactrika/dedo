@@ -21,7 +21,7 @@ def get_preset_properties(object_preset_dict, deform_obj_name, key):
 
 
 def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori,
-                      texture_file=None, rgba_color=None):
+                      mass=0.0, texture_file=None, rgba_color=None):
     """Load a rigid object from file, create visual and collision shapes."""
     if obj_file_name.endswith('.obj'):  # mesh info
         xyz_scale = [scale, scale, scale]
@@ -32,7 +32,7 @@ def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori,
             shapeType=pybullet.GEOM_MESH,
             fileName=obj_file_name, meshScale=xyz_scale)
         rigid_id = sim.createMultiBody(
-            baseMass=0.0,  # mass==0 => fixed at the position where it is loaded
+            baseMass=mass,  # mass==0 => fixed at position where it is loaded
             basePosition=init_pos,
             baseCollisionShapeIndex=col_shape_id,
             baseVisualShapeIndex=viz_shape_id,
@@ -40,7 +40,7 @@ def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori,
     elif obj_file_name.endswith('.urdf'):  # URDF file
         rigid_id = sim.loadURDF(
             obj_file_name, init_pos, pybullet.getQuaternionFromEuler(init_ori),
-            useFixedBase=1, globalScaling=scale)
+            useFixedBase=True if mass <= 0 else False, globalScaling=scale)
     else:
         print('Unknown file extension', obj_file_name)
         assert(False), 'load_rigid_object supports only obj and URDF files'

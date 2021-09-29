@@ -28,7 +28,6 @@ from ..utils.procedural_utils import (
 class DeformEnv(gym.Env):
     MAX_OBS_VEL = 20.0  # max vel (in m/s) for the anchor observations
     MAX_ACT_VEL = 10.0  # max vel (in m/s) for the anchor actions
-    NUM_ANCHORS = 2
     WORKSPACE_BOX_SIZE = 20.0  # workspace box limits (needs to be >=1)
     STEPS_AFTER_DONE = 500     # steps after releasing anchors at the end
     FORCE_REWARD_MULT = 1e-4   # scaling for the force penalties
@@ -45,10 +44,11 @@ class DeformEnv(gym.Env):
         self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos, self.robot = \
             self.load_objects(self.sim, self.args, debug=True)
         self.max_episode_len = self.args.max_episode_len
+        self.num_anchors = 1 if args.robot == 'franka1' else 2
         # Define sizes of observation and action spaces.
         self.gripper_lims = np.tile(np.concatenate(
             [DeformEnv.WORKSPACE_BOX_SIZE * np.ones(3),  # 3D pos
-             np.ones(3)]), DeformEnv.NUM_ANCHORS)        # 3D linvel/MAX_OBS_VEL
+             np.ones(3)]), self.num_anchors)        # 3D linvel/MAX_OBS_VEL
         if args.cam_resolution <= 0:  # report gripper positions as low-dim obs
             self.observation_space = gym.spaces.Box(
                 -1.0 * self.gripper_lims, self.gripper_lims)
@@ -61,8 +61,8 @@ class DeformEnv(gym.Env):
                 dtype=np.uint8 if args.uint8_pixels else np.float16,
                 shape=shape)
         self.action_space = gym.spaces.Box(  # [-1,1]
-            -1.0 * np.ones(DeformEnv.NUM_ANCHORS * 3),
-            np.ones(DeformEnv.NUM_ANCHORS * 3))
+            -1.0 * np.ones(self.num_anchors * 3),
+            np.ones(self.num_anchors * 3))
         # Loading done, turn on visualizer if needed
         if self.args.viz:
             self.sim.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 1)
@@ -178,7 +178,7 @@ class DeformEnv(gym.Env):
             id = load_rigid_object(
                 sim, os.path.join(data_path, name), kwargs['globalScaling'],
                 kwargs['basePosition'], kwargs['baseOrientation'],
-                texture_file, rgba_color)
+                kwargs.get('mass', 0.0), texture_file, rgba_color)
             rigid_ids.append(id)
         #
         # Load the robot if needed.
@@ -187,7 +187,7 @@ class DeformEnv(gym.Env):
 
         if self.args.robot != 'anchor':
             robot_info = ROBOT_INFO.get(self.args.robot, None)
-            robot_path = os.path.join(data_path, 'robots', self.args.robot,
+            robot_path = os.path.join(data_path, 'robots',
                                       robot_info['file_name'])
             if debug:
                 print('Loading robot from', robot_path)
@@ -262,7 +262,7 @@ class DeformEnv(gym.Env):
            self.debug_viz_cent_loop()
 
         # Setup dynamic anchors.
-        for i in range(DeformEnv.NUM_ANCHORS):  # make anchors
+        for i in range(self.num_anchors):  # make anchors
             anchor_init_pos = self.args.anchor_init_pos if (i % 2) == 0 else \
                 self.args.other_anchor_init_pos
             preset_dynamic_anchor_vertices = get_preset_properties(
@@ -275,7 +275,7 @@ class DeformEnv(gym.Env):
                 attach_anchor(self.sim, anchor_id, anchor_vertices, self.deform_id)
                 self.anchors[anchor_id] = {'pos': anchor_pos,
                                            'vertices': anchor_vertices}
-            elif not self.args.task.startswith('FrankaPacking'):
+            elif not self.args.task.startswith('FoodPacking'):
                 # Attach robot fingers to cloth grasping locations.
                 assert(preset_dynamic_anchor_vertices is not None)
                 anchor_pos = np.array(mesh[preset_dynamic_anchor_vertices[i][0]])
@@ -302,7 +302,8 @@ class DeformEnv(gym.Env):
 
     def debug_viz_cent_loop(self):
         # DEBUG visualize true loop center
-        if not hasattr(self.args, "deform_true_loop_vertices"): return
+        if not hasattr(self.args, 'deform_true_loop_vertices'):
+            return
         _, vertex_positions = get_mesh_data(self.sim, self.deform_id)
         v = np.array(vertex_positions)
         for i, true_loop_vertices in enumerate(
@@ -356,12 +357,12 @@ class DeformEnv(gym.Env):
                 action *= DeformEnv.MAX_ACT_VEL
             else:
                 action *= DeformEnv.WORKSPACE_BOX_SIZE  # pos control for robots
-        action = action.reshape(DeformEnv.NUM_ANCHORS, 3)
+        action = action.reshape(self.num_anchors, 3)
 
         # Step through physics simulation.
         raw_force_accum = 0.0
         for sim_step in range(self.args.sim_steps_per_action):
-            for i in range(DeformEnv.NUM_ANCHORS):
+            for i in range(self.num_anchors):
                 if self.args.robot == 'anchor':
                     curr_force = command_anchor_velocity(
                         self.sim, self.anchor_ids[i], action[i])
@@ -393,7 +394,7 @@ class DeformEnv(gym.Env):
                         # pull the end away
                         action = [10*DeformEnv.MAX_ACT_VEL,
                                   10*DeformEnv.MAX_ACT_VEL, 0]
-                        for i in range(DeformEnv.NUM_ANCHORS):
+                        for i in range(self.num_anchors):
                             if self.args.robot == 'anchor':
                                 command_anchor_velocity(
                                     self.sim, self.anchor_ids[i], action)
@@ -422,7 +423,7 @@ class DeformEnv(gym.Env):
         anc_obs = []
         done = False
         if self.args.robot == 'anchor':
-            for i in range(DeformEnv.NUM_ANCHORS):
+            for i in range(self.num_anchors):
                 pos, _ = self.sim.getBasePositionAndOrientation(
                     self.anchor_ids[i])
                 linvel, _ = self.sim.getBaseVelocity(self.anchor_ids[i])
@@ -444,6 +445,8 @@ class DeformEnv(gym.Env):
                 anc_obs.extend(pos)
                 anc_obs.extend((np.array(linvel)/DeformEnv.MAX_OBS_VEL))
         anc_obs = np.nan_to_num(np.array(anc_obs))
+        print('!!!!!!!!!!! self.gripper_lims', self.gripper_lims)
+        print('anc_obs', anc_obs)
         if (np.abs(anc_obs) > self.gripper_lims).any():  # reached workspace lims
             if self.args.debug:
                 print('clipping anchor obs', anc_obs)

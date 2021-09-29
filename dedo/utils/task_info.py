@@ -56,7 +56,11 @@ TASK_INFO = {
     'Debug': ['cloth/apron_0_large.obj',
               'bags/backpack_0.obj',
               ],
-    'FoodPacking': ['ycb/018_plum/google_16k/textured_ok.obj'],
+    'FoodPacking': [
+        # 'food/bagel.obj',
+        'ycb/005_tomato_soup_can/google_16k/08178_sparse_textured_ok.obj',
+        # 'ycb/018_plum/google_16k/textured_ok.obj',
+    ],
 }
 TOTE_VARS_PER_VERSION = 36  # num. tote mesh variants per major mesh version
 TOTE_MAJOR_VERSIONS = 3  # num. major mesh versions for totes (108 meshes total)
@@ -209,24 +213,28 @@ SCENE_INFO = {
     'foodpacking': {
         'entities': {
             'urdf/brick.urdf': {
-                'basePosition': [-0.22, 0, 3.00],
+                'basePosition': [-0.22, 0, 0.01],
                 'baseOrientation': [0, 0, np.pi / 2],
-                'globalScaling': 10,
+                'globalScaling': 10.0,
+                'mass': 0.2,
                 'useTexture': True,
             },
             'ycb/003_cracker_box/google_16k/textured.obj': {
-                'basePosition': [-0.22, 0.00, 6.54],  # [-0.22, 0.00, 0.64],
-                'baseOrientation': [0, 0, np.pi * 1.05],
-                'globalScaling': 5.0,
+                'basePosition': [-0.22, 0.00, 1.0],
+                'baseOrientation': [0, 0, 0],
+                'globalScaling': 10.0,
+                'mass': 0.2,
                 'rgbaColor': (0.9, 0.75, 0.65, 1),
             },
             'ycb/002_master_chef_can/google_16k/textured.obj': {
-                'basePosition': [0.22, 0.00, 6.54],  # [-0.22, 0.00, 0.64],
-                'baseOrientation': [0, 0, np.pi * 1.05],
-                'globalScaling': 5.0,
+                'basePosition': [0.22, 0.00, 0.7],
+                'baseOrientation': [0, 0, 0],
+                'globalScaling': 10.0,
+                'mass': 0.2,
                 'rgbaColor': (0.9, 0.75, 0.65, 1),
             },
         },
+        'goal_pos': [[-1, -0.23, 1.0]],
     },
 }
 
@@ -1247,7 +1255,23 @@ DEFORM_INFO = {
         'plane_texture_file': 'textures/plane/brown_yellow_carpet.jpg',
         'rigid_texture_file': "textures/rigid/lightwood.jpg",
         'deform_texture_file': 'ycb/018_plum/google_16k/texture_map.png',
-    }
+    },
+    'ycb/005_tomato_soup_can/google_16k/08178_sparse_textured_ok.obj': {
+        'deform_init_pos': [2, 3, 1],
+        'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
+        'deform_scale': 4,
+        'deform_elastic_stiffness': 100,
+        'deform_bending_stiffness': 10,
+        'deform_damping_stiffness': 0.1,
+        'cam_viewmat': [4.4, -45, 267, -0.03, 1.18, 3.2],
+        'deform_anchor_vertices': [
+            [397],
+            [457],
+        ],
+        'rigid_texture_file': "textures/rigid/lightwood.jpg",
+        'plane_texture_file': 'textures/plane/blue_carpet.jpg',
+        'deform_texture_file': 'textures/deform/pd_gold.jpg',
+    },
 }
 
 # Default camera values: [distance, pitch, yaw, posX, posY, posZ]
@@ -1267,7 +1291,7 @@ DEFAULT_CAM_PROJECTION = {
 
 ROBOT_INFO = {
     'franka': {
-        'file_name': 'franka_dual.urdf',
+        'file_name': 'franka/franka_dual.urdf',
         'ee_joint_name': 'panda_joint7_r',
         'ee_link_name': 'panda_hand_r',
         'left_ee_joint_name': 'panda_joint7_l',
@@ -1280,10 +1304,10 @@ ROBOT_INFO = {
         'left_rest_arm_qpos': np.array(
             [0.7732, -0.0135,  -0.0212, -0.68,   0.0978, 1.99, -0.5592]),
    },
-    'franka_pack': {
-        'file_name': 'franka_small_fingers.urdf',
-        'ee_joint_name': 'panda_joint7_r',
-        'ee_link_name': 'panda_hand_r',
+    'franka1': {
+        'file_name': 'franka/franka_small_fingers.urdf',
+        'ee_joint_name': 'panda_joint7',
+        'ee_link_name': 'panda_hand',
         'global_scaling': 10.0,
         'use_fixed_base': True,
         'base_pos': np.array([5.0, 1.5, 0]),
