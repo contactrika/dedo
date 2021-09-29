@@ -3,7 +3,7 @@ import os
 import time
 from os.path import join
 
-datapath = '/media/pyshi/newssd/sewing/'
+datapath = '/media/pyshi/newssd/sewing_dataset/'
 
 # Delete everything in the scene
 def delete_all():
@@ -17,7 +17,7 @@ def delete_all():
         # bpy.context.view_layer.objects.active = scene_obj
         # bpy.ops.object.delete()
 
-import_dir = join(datapath, 'clean/')
+import_dir = join(datapath, 'clean_22000/')
 files = os.listdir(import_dir)
 files_len = len(files)
 start_time = time.time()
@@ -47,7 +47,7 @@ for i, file_name in enumerate(files):
     status = bpy.ops.mesh.decimate(ratio=0.05)
 
     # Export
-    outfile = join(datapath, 'simplified', f'{v_len:05d}_' + file_name)
+    outfile = join(datapath, 'simplified_22000', f'{v_len:05d}_' + file_name)
     bpy.ops.export_scene.obj(filepath=outfile)
 
     # Stats
