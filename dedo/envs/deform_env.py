@@ -316,14 +316,16 @@ class DeformEnv(gym.Env):
 
     def do_robot_action(self, action):
         tgt_ee_pos = action  # position control for the robot
-        ee_pos, ee_quat, _, _ = self.robot.get_ee_pos_ori_vel()
-        left_ee_pos, left_ee_quat, _, _ = self.robot.get_ee_pos_ori_vel(
-            left=True)
-        full_ee_pos = np.vstack([ee_pos, left_ee_pos])
-        tgt_qpos = self.robot.ee_pos_to_qpos(
-            ee_pos=tgt_ee_pos[0], ee_quat=ee_quat, fing_dist=0.01,
-            left_ee_pos=tgt_ee_pos[1], left_ee_quat=left_ee_quat,
-            left_fing_dist=0.01)
+        full_ee_pos, ee_quat, _, _ = self.robot.get_ee_pos_ori_vel()
+        kwargs = {'ee_pos': tgt_ee_pos[0], 'ee_quat': ee_quat, 'fing_dist': 0.01}
+        if self.args.robot == 'franka':
+            left_ee_pos, left_ee_quat, _, _ = self.robot.get_ee_pos_ori_vel(
+                left=True)
+            full_ee_pos = np.vstack([full_ee_pos, left_ee_pos])
+            kwargs.update({'left_ee_pos': tgt_ee_pos[1],
+                           'left_ee_quat': left_ee_quat,
+                           'left_fing_dist': 0.01})
+        tgt_qpos = self.robot.ee_pos_to_qpos(**kwargs)
         n_slack = 1  # use > 1 if robot has trouble reaching the pose
         sub_i = 0
         ee_th = 0.01
@@ -332,9 +334,10 @@ class DeformEnv(gym.Env):
             self.robot.move_to_qpos(
                 tgt_qpos, mode=pybullet.POSITION_CONTROL, kp=0.1, kd=1.0)
             self.sim.stepSimulation()
-            ee_pos = self.robot.get_ee_pos()
-            left_ee_pos = self.robot.get_ee_pos(left=True)
-            full_ee_pos = np.vstack([ee_pos, left_ee_pos])
+            full_ee_pos = self.robot.get_ee_pos()
+            if self.args.robot == 'franka':
+                left_ee_pos = self.robot.get_ee_pos(left=True)
+                full_ee_pos = np.vstack([full_ee_pos, left_ee_pos])
             diff = tgt_ee_pos - full_ee_pos
             sub_i += 1
             if sub_i >= n_slack:
@@ -430,6 +433,7 @@ class DeformEnv(gym.Env):
                 anc_obs.extend(pos)
                 anc_obs.extend((np.array(linvel)/DeformEnv.MAX_OBS_VEL))
         else:
+            assert(self.robot is not None)
             ee_pos, _, ee_linvel, _ = self.robot.get_ee_pos_ori_vel()
             anc_obs.extend(ee_pos)
             anc_obs.extend((np.array(ee_linvel)/DeformEnv.MAX_OBS_VEL))
@@ -438,15 +442,14 @@ class DeformEnv(gym.Env):
                     self.robot.get_ee_pos_ori_vel(left=True)
                 anc_obs.extend(left_ee_pos)
                 anc_obs.extend((np.array(left_ee_linvel)/DeformEnv.MAX_OBS_VEL))
-            else:  # EE pos, vel of the base for mobile robots
+            elif not ROBOT_INFO[self.args.robot]['use_fixed_base']:
+                # EE pos, vel of the base for mobile robots.
                 pos, _ = self.sim.getBasePositionAndOrientation(
                     self.robot.info.robot_id)
                 linvel, _ = self.sim.getBaseVelocity(self.robot.info.robot_id)
                 anc_obs.extend(pos)
                 anc_obs.extend((np.array(linvel)/DeformEnv.MAX_OBS_VEL))
         anc_obs = np.nan_to_num(np.array(anc_obs))
-        print('!!!!!!!!!!! self.gripper_lims', self.gripper_lims)
-        print('anc_obs', anc_obs)
         if (np.abs(anc_obs) > self.gripper_lims).any():  # reached workspace lims
             if self.args.debug:
                 print('clipping anchor obs', anc_obs)

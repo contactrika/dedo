@@ -55,20 +55,24 @@ def play(env, num_episodes, args):
             vidwriter.write(img[..., ::-1])
         if args.debug:
             viz_waypoints(env.sim, preset_wp['a'], (1, 0, 0, 1))
-            viz_waypoints(env.sim, preset_wp['b'], (1, 0, 0, 0.5))
+            if 'b' in preset_wp:
+                viz_waypoints(env.sim, preset_wp['b'], (1, 0, 0, 0.5))
         # Need to step to get low-dim state from info.
         step = 0
         ctrl_freq = args.sim_freq / args.sim_steps_per_action
-        pos_traj_a, traj_a = build_traj(
+        pos_traj, traj = build_traj(
             env, preset_wp, 'a', anchor_idx=0, ctrl_freq=ctrl_freq)
-        pos_traj_b, traj_b = build_traj(
-            env, preset_wp, 'b', anchor_idx=1, ctrl_freq=ctrl_freq)
-        # traj_b = np.zeros_like(traj_b)
+        pos_traj_b, traj_b = None, None
+        if 'b' in preset_wp:
+            pos_traj_b, traj_b = build_traj(
+                env, preset_wp, 'b', anchor_idx=1, ctrl_freq=ctrl_freq)
         if env.robot is None:
-            traj = merge_traj(traj_a, traj_b)
+            if traj_b is not None:
+                traj = merge_traj(traj, traj_b)
             last_action = np.zeros_like(traj[0])
         else:
-            traj = merge_traj(pos_traj_a, pos_traj_b)
+            if pos_traj_b is not None:
+                traj = merge_traj(pos_traj, pos_traj_b)
             last_action = traj[-1]
 
         gif_frames = []

@@ -213,21 +213,21 @@ SCENE_INFO = {
     'foodpacking': {
         'entities': {
             'urdf/brick.urdf': {
-                'basePosition': [-0.22, 0, 0.01],
-                'baseOrientation': [0, 0, np.pi / 2],
-                'globalScaling': 10.0,
+                'basePosition': [-4.0, 4.0, 0.01],
+                'baseOrientation': [0, 0, 0],
+                'globalScaling': 20.0,
                 'mass': 0.2,
                 'useTexture': True,
             },
             'ycb/003_cracker_box/google_16k/textured.obj': {
-                'basePosition': [-0.22, 0.00, 1.0],
+                'basePosition': [-2.0, 0.00, 1.0],
                 'baseOrientation': [0, 0, 0],
                 'globalScaling': 10.0,
                 'mass': 0.2,
                 'rgbaColor': (0.9, 0.75, 0.65, 1),
             },
             'ycb/002_master_chef_can/google_16k/textured.obj': {
-                'basePosition': [0.22, 0.00, 0.7],
+                'basePosition': [2.0, 0.00, 0.7],
                 'baseOrientation': [0, 0, 0],
                 'globalScaling': 10.0,
                 'mass': 0.2,
@@ -1259,7 +1259,7 @@ DEFORM_INFO = {
     'ycb/005_tomato_soup_can/google_16k/08178_sparse_textured_ok.obj': {
         'deform_init_pos': [2, 3, 1],
         'deform_init_ori': [-np.pi / 2, -np.pi, np.pi],
-        'deform_scale': 4,
+        'deform_scale': 10.0,
         'deform_elastic_stiffness': 100,
         'deform_bending_stiffness': 10,
         'deform_damping_stiffness': 0.1,
