@@ -4,7 +4,7 @@ import time
 from os.path import join
 
 # datapath = '/media/pyshi/newssd/sewing_dataset/'
-datapath = '/home/pyshi/code/dedo/dedo/data/ycb/005_tomato_soup_can/google_16k'
+datapath = '/home/pyshi/code/dedo/dedo/data/ycb/018_plum/google_16k'
 
 # Delete everything in the scene
 def delete_all():
