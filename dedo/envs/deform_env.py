@@ -202,10 +202,10 @@ class DeformEnv(gym.Env):
                 global_scaling=robot_info['global_scaling'],
                 use_fixed_base=robot_info['use_fixed_base'],
                 rest_arm_qpos=robot_info['rest_arm_qpos'],
-                left_ee_joint_name=robot_info['left_ee_joint_name'],
-                left_ee_link_name=robot_info['left_ee_link_name'],
+                left_ee_joint_name=robot_info.get('left_ee_joint_name', None),
+                left_ee_link_name=robot_info.get('left_ee_link_name', None),
                 left_fing_link_prefix='panda_hand_l_', left_joint_suffix='_l',
-                left_rest_arm_qpos=robot_info['left_rest_arm_qpos'],
+                left_rest_arm_qpos=robot_info.get('left_rest_arm_qpos', None),
                 debug=debug
             )
         #
@@ -275,7 +275,8 @@ class DeformEnv(gym.Env):
                 attach_anchor(self.sim, anchor_id, anchor_vertices, self.deform_id)
                 self.anchors[anchor_id] = {'pos': anchor_pos,
                                            'vertices': anchor_vertices}
-            else:  # attach robot fingers to cloth grasping locations
+            elif not self.args.task.startswith('FrankaPacking'):
+                # Attach robot fingers to cloth grasping locations.
                 assert(preset_dynamic_anchor_vertices is not None)
                 anchor_pos = np.array(mesh[preset_dynamic_anchor_vertices[i][0]])
                 if not np.isfinite(anchor_pos).all():
