@@ -44,6 +44,9 @@ def load_rigid_object(sim, obj_file_name, scale, init_pos, init_ori,
     else:
         print('Unknown file extension', obj_file_name)
         assert(False), 'load_rigid_object supports only obj and URDF files'
+    sim.changeDynamics(rigid_id, -1, mass, lateralFriction=1.0,
+                       spinningFriction=1.0, rollingFriction=1.0,
+                       restitution=0.0)
     n_jt = sim.getNumJoints(rigid_id)
 
     if texture_file is not None:

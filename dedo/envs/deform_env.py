@@ -14,7 +14,8 @@ import pybullet_utils.bullet_client as bclient
 from ..utils.anchor_utils import (
     create_anchor, attach_anchor, create_anchor_geom, command_anchor_velocity,
     release_anchor, pin_fixed, get_closest)
-from ..utils.bullet_manipulator import BulletManipulator
+from ..utils.bullet_manipulator import (
+    BulletManipulator, sin_cos_to_quat)
 from ..utils.init_utils import (
     load_deform_object, load_rigid_object, reset_bullet, get_preset_properties)
 from ..utils.mesh_utils import get_mesh_data
@@ -31,8 +32,9 @@ class DeformEnv(gym.Env):
     WORKSPACE_BOX_SIZE = 20.0  # workspace box limits (needs to be >=1)
     STEPS_AFTER_DONE = 500     # steps after releasing anchors at the end
     FORCE_REWARD_MULT = 1e-4   # scaling for the force penalties
-    FINAL_REWARD_MULT = 400     # multiply the final reward (for sparse rewards)
+    FINAL_REWARD_MULT = 400    # multiply the final reward (for sparse rewards)
     SUCESS_REWARD_TRESHOLD = 2.5  # approx. threshold for task success/failure
+    ROBOT_ACTION_SIZE = 3 + 3*2   # 3D position + sin,cos for 3 Euler angles
 
     def __init__(self, args):
         self.args = args
@@ -40,9 +42,11 @@ class DeformEnv(gym.Env):
         # Initialize sim and load objects.
         self.sim = bclient.BulletClient(
             connection_mode=pybullet.GUI if args.viz else pybullet.DIRECT)
+        if self.args.viz:  # no rendering during load
+            self.sim.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 0)
         reset_bullet(args, self.sim, debug=args.debug)
-        self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos, self.robot = \
-            self.load_objects(self.sim, self.args, debug=True)
+        self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos, \
+            self.robot = self.load_objects(self.sim, self.args, debug=True)
         self.max_episode_len = self.args.max_episode_len
         self.num_anchors = 1 if args.robot == 'franka1' else 2
         # Define sizes of observation and action spaces.
@@ -60,12 +64,10 @@ class DeformEnv(gym.Env):
                 low=0, high=255 if args.uint8_pixels else 1.0,
                 dtype=np.uint8 if args.uint8_pixels else np.float16,
                 shape=shape)
-        self.action_space = gym.spaces.Box(  # [-1,1]
-            -1.0 * np.ones(self.num_anchors * 3),
-            np.ones(self.num_anchors * 3))
-        # Loading done, turn on visualizer if needed
-        if self.args.viz:
-            self.sim.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 1)
+        act_sz = 3 if args.robot == 'anchor' else DeformEnv.ROBOT_ACTION_SIZE
+        self.action_space = gym.spaces.Box(  # [-1, 1]
+            -1.0 * np.ones(self.num_anchors * act_sz),
+            np.ones(self.num_anchors * act_sz))
         if self.args.debug:
             print('Created DeformEnv with obs', self.observation_space.shape,
                   'act', self.action_space.shape)
@@ -208,11 +210,6 @@ class DeformEnv(gym.Env):
                 left_rest_arm_qpos=robot_info.get('left_rest_arm_qpos', None),
                 debug=debug
             )
-            #ee_pos = np.array([3.0, 1.5, 0.5])
-            #_, ee_quat, _, _ = robot.get_ee_pos_ori_vel()
-            #qpos = robot.ee_pos_to_qpos(ee_pos, ee_quat, fing_dist=0.01)
-            #print('qpos', qpos)
-            #input('cont')
         #
         # Load deformable object.
         #
@@ -248,13 +245,16 @@ class DeformEnv(gym.Env):
         self.episode_reward = 0.0
         self.anchors = {}
 
+        if self.args.viz:  # no rendering during load
+            self.sim.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 0)
+
         # Reset pybullet sim to clear out deformables and reload objects.
         plane_texture_path = os.path.join(
             self.args.data_path,  self.get_texture_path(
                 self.args.plane_texture_file))
         reset_bullet(self.args, self.sim, plane_texture=plane_texture_path)
-        self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos, self.robot = \
-            self.load_objects(self.sim, self.args, self.args.debug)
+        self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos, \
+            self.robot = self.load_objects(self.sim, self.args, self.args.debug)
 
         # Special case for Procedural Cloth tasks that can have two holes:
         # reward is based on the closest hole.
@@ -320,37 +320,31 @@ class DeformEnv(gym.Env):
             #                     rgba=(0, 1, 0.8, alpha), use_collision=False)
 
     def do_robot_action(self, action):
-        tgt_ee_pos = action  # position control for the robot
-        full_ee_pos, ee_quat, _, _ = self.robot.get_ee_pos_ori_vel()
-        kwargs = {'ee_pos': tgt_ee_pos[0], 'ee_quat': ee_quat, 'fing_dist': 0.01}
+        ee_pos, ee_ori, _, _ = self.robot.get_ee_pos_ori_vel()
+        tgt_ee_ori = ee_ori if action.shape[-1] == 3 else action[0, 3:]
+        tgt_kwargs = {'ee_pos': action[0, :3],
+                      'ee_ori': tgt_ee_ori, 'fing_dist': 0.01}
         if self.args.robot == 'franka':
-            left_ee_pos, left_ee_quat, _, _ = self.robot.get_ee_pos_ori_vel(
-                left=True)
-            full_ee_pos = np.vstack([full_ee_pos, left_ee_pos])
-            kwargs.update({'left_ee_pos': tgt_ee_pos[1],
-                           'left_ee_quat': left_ee_quat,
-                           'left_fing_dist': 0.01})
-        tgt_qpos = self.robot.ee_pos_to_qpos(**kwargs)
-        n_slack = 1 # use > 1 if robot has trouble reaching the pose
+            res = self.robot.get_ee_pos_ori_vel(left=True)
+            left_ee_pos, left_ee_ori = res[0], res[1]
+            left_tgt_ee_ori = left_ee_ori if action.shape[-1] == 3 else \
+                action[1, 3:]
+            tgt_kwargs.update({'left_ee_pos': action[1, :3],
+                               'left_ee_ori': left_tgt_ee_ori,
+                               'left_fing_dist': 0.01})
+        tgt_qpos = self.robot.ee_pos_to_qpos(**tgt_kwargs)
+        n_slack = 1  # use > 1 if robot has trouble reaching the pose
         sub_i = 0
         ee_th = 0.01
-        diff = np.abs(tgt_ee_pos - full_ee_pos)
+        diff = self.robot.get_qpos() - tgt_qpos
         while (diff > ee_th).any():
             self.robot.move_to_qpos(
                 tgt_qpos, mode=pybullet.POSITION_CONTROL, kp=0.1, kd=1.0)
             self.sim.stepSimulation()
-            full_ee_pos = self.robot.get_ee_pos()
-            if self.args.robot == 'franka':
-                left_ee_pos = self.robot.get_ee_pos(left=True)
-                full_ee_pos = np.vstack([full_ee_pos, left_ee_pos])
-            diff = tgt_ee_pos - full_ee_pos
+            diff = self.robot.get_qpos() - tgt_qpos
             sub_i += 1
             if sub_i >= n_slack:
                 diff = np.zeros_like(diff)  # set while loop to done
-        # if self.args.debug:
-        #     print('tgt_ee_pos', tgt_ee_pos, 'vs current',
-        #           ee_pos, left_ee_pos, 'tgt_qpos', tgt_qpos, 'sub_i', sub_i)
-        return full_ee_pos
 
     def step(self, action, unscaled=False):
         # action is num_anchors x 3 for 3D velocity for anchors/grippers;
@@ -365,7 +359,7 @@ class DeformEnv(gym.Env):
                 action *= DeformEnv.MAX_ACT_VEL
             else:
                 action *= DeformEnv.WORKSPACE_BOX_SIZE  # pos control for robots
-        action = action.reshape(self.num_anchors, 3)
+        action = action.reshape(self.num_anchors, -1)
 
         # Step through physics simulation.
         raw_force_accum = 0.0
@@ -385,16 +379,22 @@ class DeformEnv(gym.Env):
             reward *= (self.max_episode_len - self.stepnum)
         done = (done or self.stepnum >= self.max_episode_len)
         info = {}
-        final_tgt_ee_pos = None
+        final_action = None
         # Compute final reward by releasing anchor and letting the object fall.
         if done:
             # release_anchor(self.sim, self.anchor_ids[0])
             # release_anchor(self.sim, self.anchor_ids[1])
-            if self.robot is not None:
-                final_tgt_ee_pos = np.vstack([  # keep same ee pos
-                    self.robot.get_ee_pos(), self.robot.get_ee_pos(left=True)])
+            if self.robot is not None:  # keep same ee pos
+                ee_pos, ee_ori, *_ = self.robot.get_ee_pos_ori_vel()
+                final_action = np.hstack([ee_pos, ee_ori]).reshape(1, -1)
+                if self.args.robot == 'franka':
+                    left_ee_pos, left_ee_ori, *_ = \
+                        self.robot.get_ee_pos_ori_vel(left=True)
+                    final_left_action = np.hstack(
+                        [left_ee_pos, left_ee_ori]).reshape(1, -1)
+                    final_action = np.vstack([final_action, final_left_action])
                 if self.args.debug:
-                    print('final_tgt_ee_pos', final_tgt_ee_pos)
+                    print('final_action', final_action)
             for sim_step in range(self.STEPS_AFTER_DONE):
                 # For lasso pull the string at the end to test lasso loop.
                 if self.args.task.lower() == 'lasso':
@@ -407,7 +407,7 @@ class DeformEnv(gym.Env):
                                 command_anchor_velocity(
                                     self.sim, self.anchor_ids[i], action)
                 if self.robot is not None:
-                    self.do_robot_action(final_tgt_ee_pos)
+                    self.do_robot_action(final_action)
                     # self.sim.removeConstraint(self.robot.info.robot_id)
                 self.sim.stepSimulation()
             last_rwd = self.get_reward() * DeformEnv.FINAL_REWARD_MULT

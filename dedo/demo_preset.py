@@ -22,6 +22,9 @@ import wandb
 import cv2
 
 
+from .utils.bullet_manipulator import convert_all
+
+
 def play(env, num_episodes, args):
     if args.task == 'ButtonProc':
         deform_obj = 'cloth/button_cloth.obj'
@@ -62,24 +65,36 @@ def play(env, num_episodes, args):
         # Need to step to get low-dim state from info.
         step = 0
         ctrl_freq = args.sim_freq / args.sim_steps_per_action
-        pos_traj, traj = build_traj(
+        pos_traj, vel_traj = build_traj(
             env, preset_wp, 'a', anchor_idx=0, ctrl_freq=ctrl_freq)
         pos_traj_b, traj_b = None, None
         if 'b' in preset_wp:
             pos_traj_b, traj_b = build_traj(
                 env, preset_wp, 'b', anchor_idx=1, ctrl_freq=ctrl_freq)
         if env.robot is None:
+            traj = vel_traj
             if traj_b is not None:
                 traj = merge_traj(traj, traj_b)
             last_action = np.zeros_like(traj[0])
         else:
+            traj = pos_traj
             if pos_traj_b is not None:
                 traj = merge_traj(pos_traj, pos_traj_b)
             last_action = traj[-1]
+        traj_ori = preset_wp.get('a_theta', None)
+        if traj_ori is not None:
+            traj_ori = convert_all(np.array(traj_ori), 'theta_to_sin_cos')
+            n_repeats = traj.shape[0]//len(traj_ori)
+            traj_ori = np.repeat(traj_ori, n_repeats, axis=0)
+            print('traj_ori', traj_ori.shape, traj_ori)
+            assert(traj_ori.shape[0] == traj.shape[0])
+            assert(traj_ori.shape[1] == 6)  # Euler sin,sin,sin,cos,cos,cos
+            traj = np.hstack([traj, traj_ori])
 
         gif_frames = []
         rwds = []
         print(f'# {args.env}:')
+
         while True:
             assert (not isinstance(env.action_space, gym.spaces.Discrete))
 
@@ -139,7 +154,7 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq):
     traj_pos_vel = create_traj(init_anc_pos, wp[:, :3], steps, ctrl_freq)
     pos_traj = traj_pos_vel[:, :3]
     vel_traj = traj_pos_vel[:, 3:]
-    plot_traj(pos_traj)
+    # plot_traj(pos_traj)
     from scipy.interpolate import interp1d
     # xi = interp1d(ids, waypoints[:, 0], kind='cubic')(interp_i)
     # yi = interp1d(ids, waypoints[:, 1], kind='cubic')(interp_i)

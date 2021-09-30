@@ -115,6 +115,10 @@ class BulletManipulator:
             assert(len(self.info.left_arm_jids_lst)==len(left_rest_arm_qpos))
             self.rest_qpos[self.info.left_arm_jids_lst] = left_rest_arm_qpos[:]
         self.reset()
+        ee_pos, ee_ori, *_ = self.get_ee_pos_ori_vel()
+        print('Initialized robot ee at pos', ee_pos,
+              'euler ori', sin_cos_to_theta(ee_ori),
+              'sin/cos ori', ee_ori)
 
     def load_robot(self, robot_path, ee_joint_name, ee_link_name,
                    left_ee_joint_name, left_ee_link_name,
@@ -208,14 +212,6 @@ class BulletManipulator:
             self.info.robot_id, self.info.joint_ids.tolist(),
             pybullet.TORQUE_CONTROL, forces=[0]*self.info.dof)
 
-    def reset_objects(self, ids, poses, quats):
-        for objid in range(len(ids)):
-            self.sim.resetBasePositionAndOrientation(
-                ids[objid], poses[objid], quats[objid])
-
-    def disconnect(self):
-        self.sim.disconnect()
-
     def set_joint_limits(self, minpos, maxpos):
         self.info.joint_minpos[:] = minpos[:]
         self.info.joint_maxpos[:] = maxpos[:]
@@ -264,16 +260,22 @@ class BulletManipulator:
         ee_link_id = self.info.left_ee_link_id if left else self.info.ee_link_id
         ee_state = self.sim.getLinkState(
             self.info.robot_id, ee_link_id, computeLinkVelocity=1)
-        return np.array(ee_state[0]), np.array(ee_state[1]),\
-               np.array(ee_state[6]), np.array(ee_state[7])
+        pos = np.array(ee_state[0])
+        quat = np.array(ee_state[1])
+        ori = quat_to_sin_cos(quat)
+        lin_vel = np.array(ee_state[6])
+        ang_vel = np.array(ee_state[7])
+        return pos, ori, lin_vel, ang_vel
 
-    def _ee_pos_to_qpos_raw(self, ee_pos, ee_quat=None, fing_dist=0.0,
+    def _ee_pos_to_qpos_raw(self, ee_pos, ee_ori=None, fing_dist=0.0,
                             left_ee_pos=None, left_ee_quat=None,
                             left_fing_dist=0.0, debug=False):
-        ee_ori = None if ee_quat is None else ee_quat.tolist()
+        ee_quat = None
+        if ee_ori is not None:
+            ee_quat = sin_cos_to_quat(ee_ori)
         qpos = pybullet.calculateInverseKinematics(
             self.info.robot_id, self.info.ee_link_id,
-            targetPosition=ee_pos.tolist(), targetOrientation=ee_ori,
+            targetPosition=ee_pos.tolist(), targetOrientation=ee_quat,
             lowerLimits=self.info.joint_minpos.tolist(),
             upperLimits=self.info.joint_maxpos.tolist(),
             jointRanges=(self.info.joint_maxpos-self.info.joint_minpos).tolist(),
@@ -522,10 +524,10 @@ class BulletManipulator:
         assert((qpos>=self.info.joint_minpos).all())
         assert((qpos<=self.info.joint_maxpos).all())
 
-    def ee_pos_to_qpos(self, ee_pos, ee_quat, fing_dist, left_ee_pos=None,
+    def ee_pos_to_qpos(self, ee_pos, ee_ori, fing_dist, left_ee_pos=None,
                        left_ee_quat=None, left_fing_dist=0.0, debug=False):
         qpos = self._ee_pos_to_qpos_raw(
-            ee_pos, ee_quat, fing_dist,
+            ee_pos, ee_ori, fing_dist,
             left_ee_pos, left_ee_quat, left_fing_dist, debug=debug)
         return qpos
 
@@ -572,3 +574,48 @@ class BulletManipulator:
         self.sim.changeConstraint(self.base_cid, next_base_pos, next_base_ori,
                                   maxForce=1000)
         return
+
+#
+# Utilities to convert between "sin,cos" Euler angle representation to
+# quaternions. "sin,cos" representation is needed for learning (no
+# discontinuities, unique representation), while robotics side for the code
+# works best with quaternion representations.
+#
+
+
+def theta_to_sin_cos(rads):
+    sin_cos = np.vstack([np.sin(rads), np.cos(rads)])  # [[sin,...],[cos,...]]
+    return sin_cos.T.reshape(-1)  # [sin,cos,sin,cos,...]
+
+
+def sin_cos_to_theta(sin_cos):
+    assert(len(sin_cos.shape) == 1)
+    assert((sin_cos.shape[0]%2) == 0)  # need [sin,cos,sin,cos,...]
+    sin_cos = sin_cos.reshape(-1, 2)   # [[sin,cos],[sin,cos]...]
+    theta = np.arctan2(sin_cos[:, 0], sin_cos[:, 1])
+    return theta.reshape(-1)           # [theta0,theta1,...]
+
+
+def quat_to_sin_cos(quat):
+    assert(len(quat.shape) == 1)
+    assert(quat.shape[0] == 4)    # [x,y,z,w]
+    euler = pybullet.getEulerFromQuaternion(quat)
+    euler = np.array(euler).reshape(-1)
+    return theta_to_sin_cos(euler)  # [sin,cos,sin,cos,...]
+
+
+def sin_cos_to_quat(sin_cos):
+    assert(len(sin_cos.shape) == 1)
+    assert((sin_cos.shape[0]%2) == 0)  # need [sin,cos,sin,cos,...]
+    rads = sin_cos_to_theta(sin_cos)   # [theta0,theta1,theta2]
+    assert(len(rads) == 3)
+    quat = pybullet.getQuaternionFromEuler(rads.tolist())
+    return quat
+
+
+def convert_all(inp, fxn):
+    assert(len(inp.shape) == 2)
+    outs = []
+    for i in range(inp.shape[0]):
+        outs.append(eval(fxn)(inp[i]))
+    return np.vstack(outs)
