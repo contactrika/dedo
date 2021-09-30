@@ -495,7 +495,7 @@ class DeformEnv(gym.Env):
         _, vertex_positions = get_mesh_data(self.sim, self.deform_id)
         dist = []
 
-        # FoodPacking task has
+        # FoodPacking task case.
         if self.args.env.startswith('FoodPacking'):
             # rigid_ids[1] is the box, rigid_ids[2] is the tin can
             box_pos, _ = self.sim.getBasePositionAndOrientation(self.rigid_ids[1])
