@@ -213,8 +213,11 @@ class DeformEnv(gym.Env):
         #
         # Load deformable object.
         #
-        texture_path = os.path.join(
-            data_path, self.get_texture_path(args.deform_texture_file))
+        texture_path = args.deform_texture_file
+        if not self.args.env.startswith('FoodPacking'):
+            # Randomize textures for deformables (except YCB food objects).
+            texture_path = os.path.join(
+                data_path, self.get_texture_path(args.deform_texture_file))
         deform_id = load_deform_object(
             sim, deform_obj, texture_path, args.deform_scale,
             args.deform_init_pos, args.deform_init_ori,
