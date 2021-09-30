@@ -225,7 +225,17 @@ class DeformEnv(gym.Env):
             assert ('deform_fixed_anchor_vertex_ids' in DEFORM_INFO[deform_obj])
             pin_fixed(sim, deform_id,
                       DEFORM_INFO[deform_obj]['deform_fixed_anchor_vertex_ids'])
-        #
+
+        if scene_name == 'foodpacking':
+            # Used for computing penalty for food packing task
+            _, vertices = get_mesh_data(sim, deform_id)
+            vertices = np.array(vertices)
+            relative_dist = np.linalg.norm(vertices - vertices[[0]], axis=1)
+            self.deform_shape_sample_idx = np.random.choice(np.arange(vertices.shape[0]), 20, replace=False)
+            self.deform_init_shape = relative_dist[self.deform_shape_sample_idx]
+
+
+
         # Mark the goal.
         #
         goal_poses = SCENE_INFO[scene_name]['goal_pos']
@@ -485,7 +495,7 @@ class DeformEnv(gym.Env):
         _, vertex_positions = get_mesh_data(self.sim, self.deform_id)
         dist = []
 
-        # FoodPacking task name
+        # FoodPacking task has
         if self.args.env.startswith('FoodPacking'):
             # rigid_ids[1] is the box, rigid_ids[2] is the tin can
             box_pos, _ = self.sim.getBasePositionAndOrientation(self.rigid_ids[1])
@@ -494,7 +504,16 @@ class DeformEnv(gym.Env):
             dist1 = np.linalg.norm(vertex_cent - box_pos)
             dist2 = np.linalg.norm(vertex_cent - can_pos)
 
-            rwd = -1.0 * (dist1+dist2)/2 / DeformEnv.WORKSPACE_BOX_SIZE
+            dist = np.mean([dist1, dist2])
+            rwd = -1.0 * dist / DeformEnv.WORKSPACE_BOX_SIZE
+
+            # Squish penalty (to protect the fruit)
+            vertices = np.array(vertex_positions)
+            relative_dist = np.linalg.norm(vertices - vertices[[0]], axis=1)
+
+            current_shape = relative_dist[self.deform_shape_sample_idx]
+            penalty_rwd = np.linalg.norm(current_shape - self.deform_init_shape)
+            rwd = rwd + penalty_rwd
             return rwd
 
         if not hasattr(self.args, 'deform_true_loop_vertices'):
