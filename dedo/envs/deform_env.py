@@ -481,10 +481,24 @@ class DeformEnv(gym.Env):
         return obs, done
 
     def get_reward(self):
-        if not hasattr(self.args, 'deform_true_loop_vertices'):
-            return 0.0  # not reward info without info about true loops
+
         _, vertex_positions = get_mesh_data(self.sim, self.deform_id)
         dist = []
+
+        # FoodPacking task name
+        if self.args.env.startswith('FoodPacking'):
+            # rigid_ids[1] is the box, rigid_ids[2] is the tin can
+            box_pos, _ = self.sim.getBasePositionAndOrientation(self.rigid_ids[1])
+            can_pos, _ = self.sim.getBasePositionAndOrientation(self.rigid_ids[2])
+            vertex_cent = np.mean(vertex_positions, axis=0)
+            dist1 = np.linalg.norm(vertex_cent - box_pos)
+            dist2 = np.linalg.norm(vertex_cent - can_pos)
+
+            rwd = -1.0 * (dist1+dist2)/2 / DeformEnv.WORKSPACE_BOX_SIZE
+            return rwd
+
+        if not hasattr(self.args, 'deform_true_loop_vertices'):
+            return 0.0  # not reward info without info about true loops
         # Compute distance from loop/hole to the corresponding target.
         num_holes_to_track = min(
             len(self.args.deform_true_loop_vertices), len(self.goal_pos))
