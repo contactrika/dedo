@@ -405,6 +405,7 @@ class DeformEnv(gym.Env):
                     final_action = np.vstack([final_action, final_left_action])
                 if self.args.debug:
                     print('final_action', final_action)
+            info['final_obs'] = []
             for sim_step in range(self.STEPS_AFTER_DONE):
                 # For lasso pull the string at the end to test lasso loop.
                 if self.args.task.lower() == 'lasso':
@@ -420,6 +421,9 @@ class DeformEnv(gym.Env):
                     self.do_robot_action(final_action)
                     # self.sim.removeConstraint(self.robot.info.robot_id)
                 self.sim.stepSimulation()
+                if sim_step % self.args.sim_steps_per_action == 0:
+                    next_obs, _ = self.get_obs()
+                    info['final_obs'].append(next_obs)
             last_rwd = self.get_reward() * DeformEnv.FINAL_REWARD_MULT
             info['is_success'] = np.abs(last_rwd) < self.SUCESS_REWARD_TRESHOLD
             reward += last_rwd
