@@ -268,7 +268,7 @@ class BulletManipulator:
         return pos, ori, lin_vel, ang_vel
 
     def _ee_pos_to_qpos_raw(self, ee_pos, ee_ori=None, fing_dist=0.0,
-                            left_ee_pos=None, left_ee_quat=None,
+                            left_ee_pos=None, left_ee_ori=None,
                             left_fing_dist=0.0, debug=False):
         ee_quat = None
         if ee_ori is not None:
@@ -295,12 +295,14 @@ class BulletManipulator:
         #
         # Take care of left arm, if needed.
         #
+        left_ee_quat = None
+        if left_ee_ori is not None:
+            left_ee_quat = sin_cos_to_quat(left_ee_ori)
         if len(self.info.left_arm_jids_lst)>0:
             if left_ee_pos is not None:
                 left_qpos = np.array(pybullet.calculateInverseKinematics(
                     self.info.robot_id, self.info.left_ee_link_id,
-                    left_ee_pos.tolist(),
-                    None if left_ee_quat is None else left_ee_quat.tolist(),
+                    left_ee_pos.tolist(), left_ee_quat,
                     lowerLimits=self.info.joint_minpos.tolist(),
                     upperLimits=self.info.joint_maxpos.tolist(),
                     jointRanges=(self.info.joint_maxpos -
@@ -525,10 +527,10 @@ class BulletManipulator:
         assert((qpos<=self.info.joint_maxpos).all())
 
     def ee_pos_to_qpos(self, ee_pos, ee_ori, fing_dist, left_ee_pos=None,
-                       left_ee_quat=None, left_fing_dist=0.0, debug=False):
+                       left_ee_ori=None, left_fing_dist=0.0, debug=False):
         qpos = self._ee_pos_to_qpos_raw(
             ee_pos, ee_ori, fing_dist,
-            left_ee_pos, left_ee_quat, left_fing_dist, debug=debug)
+            left_ee_pos, left_ee_ori, left_fing_dist, debug=debug)
         return qpos
 
     def get_relative_pose(self, pos, quat=None):

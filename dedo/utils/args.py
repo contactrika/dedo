@@ -141,8 +141,15 @@ def args_postprocess(args):
     """Post processing for args. Separates --env into --task and --version
        and does basic sanity checks."""
     env_parts = args.env.split('-v')
-    assert (len(env_parts) == 2 and env_parts[1].isdigit()), \
-        '--env=[Task]-v[Version] (e.g. HangGarment-v1)'
+    if len(env_parts) != 2 or not env_parts[1].isdigit():
+        print('Please set --env=[Task]-v[Version] (e.g. HangGarment-v1)')
+        exit(1)
+    if args.robot == 'franka' and args.env != 'HangGarment-v1':
+        print('Please select robot=anchor for tasks other than HangGarment-v1')
+        exit(1)
+    if args.robot == 'franka1' and not args.env.startswith('FoodPacking'):
+        print('--robot=franka1 should be used with the FoodPacking task')
+        exit(1)
     args.task = env_parts[0]
     args.version = int(env_parts[1])
     if args.task not in TASK_INFO.keys():
