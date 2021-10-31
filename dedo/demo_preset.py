@@ -107,7 +107,10 @@ def play(env, num_episodes, args):
                                  height=args.cam_resolution)
                 vidwriter.write(img[..., ::-1])
             # gif_frames.append(obs)
-            if done: break;
+            if done:
+                for ob in info['final_obs']:
+                    vidwriter.write(np.uint8(ob[...,::-1]))
+                break;
             # if step > len(traj) + 50: break;
             obs = next_obs
 
