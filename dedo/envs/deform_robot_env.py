@@ -26,29 +26,39 @@ from .deform_env import DeformEnv
 
 
 class DeformRobotEnv(DeformEnv):
-    ROBOT_ACTION_SIZE = 3 + 3*2   # 3D position + sin,cos for 3 Euler angles
+    ORI_SIZE = 3*2    # 3D position + sin,cos for 3 Euler angles
+    FING_DIST = 0.01  # default finger distance
 
     def __init__(self, args):
         super(DeformRobotEnv, self).__init__(args)
+        act_sz = 3
+        if self.food_packing:
+            act_sz += DeformRobotEnv.ORI_SIZE
         self.action_space = gym.spaces.Box(  # [-1, 1]
-            -1.0 * np.ones(self.num_anchors * DeformRobotEnv.ROBOT_ACTION_SIZE),
-            np.ones(self.num_anchors * DeformRobotEnv.ROBOT_ACTION_SIZE))
-        self.robot = self.load_robot(self.sim, args.debug)
+            -1.0 * np.ones(self.num_anchors * act_sz),
+            np.ones(self.num_anchors * act_sz))
         if self.args.debug:
             print('Wrapped as DeformEnvRobot with act', self.action_space)
 
-    def load_robot(self, sim, debug):
+    @staticmethod
+    def unscale_pos(act, unscaled):
+        if unscaled:
+            return act
+        return act*DeformEnv.WORKSPACE_BOX_SIZE
+
+    def load_objects(self, sim, args, debug):
+        res = super(DeformRobotEnv, self).load_objects(sim, args, debug)
         data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
         sim.setAdditionalSearchPath(data_path)
         robot_info = ROBOT_INFO.get(f'franka{self.num_anchors:d}', None)
-        assert robot_info is not None
         robot_path = os.path.join(data_path, 'robots',
                                   robot_info['file_name'])
         if debug:
             print('Loading robot from', robot_path)
         if robot_info is None:
             print('This robot is not yet supported:', self.args.robot)
-        robot = BulletManipulator(
+            exit(1)
+        self.robot = BulletManipulator(
             sim, robot_path, control_mode='velocity',
             ee_joint_name=robot_info['ee_joint_name'],
             ee_link_name=robot_info['ee_link_name'],
@@ -62,7 +72,7 @@ class DeformRobotEnv(DeformEnv):
             left_fing_link_prefix='panda_hand_l_', left_joint_suffix='_l',
             left_rest_arm_qpos=robot_info.get('left_rest_arm_qpos', None),
             debug=debug)
-        return robot
+        return res
 
     def make_anchors(self):
         preset_dynamic_anchor_vertices = get_preset_properties(
@@ -81,21 +91,23 @@ class DeformRobotEnv(DeformEnv):
                 self.deform_id, preset_dynamic_anchor_vertices[i][0],
                 self.robot.info.robot_id, link_id)
 
-    def do_action(self, action):
+    def do_action(self, action, unscaled=False):
         # Note: action is in [-1,1], so we unscale pos (ori is sin,cos so ok).
         action = action.reshape(self.num_anchors, -1)
         ee_pos, ee_ori, _, _ = self.robot.get_ee_pos_ori_vel()
+        tgt_pos = DeformRobotEnv.unscale_pos(action[0, :3], unscaled)
         tgt_ee_ori = ee_ori if action.shape[-1] == 3 else action[0, 3:]
-        tgt_kwargs = {'ee_pos': action[0, :3]*DeformEnv.WORKSPACE_BOX_SIZE,
-                      'ee_ori': tgt_ee_ori, 'fing_dist': 0.01}
+        tgt_kwargs = {'ee_pos': tgt_pos, 'ee_ori': tgt_ee_ori,
+                      'fing_dist': DeformRobotEnv.FING_DIST}
         if self.num_anchors > 1:  # dual-arm
             res = self.robot.get_ee_pos_ori_vel(left=True)
             left_ee_pos, left_ee_ori = res[0], res[1]
+            left_tgt_pos = DeformRobotEnv.unscale_pos(action[1, :3], unscaled)
             left_tgt_ee_ori = left_ee_ori if action.shape[-1] == 3 else \
                 action[1, 3:]
-            tgt_kwargs.update({
-                'left_ee_pos': action[1, :3]*DeformEnv.WORKSPACE_BOX_SIZE,
-                'left_ee_ori': left_tgt_ee_ori, 'left_fing_dist': 0.01})
+            tgt_kwargs.update({'left_ee_pos': left_tgt_pos,
+                               'left_ee_ori': left_tgt_ee_ori,
+                               'left_fing_dist': DeformRobotEnv.FING_DIST})
         tgt_qpos = self.robot.ee_pos_to_qpos(**tgt_kwargs)
         n_slack = 1  # use > 1 if robot has trouble reaching the pose
         sub_i = 0
@@ -123,7 +135,7 @@ class DeformRobotEnv(DeformEnv):
             print('final_action', final_action)
         info = {'final_obs': []}
         for sim_step in range(DeformEnv.STEPS_AFTER_DONE):
-            self.do_action(final_action)
+            self.do_action(final_action, unscaled=True)
             self.sim.stepSimulation()
             if sim_step % self.args.sim_steps_per_action == 0:
                 next_obs, _ = self.get_obs()

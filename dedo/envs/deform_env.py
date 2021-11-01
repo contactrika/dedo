@@ -77,6 +77,12 @@ class DeformEnv(gym.Env):
             print('Created DeformEnv with obs', self.observation_space.shape,
                   'act', self.action_space.shape)
 
+    @staticmethod
+    def unscale_vel(act, unscaled):
+        if unscaled:
+            return act
+        return act*DeformEnv.MAX_ACT_VEL
+
     @property
     def anchor_ids(self):
         return list(self.anchors.keys())
@@ -314,7 +320,7 @@ class DeformEnv(gym.Env):
 
         # Step through physics simulation.
         for sim_step in range(self.args.sim_steps_per_action):
-            self.do_action(action)
+            self.do_action(action, unscaled)
             self.sim.stepSimulation()
 
         # Get next obs, reward, done.
@@ -347,12 +353,13 @@ class DeformEnv(gym.Env):
 
         return next_obs, reward, done, info
 
-    def do_action(self, action):
+    def do_action(self, action, unscaled):
         # Action is num_anchors x 3 for 3D velocity for anchors/grippers.
         # Assume action in [-1,1], convert to [-MAX_ACT_VEL, MAX_ACT_VEL].
         for i in range(self.num_anchors):
-            command_anchor_velocity(self.sim, self.anchor_ids[i],
-                                    action[i]*DeformEnv.MAX_ACT_VEL)
+            command_anchor_velocity(
+                self.sim, self.anchor_ids[i],
+                DeformEnv.unscale_vel(action[i], unscaled))
 
     def make_final_steps(self):
         # We do no explicitly release the anchors, since this can create a jerk
@@ -362,13 +369,12 @@ class DeformEnv(gym.Env):
         info = {'final_obs': []}
         for sim_step in range(DeformEnv.STEPS_AFTER_DONE):
             # For lasso pull the string at the end to test lasso loop.
+            # For other tasks noop action to let the anchors fall.
             if self.args.task.lower() == 'lasso':
                 if sim_step % self.args.sim_steps_per_action == 0:
                     action = [10*DeformEnv.MAX_ACT_VEL,
                               10*DeformEnv.MAX_ACT_VEL, 0]
-                    for i in range(self.num_anchors):
-                        command_anchor_velocity(
-                            self.sim, self.anchor_ids[i], action)
+                    self.do_action(action, unscaled=True)
             self.sim.stepSimulation()
             if sim_step % self.args.sim_steps_per_action == 0:
                 next_obs, _ = self.get_obs()
