@@ -118,6 +118,8 @@ def release_anchor(sim, anchor_id):
     sim.removeConstraint(anchor_id)
     sim.changeVisualShape(anchor_id, -1, rgbaColor=ANCHOR_RGBA_INACTIVE)
     pass
+def change_anchor_color_gray(sim, anchor_id):
+    sim.changeVisualShape(anchor_id, -1, rgbaColor=ANCHOR_RGBA_INACTIVE)
 
 
 def pin_fixed(sim, deform_id, vert_ids):

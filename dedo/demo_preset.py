@@ -13,11 +13,12 @@ add further comments, unify the style, improve efficiency and add unittests.
 
 """
 import os
-
+import time
 import gym
 from matplotlib import interactive
 interactive(True)
 import numpy as np
+
 
 from dedo.utils.args import get_args
 from dedo.utils.anchor_utils import create_anchor_geom
@@ -28,7 +29,7 @@ import cv2
 from dedo.utils.bullet_manipulator import convert_all
 
 # TODO(yonkshi): remove this before release
-from .internal.waypoint_utils import create_traj
+from dedo.internal.waypoint_utils import create_traj
 
 
 def play(env, num_episodes, args):
@@ -113,6 +114,10 @@ def play(env, num_episodes, args):
 
             next_obs, rwd, done, info = env.step(act, unscaled=True)
             rwds.append(rwd)
+
+            if done and vidwriter is not None:
+                for ob in info['final_obs'][1:]:
+                    vidwriter.write(np.uint8(ob[...,::-1]*256))
             if args.cam_resolution > 0:
                 img = env.render(mode='rgb_array', width=args.cam_resolution,
                                  height=args.cam_resolution)
@@ -120,9 +125,8 @@ def play(env, num_episodes, args):
                     vidwriter.write(img[..., ::-1])
             # gif_frames.append(obs)
             if done:
-                for ob in info['final_obs']:
-                    vidwriter.write(np.uint8(ob[...,::-1]))
-                break;
+                break
+
             # if step > len(traj) + 50: break;
             obs = next_obs
 

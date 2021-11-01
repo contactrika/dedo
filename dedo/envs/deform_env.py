@@ -20,7 +20,7 @@ import pybullet_utils.bullet_client as bclient
 
 from ..utils.anchor_utils import (
     attach_anchor, command_anchor_velocity, create_anchor, create_anchor_geom,
-    pin_fixed)
+    pin_fixed, change_anchor_color_gray)
 from ..utils.init_utils import (
     load_deform_object, load_rigid_object, reset_bullet, get_preset_properties)
 from ..utils.mesh_utils import get_mesh_data
@@ -366,6 +366,8 @@ class DeformEnv(gym.Env):
         # and large forces.
         # release_anchor(self.sim, self.anchor_ids[0])
         # release_anchor(self.sim, self.anchor_ids[1])
+        change_anchor_color_gray(self.sim, self.anchor_ids[0])
+        change_anchor_color_gray(self.sim, self.anchor_ids[1])
         info = {'final_obs': []}
         for sim_step in range(DeformEnv.STEPS_AFTER_DONE):
             # For lasso pull the string at the end to test lasso loop.
