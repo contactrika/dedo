@@ -22,7 +22,7 @@ import wandb
 import cv2
 
 
-from .utils.bullet_manipulator import convert_all
+from dedo.utils.bullet_manipulator import convert_all
 
 
 def play(env, num_episodes, args):
