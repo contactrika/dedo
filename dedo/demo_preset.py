@@ -25,8 +25,10 @@ from dedo.utils.preset_info import preset_traj
 import wandb
 import cv2
 
-
 from .utils.bullet_manipulator import convert_all
+
+# TODO(yonkshi): remove this before release
+from .internal.waypoint_utils import create_traj
 
 
 def play(env, num_episodes, args):
@@ -43,7 +45,7 @@ def play(env, num_episodes, args):
         f'deform_obj {deform_obj:s} not in presets {preset_traj.keys()}'
     preset_wp = preset_traj[deform_obj]['waypoints']
     vidwriter = None
-    if args.cam_resolution > 0:
+    if args.cam_resolution > 0 and args.logdir is not None:
         savepath = os.path.join(args.logdir, f'{args.env}_{args.seed}.mp4')
         vidwriter = cv2.VideoWriter(
             savepath, cv2.VideoWriter_fourcc(*'mp4v'), 24,

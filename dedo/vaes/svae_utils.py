@@ -1,13 +1,19 @@
-#
-# NetsParams and utils for SVAE
-#
-# @contactrika
-#
+"""
+Utils for SVAE.
+
+
+Note: this code is for research i.e. quick experimentation; it has minimal
+comments for now, but if we see further interest from the community -- we will
+add further comments, unify the style, improve efficiency and add unittests.
+
+@contactrika
+
+"""
 import torch
 
 
 class SVAEParams():
-    def __init__(self, hidden_size=512, static_size=8, dynamic_size=32,
+    def __init__(self, hidden_size=512, dynamic_size=32,
                  hist=16, past=4, pred=8, logvar_limit=6,
                  mu_nl=torch.nn.Sigmoid(), conv_nflt=64, debug=False):
         self.clr_chn = 3                 # number of color channels (1 or 3)
@@ -18,8 +24,7 @@ class SVAEParams():
         self.conv_nfilters = conv_nflt     # number of conv filter
         self.comp_out_sz = 128           # size of inp stack output (e.g. conv)
         self.hidden_sz = hidden_size     # hidden layers for all nets
-        self.static_sz = static_size     # size of f in q(z_{1:T}, f | x_{1:T})
-        self.dynamic_sz = dynamic_size   # size of z in q(z_{1:T}, f | x_{1:T})
+        self.dynamic_sz = dynamic_size   # size of z in q(z_{1:T} | x_{1:T})
         self.hist = hist
         self.past = past
         self.pred = pred
@@ -42,11 +47,10 @@ class SVAEParams():
         self.logvar_nl = torch.nn.Hardtanh(-logvar_limit, logvar_limit)
         self.debug = debug
 
-#                                   hid    st   dyn  hist past pred
-PARAMS_VAE              = SVAEParams(512,   0,   64,   1,  1,  0)
-PARAMS_SVAE             = SVAEParams(512,   0,   64,   4,  4,  0)
-PARAMS_PRED             = SVAEParams(512,   0,   64,   4,  4,  4)
-PARAMS_DSA              = SVAEParams(512,  16,   32,   4,  4,  0)
+#                       hid    st   dyn  hist past pred
+PARAMS_VAE  = SVAEParams(512,   0,   64,   1,  1,  0)
+PARAMS_SVAE = SVAEParams(512,   0,   64,   4,  4,  0)
+PARAMS_PRED = SVAEParams(512,   0,   64,   4,  4,  4)
 
 
 def extract_tgts(x_1toL, act_1toL, hist, past, pred):

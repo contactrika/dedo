@@ -5,7 +5,7 @@ python -m dedo.run_svae --logdir=~/local/dedo --num_envs 12 --unsup_algo VAE
 
 tensorboard --logdir=/tmp/dedo --bind_all --port 6006
 
---unsup_algo choices are: VAE, SVAE, PRED, DSA
+--unsup_algo choices are: VAE, SVAE, PRED
 
 Note: this code is for research i.e. quick experimentation; it has minimal
 comments for now, but if we see further interest from the community -- we will
@@ -25,8 +25,8 @@ import torch
 
 from dedo.utils.args import get_args
 from dedo.utils.train_utils import init_train, object_to_str
-from dedo.vaes.nets_advanced import ConvStack
-from dedo.vaes.svae_advanced import SVAE, DSA  # used dynamically
+from dedo.vaes.nets import ConvStack
+from dedo.vaes.svae import SVAE  # used dynamically
 from dedo.vaes.svae_utils import do_logging, fill_seq_bufs_from_rollouts
 from dedo.vaes.svae_viz import viz_samples
 
@@ -80,8 +80,6 @@ def main(args):
     #
     unsup_algo_params = 'PARAMS_'+args.unsup_algo
     unsup_algo_class = 'SVAE'
-    if 'DSA' in args.unsup_algo:
-        unsup_algo_class = 'DSA'
     svae = eval(unsup_algo_class)(
         im_sz=args.cam_resolution, act_sz=vec_env.action_space.shape[-1],
         params_class=unsup_algo_params, device=args.device)
