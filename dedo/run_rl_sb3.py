@@ -9,6 +9,11 @@ Play the saved policy (e.g. logged to PPO_210825_204955_HangGarment-v1):
 python -m dedo.run_rl_sb3 --env=HangGarment-v1 --play \
     --load_checkpt=/tmp/dedo/PPO_210825_204955_HangGarment-v1
 
+
+Note: this code is for research i.e. quick experimentation; it has minimal
+comments for now, but if we see further interest from the community -- we will
+add further comments, unify the style, improve efficiency and add unittests.
+
 @contactrika
 
 """

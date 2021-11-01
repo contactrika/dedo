@@ -1,47 +1,35 @@
-#
-# Utilities for the buttoning task.
-#
-# @jackson, @pyshi
-#
+"""
+Utilities for the buttoning task.
+
+@jackson, @yonkshi
+
+"""
 import os
 import numpy as np
 from matplotlib import pyplot as plt
 
 
-'''
-    Creates a .obj file containing a button loop mesh with the
-    given parameters if it doesn't already exist. If the .obj file already
-    exists, this method returns the path to the existing file. Generated meshes 
-    are constructed such that the first (density) nodes correspond to the 
-    leftmost edge which will be pinned to the "torso".
-arguments:
-    min_point (list or tuple of 3 numbers) --> 
-        the (min X, min Y, min Z) point of the cloth
-    max_point (list or tuple of 3 numbers) --> 
-        the (max X, max Y, max Z) point of the cloth
-    node_density (int) --> the number of nodes along the edge of the cloth
-    
-    holes (int) --> the 
-    
-    
-    hole_width (int or float) --> the width of the hole as either an integer 
-        (number of edges cut out) or a float (percentage of cloth width cut out)
-    hole_height (int or float) --> the height of the hole as either an integer
-        (number of edges cut out) or a float (percentage of cloth height cut out)
-    hole_offset (int or float) --> thickness of the loop to be wrapped around 
-        the button (distance of the hole from the right-hand side of the cloth)
-returns:
-    a tuple containing...
-    obj_path --> path to the obj file for use when loading the cloth softbody
-    anchor_index --> index of the node to be anchored (currently top right)
-'''
 def create_cloth_obj(min_point, max_point, node_density,
-                     holes, data_path,
-                     use_hanging_anchors=False,
-                     __ptr__hole_boundary_nodes_idx=None,
-                     corners_ptr=[],
-                     __ptr__hole_corners_idx=[],
-                     ):
+                     holes, data_path, use_hanging_anchors=False):
+    """
+        Creates a .obj file containing a button loop mesh with the
+        given parameters if it doesn't already exist. If the .obj file already
+        exists, this method returns the path to the existing file. Generated meshes
+        are constructed such that the first (density) nodes correspond to the
+        leftmost edge which will be pinned to the "torso".
+    arguments:
+        min_point (list or tuple of 3 numbers) -->
+            the (min X, min Y, min Z) point of the cloth
+        max_point (list or tuple of 3 numbers) -->
+            the (max X, max Y, max Z) point of the cloth
+        node_density (int) --> the number of nodes along the edge of the cloth
+        holes (int) --> specification for the hole dimensions
+        TODO(yonkshi): update the documentation
+    returns:
+        a tuple containing...
+        obj_path --> path to the obj file for use when loading the cloth softbody
+        anchor_index --> index of the node to be anchored (currently top right)
+    """
     assert(len(holes) > 0), 'Specify one or more holes'
 
     def validate_and_integerize(hole):
@@ -116,16 +104,6 @@ def create_cloth_obj(min_point, max_point, node_density,
             if not node_in_hole(x, y):
                 nodes.append((x, y))
 
-                # Get a hole's boundary
-                if __ptr__hole_boundary_nodes_idx is not None:
-                    # get boundary nodes, used for topo_latents
-                    for neighbour_pos in ((x+1, y), (x, y+1),
-                                          (x-1, y), (x, y-1)):
-                        if node_in_hole(*neighbour_pos):
-                            hole_id = which_hole(*neighbour_pos)
-                            __ptr__hole_boundary_nodes_idx[hole_id].append(
-                                nodes.index((x, y)))
-
     # Construct the list of faces
     # (clockwise around triangles) [(i, i2, i3), ...]
     faces = []
@@ -174,20 +152,6 @@ def create_cloth_obj(min_point, max_point, node_density,
         idx_right = (node_density - 1, node_density - 1)
         anchor_index = get_neighbour_indices(idx_right, 3)
         anchor_index2 = get_neighbour_indices(idx_left, 3)
-
-    # Build hole corners label
-    if type(__ptr__hole_corners_idx) is list:
-        for hole in holes:
-            try:
-                c0 = nodes.index((hole['x0'],hole['y0']))
-                c1 = nodes.index((hole['x0'],hole['y1']))
-                c2 = nodes.index((hole['x1'], hole['y1']))
-                c3 = nodes.index((hole['x1'], hole['y0']))
-            except ValueError as e:
-                plotter(holes_fp[0], holes_fp[1], 'fp')
-                plotter(holes[0], holes[1], 'int')
-                print(e)
-            __ptr__hole_corners_idx.append([c0, c1, c2, c3])
 
     with open(obj_path, 'w') as f:
         # f.write("# %d %d anchor index\n" % (anchor_index, anchor_index2))

@@ -5,7 +5,11 @@ python -m dedo.run_svae --logdir=~/local/dedo --num_envs 12 --unsup_algo VAE
 
 tensorboard --logdir=/tmp/dedo --bind_all --port 6006
 
-Note: --unsup_algo choices: VAE, SVAE, PRED, DSA
+--unsup_algo choices are: VAE, SVAE, PRED, DSA
+
+Note: this code is for research i.e. quick experimentation; it has minimal
+comments for now, but if we see further interest from the community -- we will
+add further comments, unify the style, improve efficiency and add unittests.
 
 @contactrika
 

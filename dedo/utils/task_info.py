@@ -1,8 +1,13 @@
-#
-# Information for scene and mesh configuration for the default tasks.
-#
-# @contactrika, @pyshi
-#
+"""
+Information for scene and mesh configuration for the default tasks.
+
+Note: this code is for research i.e. quick experimentation; it has minimal
+comments for now, but if we see further interest from the community -- we will
+add further comments, unify the style, improve efficiency and add unittests.
+
+@contactrika, @yonkshi
+
+"""
 import numpy as np
 
 # Task information dictionary/map from task names to mesh file names lists.

@@ -1,11 +1,20 @@
-#
-# RL with ray[rllib]
-#
-# @contactrika
-#
-# pip install ray[rllib]
-# python -m dedo.rllib_utils --env_name=HangGarment-v1
-#
+"""
+RL with ray[rllib].
+
+To in stall RLlib use:
+pip install ray[rllib]
+
+Example command to run RL training:
+python -m dedo.rllib_utils --env_name=HangGarment-v1
+
+Note: this code is for research i.e. quick experimentation; it has minimal
+comments for now, but if we see further interest from the community -- we will
+add further comments, unify the style, improve efficiency and add unittests.
+
+@contactrika
+
+"""
+
 import glob
 import os
 

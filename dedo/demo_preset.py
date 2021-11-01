@@ -4,7 +4,12 @@ A simple demo with preset trajectories.
 python -m dedo.demo_preset --logdir=/tmp/dedo_preset --env=HangGarment-v1 \
   --max_episode_len=200 --robot anchor --cam_resolution 0 --viz
 
-@pyshi
+
+Note: this code is for research i.e. quick experimentation; it has minimal
+comments for now, but if we see further interest from the community -- we will
+add further comments, unify the style, improve efficiency and add unittests.
+
+@yonkshi
 
 """
 import os
@@ -16,7 +21,6 @@ import numpy as np
 
 from dedo.utils.args import get_args
 from dedo.utils.anchor_utils import create_anchor_geom
-from dedo.utils.waypoint_utils import create_traj
 from dedo.utils.preset_info import preset_traj
 import wandb
 import cv2
@@ -52,7 +56,6 @@ def play(env, num_episodes, args):
 
     for epsd in range(num_episodes):
         print('------------ Play episode ', epsd, '------------------')
-
         obs = env.reset()
         if args.cam_resolution > 0:
             img = env.render(mode='rgb_array', width=args.cam_resolution,
@@ -149,8 +152,11 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq):
         init_anc_pos = env.robot.get_ee_pos(left=anchor_idx>0)
     print(f'init_anc_pos {left_or_right}', init_anc_pos)
     wp = np.array(preset_wp[left_or_right])
-    # Traditional wp
     steps = (wp[:, -1] * ctrl_freq).round().astype(np.int32)  # seconds -> ctrl steps
+    # TODO(yonkshi): replace create_traj with scipy.interpolate
+    print('ATTENTION: Need to use scipy interpolate for preset trajs')
+    exit(1)
+    # WARNING: old code below.
     traj_pos_vel = create_traj(init_anc_pos, wp[:, :3], steps, ctrl_freq)
     pos_traj = traj_pos_vel[:, :3]
     vel_traj = traj_pos_vel[:, 3:]

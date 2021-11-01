@@ -1,8 +1,17 @@
-#
-# Dynamic environments with deformable objects.
-#
-# @contactrika, @pyshi
-#
+"""
+DeformEnv class is the core class for loading and running various tasks.
+
+TODO: separate into 2 classes that use simple anchors vs robot manipulators.
+
+
+Note: this code is for research i.e. quick experimentation; it has minimal
+comments for now, but if we see further interest from the community -- we will
+add further comments, unify the style, improve efficiency and add unittests.
+
+@contactrika, @yonkshi
+
+"""
+
 import os
 import time
 
@@ -230,15 +239,14 @@ class DeformEnv(gym.Env):
                       DEFORM_INFO[deform_obj]['deform_fixed_anchor_vertex_ids'])
 
         if scene_name == 'foodpacking':
-            # Used for computing penalty for food packing task
+            # Save parts used for computing penalty for food packing task.
             _, vertices = get_mesh_data(sim, deform_id)
             vertices = np.array(vertices)
             relative_dist = np.linalg.norm(vertices - vertices[[0]], axis=1)
-            self.deform_shape_sample_idx = np.random.choice(np.arange(vertices.shape[0]), 20, replace=False)
+            self.deform_shape_sample_idx = np.random.choice(np.arange(
+                vertices.shape[0]), 20, replace=False)
             self.deform_init_shape = relative_dist[self.deform_shape_sample_idx]
-
-
-
+        #
         # Mark the goal.
         #
         goal_poses = SCENE_INFO[scene_name]['goal_pos']
@@ -306,7 +314,6 @@ class DeformEnv(gym.Env):
                 self.sim.createSoftBodyAnchor(
                     self.deform_id, preset_dynamic_anchor_vertices[i][0],
                     self.robot.info.robot_id, link_id)
-
         #           
         # Set up viz.
         #
@@ -362,7 +369,6 @@ class DeformEnv(gym.Env):
     def step(self, action, unscaled=False):
         # action is num_anchors x 3 for 3D velocity for anchors/grippers;
         # assume action in [-1,1], we convert to [-MAX_ACT_VEL, MAX_ACT_VEL].
-
         if self.args.debug:
             print('action', action)
         if not unscaled:
@@ -391,47 +397,16 @@ class DeformEnv(gym.Env):
         if done:  # if terminating early use reward from current step for rest
             reward *= (self.max_episode_len - self.stepnum)
         done = (done or self.stepnum >= self.max_episode_len)
-        info = {}
-        final_action = None
-        # Compute final reward by releasing anchor and letting the object fall.
         if done:
-            # release_anchor(self.sim, self.anchor_ids[0])
-            # release_anchor(self.sim, self.anchor_ids[1])
-            if self.robot is not None:  # keep same ee pos
-                ee_pos, ee_ori, *_ = self.robot.get_ee_pos_ori_vel()
-                final_action = np.hstack([ee_pos, ee_ori]).reshape(1, -1)
-                if self.args.robot == 'franka':
-                    left_ee_pos, left_ee_ori, *_ = \
-                        self.robot.get_ee_pos_ori_vel(left=True)
-                    final_left_action = np.hstack(
-                        [left_ee_pos, left_ee_ori]).reshape(1, -1)
-                    final_action = np.vstack([final_action, final_left_action])
-                if self.args.debug:
-                    print('final_action', final_action)
-            info['final_obs'] = []
-            for sim_step in range(self.STEPS_AFTER_DONE):
-                # For lasso pull the string at the end to test lasso loop.
-                if self.args.task.lower() == 'lasso':
-                    if sim_step % self.args.sim_steps_per_action == 0:
-                        # pull the end away
-                        action = [10*DeformEnv.MAX_ACT_VEL,
-                                  10*DeformEnv.MAX_ACT_VEL, 0]
-                        for i in range(self.num_anchors):
-                            if self.args.robot == 'anchor':
-                                command_anchor_velocity(
-                                    self.sim, self.anchor_ids[i], action)
-                if self.robot is not None:
-                    self.do_robot_action(final_action)
-                    # self.sim.removeConstraint(self.robot.info.robot_id)
-                self.sim.stepSimulation()
-                if sim_step % self.args.sim_steps_per_action == 0:
-                    next_obs, _ = self.get_obs()
-                    info['final_obs'].append(next_obs)
+            # Compute final reward by releasing anchors to let the object fall.
+            info = self.make_final_steps()
             last_rwd = self.get_reward() * DeformEnv.FINAL_REWARD_MULT
             info['is_success'] = np.abs(last_rwd) < self.SUCESS_REWARD_TRESHOLD
             reward += last_rwd
             info['final_reward'] = reward
             print(f'final_reward: {reward:.4f}')
+        else:
+            info = {}
 
         self.episode_reward += reward  # update episode reward
 
@@ -443,6 +418,44 @@ class DeformEnv(gym.Env):
         self.stepnum += 1
 
         return next_obs, reward, done, info
+
+    def make_final_steps(self):
+        # We do no explicitly release the anchors, since this can create a jerk
+        # and large forces.
+        # release_anchor(self.sim, self.anchor_ids[0])
+        # release_anchor(self.sim, self.anchor_ids[1])
+        info = {}
+        final_action = None
+        if self.robot is not None:  # keep same ee pos
+            ee_pos, ee_ori, *_ = self.robot.get_ee_pos_ori_vel()
+            final_action = np.hstack([ee_pos, ee_ori]).reshape(1, -1)
+            if self.args.robot == 'franka':
+                left_ee_pos, left_ee_ori, *_ = \
+                    self.robot.get_ee_pos_ori_vel(left=True)
+                final_left_action = np.hstack(
+                    [left_ee_pos, left_ee_ori]).reshape(1, -1)
+                final_action = np.vstack([final_action, final_left_action])
+            if self.args.debug:
+                print('final_action', final_action)
+        info['final_obs'] = []
+        for sim_step in range(self.STEPS_AFTER_DONE):
+            # For lasso pull the string at the end to test lasso loop.
+            if self.args.task.lower() == 'lasso':
+                if sim_step % self.args.sim_steps_per_action == 0:
+                    action = [10*DeformEnv.MAX_ACT_VEL,
+                              10*DeformEnv.MAX_ACT_VEL, 0]
+                    for i in range(self.num_anchors):
+                        if self.args.robot == 'anchor':
+                            command_anchor_velocity(
+                                self.sim, self.anchor_ids[i], action)
+            if self.robot is not None:
+                self.do_robot_action(final_action)
+                # self.sim.removeConstraint(self.robot.info.robot_id)
+            self.sim.stepSimulation()
+            if sim_step % self.args.sim_steps_per_action == 0:
+                next_obs, _ = self.get_obs()
+                info['final_obs'].append(next_obs)
+        return info
 
     def get_obs(self):
         anc_obs = []
