@@ -1,8 +1,13 @@
-#
-# Information for scene and mesh configuration for the default tasks.
-#
-# @contactrika, @pyshi
-#
+"""
+Information for scene and mesh configuration for the default tasks.
+
+Note: this code is for research i.e. quick experimentation; it has minimal
+comments for now, but if we see further interest from the community -- we will
+add further comments, unify the style, improve efficiency and add unittests.
+
+@contactrika, @yonkshi
+
+"""
 import numpy as np
 
 # Task information dictionary/map from task names to mesh file names lists.
@@ -1312,7 +1317,7 @@ DEFAULT_CAM_PROJECTION = {
 
 
 ROBOT_INFO = {
-    'franka': {
+    'franka2': {
         'file_name': 'franka/franka_dual.urdf',
         'ee_joint_name': 'panda_joint7_r',
         'ee_link_name': 'panda_hand_r',
@@ -1335,7 +1340,7 @@ ROBOT_INFO = {
         'base_pos': np.array([5.0, 1.5, 0]),
         'rest_arm_qpos': np.array(
            # for [2.5, 1.5, 1.0]
-           [ 0.4083,  0.4691, -0.6216, -2.9606, -0.9926,  3.4903,  1.5129]
+           [0.4083,  0.4691, -0.6216, -2.9606, -0.9926,  3.4903,  1.5129]
         ),
    }
 }

@@ -1,6 +1,11 @@
 """
 PyBullet simulator setup for manipulators.
 
+
+Note: this code is for research i.e. quick experimentation; it has minimal
+comments for now, but if we see further interest from the community -- we will
+add further comments, unify the style, improve efficiency and add unittests.
+
 @contactrika
 
 """

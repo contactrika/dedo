@@ -1,8 +1,14 @@
-#
-# Command line arguments.
-#
-# @contactrika
-#
+"""
+Command line arguments.
+
+
+Note: this code is for research i.e. quick experimentation; it has minimal
+comments for now, but if we see further interest from the community -- we will
+add further comments, unify the style, improve efficiency and add unittests.
+
+@contactrika
+
+"""
 import argparse
 
 from .task_info import TASK_INFO
@@ -14,9 +20,6 @@ def get_args_parser():
     # Main/demo args.
     parser.add_argument('--env', type=str,
                         default='HangGarment-v1', help='Env name')
-    parser.add_argument('--robot', type=str, default='anchor',
-                        choices=['anchor', 'franka', 'franka1'],
-                        help='Robot agents to manipulate object.')
     parser.add_argument('--max_episode_len', type=int,
                         default=200, help='Max steps per episode')
     parser.add_argument('--seed', type=int, default=0, help='Random seed')
@@ -34,7 +37,7 @@ def get_args_parser():
                                  'PPO', 'SAC', 'TD3'],
                         help='Name of RL algo from Stable Baselines to train')
     parser.add_argument('--play', action='store_true',
-                        help='Load saved model from --load_checkp and'
+                        help='Load saved model from --load_checkpt and'
                              'play (no training)')
     parser.add_argument('--total_env_steps', type=int, default=int(10e6),
                         help='Total number of env steps for training')
@@ -141,14 +144,10 @@ def args_postprocess(args):
     """Post processing for args. Separates --env into --task and --version
        and does basic sanity checks."""
     env_parts = args.env.split('-v')
+    if env_parts[0].endswith('Robot'):
+        env_parts = args.env.split('Robot-v')
     if len(env_parts) != 2 or not env_parts[1].isdigit():
         print('Please set --env=[Task]-v[Version] (e.g. HangGarment-v1)')
-        exit(1)
-    if args.robot == 'franka' and args.env != 'HangGarment-v1':
-        print('Please select robot=anchor for tasks other than HangGarment-v1')
-        exit(1)
-    if args.robot == 'franka1' and not args.env.startswith('FoodPacking'):
-        print('--robot=franka1 should be used with the FoodPacking task')
         exit(1)
     args.task = env_parts[0]
     args.version = int(env_parts[1])

@@ -37,7 +37,11 @@ for task, versions in TASK_INFO.items():
             if obj_name.endswith('obj') and obj_name not in versions:
                 versions.append(obj_name)
     # Register v0 as random material textures and the rest of task versions.
-    register(id=task+'-v'+str(0), entry_point='dedo.envs:DeformEnv')
+    cls_nm = 'DeformRobotEnv' if task.startswith('FoodPacking') else 'DeformEnv'
+    register(id=task+'-v'+str(0), entry_point='dedo.envs:'+cls_nm)
     for version_id, obj_name in enumerate(versions):
         register(id=task+'-v'+str(version_id+1),
-                 entry_point='dedo.envs:DeformEnv')
+                 entry_point='dedo.envs:'+cls_nm)
+
+# Register dual-arm robot tasks.
+register(id='HangGarmentRobot-v1', entry_point='dedo.envs:DeformRobotEnv')

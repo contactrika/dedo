@@ -1,8 +1,17 @@
-#
-# Utilities for the generating procedural cloth.
-#
-# @jackson, @yonkshi
-#
+"""
+Utilities for generating procedural cloth.
+
+TODO(yonkshi): add brief function-level descriptions, address TODO in
+    create_cloth_obj and clean up.
+
+
+Note: this code is for research i.e. quick experimentation; it has minimal
+comments for now, but if we see further interest from the community -- we will
+add further comments, unify the style, improve efficiency and add unittests.
+
+@yonkshi, @jackson
+
+"""
 
 import os
 import numpy as np
@@ -10,7 +19,6 @@ from matplotlib import pyplot as plt
 
 
 def gen_procedural_hang_cloth(args, preset_obj_name, deform_info_dict):
-    ''''''
     num_holes = args.num_holes
     node_density = args.node_density
 
@@ -54,17 +62,16 @@ def gen_procedural_hang_cloth(args, preset_obj_name, deform_info_dict):
 def gen_procedural_button_cloth(args, preset_obj_name, deform_info_dict):
     num_holes = args.num_holes
 
-    # These are fine tuned ranges
+    # These are fine tuned ranges.
     width_range = [2, 3]
     height_range = [2, 3.5]
     w = np.random.uniform(*width_range)
     h = np.random.uniform(*height_range)
 
-
-    # Dynamic node density based on fabric size
+    # Dynamic node density based on fabric size.
     node_density = int(round((w + h) / 2 * 25 / 3))
 
-    # hole generation
+    # Hole generation.
     constraints = {}
     constraints['x_range'] = (2, 7)  # (2, args.node_density - 2)
     constraints['y_range'] = (2, node_density - 2)  # (2, args.node_density - 2)
@@ -72,7 +79,7 @@ def gen_procedural_button_cloth(args, preset_obj_name, deform_info_dict):
     constraints['height_range'] = (1, 2)  # (1, int(round(node_density*0.3)))
     holes = try_gen_holes(node_density, num_holes, constraints)
 
-    # tmp obj file path
+    # Make temporary obj file path.
     rand_id = np.random.uniform(1e7)
     args.deform_obj = f'/tmp/procedural_hang{rand_id}.obj'
     data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
@@ -90,7 +97,7 @@ def gen_procedural_button_cloth(args, preset_obj_name, deform_info_dict):
     if args.deform_obj not in deform_info_dict.keys():
         deform_info_dict[args.deform_obj] = deform_info_dict[preset_obj_name].copy()
 
-    # Find center of holes (coords)
+    # Find center of holes (coords).
     node_coords = np.array(node_coords)
     hole_centers = [np.mean(node_coords[gt_loop], axis=0) for gt_loop in gt_loop_vertices]
 
@@ -104,35 +111,9 @@ def gen_procedural_button_cloth(args, preset_obj_name, deform_info_dict):
     return args.deform_obj, hole_centers
 
 
-'''
-create_cloth_obj: creates a .obj file containing a button loop mesh with the
-    given parameters if it doesn't already exist. If the .obj file already
-    exists, this method returns the path to the existing file. Generated meshes 
-    are constructed such that the first (density) nodes correspond to the 
-    leftmost edge which will be pinned to the "torso".
-arguments:
-    min_point (list or tuple of 3 numbers) --> the (min X, min Y, min Z) point of the cloth
-    max_point (list or tuple of 3 numbers) --> the (max X, max Y, max Z) point of the cloth
-    node_density (int) --> the number of nodes along the edge of the cloth
-
-    holes (int) --> the 
-
-
-    hole_width (int or float) --> the width of the hole as either an integer 
-        (number of edges cut out) or a float (percentage of cloth width cut out)
-    hole_height (int or float) --> the height of the hole as either an integer
-        (number of edges cut out) or a float (percentage of cloth height cut out)
-    hole_offset (int or float) --> thickness of the loop to be wrapped around 
-        the button (distance of the hole from the right-hand side of the cloth)
-returns:
-    a tuple containing...
-    obj_path --> the path to the obj file for use when loading the cloth softbody
-    anchor_index --> index of the node to be anchored (currently top right)
-'''
-
-
 def overlap_constraint(A, B):
-    ''' Make sure two holes are not overlapping and have enough vertices in between to create faces in between'''
+    """ Make sure two holes are not overlapping and have enough vertices between
+    to create faces in between."""
     mb = 3  # minimum boundary
     lr = A['x0'] < B['x1'] + mb
     rl = A['x1'] > B['x0'] - mb
@@ -142,10 +123,12 @@ def overlap_constraint(A, B):
 
 
 def boundary_constraint(node_density, hole):
-    ''' each hole should be at least 2 vertices away from the edge, so the edge could form a face '''
+    """ Each hole should be at least 2 vertices away from the edge,
+    so the edge could form a face."""
 
     for key, val in hole.items():
-        # Setting the minimum boundary between edge and hole. Min two vertices away so edge could form face
+        # Setting the minimum boundary between edge and hole.
+        # Min two vertices away so edge could form face.
         upper_bound = node_density - 3  # 0-index node_density-1
         lower_bound = 2
         if hole[key] >= upper_bound or hole[key] <= lower_bound:
@@ -155,7 +138,7 @@ def boundary_constraint(node_density, hole):
 
 
 def gen_random_hole(node_density, dim_constraints):
-    '''Generates a hole. Taking existing hole into consideration so they don't collide'''
+    """Generates a hole, minding existing hole so they don't overlap."""
     hole = {}
 
     x_range = dim_constraints['x_range']
@@ -193,13 +176,9 @@ def try_gen_holes(node_density, num_holes, constraints):
 def create_cloth_obj(min_point, max_point, node_density,
                      holes, data_path,
                      gen_fixed_anchors=False,
-                     node_coords=[],
-                     ):
+                     node_coords=[]):
     def validate_and_integerize(hole):
-
-        # Parameter checks and conversions
-
-        # Convert ratio to aboslute
+        # Convert ratio to aboslute.
         for key, val in hole.items():
             if isinstance(val, float):
                 hole[key] = int(round(val * node_density))
@@ -220,8 +199,7 @@ def create_cloth_obj(min_point, max_point, node_density,
     for hole in holes:
         holes_fp.append(hole.copy())
         validate_and_integerize(hole)
-
-        # creates a 2d range of hole coords
+        # Create a 2d range of hole coords.
         x_range = np.arange(hole['x0'], hole['x1'] + 1)
         y_range = np.arange(hole['y0'], hole['y1'] + 1, )
         xx, yy = np.meshgrid(x_range, y_range)
@@ -238,13 +216,14 @@ def create_cloth_obj(min_point, max_point, node_density,
         # Check if file already exists
         if not os.path.exists(os.path.join(data_path, "generated_cloth")):
             os.makedirs(os.path.join(data_path, "generated_cloth"))
-
+        # TODO(yonkshi): hole outside loop; please check
+        fnm = "cloth_" + str(node_density) + "_" + str(hole[0]['x']) + "_" + \
+              str(hole[0]['y']) + "_" + str(hole[0]['x']) + "_" + \
+              str(min_point[0]) + "_" + str(min_point[1]) + "_" + \
+              str(min_point[2]) + "_" + str(max_point[0]) + "_" + \
+              str(max_point[1]) + "_" + str(max_point[2]) + ".obj"
         obj_path = os.path.join(
-            data_path, "generated_cloth", "cloth_" + str(node_density) + "_" \
-                                          + str(hole[0]['x']) + "_" + str(hole[0]['y']) + "_" + str(hole[0]['x']) \
-                                          + "_" + str(min_point[0]) + "_" + str(min_point[1]) + "_" \
-                                          + str(min_point[2]) + "_" + str(max_point[0]) + "_" \
-                                          + str(max_point[1]) + "_" + str(max_point[2]) + ".obj")
+            data_path, "generated_cloth", fnm)
 
         if os.path.isfile(obj_path):
             print("Cloth obj file already exists, skipping mesh creation.")
@@ -291,7 +270,8 @@ def create_cloth_obj(min_point, max_point, node_density,
         for y in range(node_density - 1):
             # Skip quads where not all nodes are kept
             if (node_in_hole(x, y) or node_in_hole(x + 1, y) or
-                    node_in_hole(x, y + 1) or node_in_hole(x + 1, y + 1)): continue
+                    node_in_hole(x, y + 1) or node_in_hole(x + 1, y + 1)):
+                continue
             # Warning: each of the nodes.index() calls scales linearly with the
             # length of nodes consider switching to a map instead?
             faces.append((
@@ -330,9 +310,9 @@ def create_cloth_obj(min_point, max_point, node_density,
 
     with open(obj_path, 'w') as f:
         # f.write("# %d %d anchor index\n" % (anchor_index, anchor_index2))
-
         for n in nodes:
-            coord = lerp(min_point, max_point, (n[0] / (node_density - 1), n[1] / (node_density - 1)))
+            coord = lerp(min_point, max_point, (n[0] / (node_density - 1),
+                                                n[1] / (node_density - 1)))
             node_coords.append(coord)
             f.write("v %.4f %.4f %.4f\n" % coord)
         for tri in faces:
@@ -343,7 +323,8 @@ def create_cloth_obj(min_point, max_point, node_density,
         # pinned nodes are from (1, 1) to (node_density-1, 1)
         node_y = np.arange(0, node_density)
         fixed_anchors = [nodes.index((node_density - 1, i)) for i in node_y]
-        return obj_path, ([anchor_index], [anchor_index2]), gt_loop_vertices, fixed_anchors
+        return obj_path, ([anchor_index], [anchor_index2]), \
+               gt_loop_vertices, fixed_anchors
 
     return obj_path, ([anchor_index], [anchor_index2]), gt_loop_vertices
 
@@ -352,7 +333,8 @@ def plotter(hole1, hole2, type):
     plt.figure()
 
     def plot_one(h):
-        pts = np.array([[h['x0'], h['y0']], [h['x0'], h['y1']], [h['x1'], h['y0']], [h['x1'], h['y1']]])
+        pts = np.array([[h['x0'], h['y0']], [h['x0'], h['y1']],
+                        [h['x1'], h['y0']], [h['x1'], h['y1']]])
         plt.scatter(pts[:, 0], pts[:, 1])
 
     plot_one(hole1)

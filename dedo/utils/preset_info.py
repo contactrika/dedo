@@ -1,9 +1,9 @@
-# Preset waypoints info.
-#
-# @pyshi
-#
-#
-#
+"""
+Waypoints for preset trajectories.
+
+@yonkshi
+
+"""
 
 from .task_info import (
     MESH_MAJOR_VERSIONS, TOTE_MAJOR_VERSIONS, TOTE_VARS_PER_VERSION)

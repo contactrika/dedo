@@ -4,6 +4,11 @@ A simple demo for envs (with random actions).
 python -m dedo.demo --env=HangGarment-v1 --viz --debug
 python -m dedo.demo --env=HangBag-v1 --viz --debug
 
+
+Note: this code is for research i.e. quick experimentation; it has minimal
+comments for now, but if we see further interest from the community -- we will
+add further comments, unify the style, improve efficiency and add unittests.
+
 @contactrika
 
 """
@@ -68,7 +73,7 @@ def play(env, num_episodes, args):
 
 
 def main(args):
-    assert(args.robot == 'anchor'), 'This is a simple demo for anchors only'
+    assert('Robot' not in args.env), 'This is a simple demo for anchors only'
     np.set_printoptions(precision=4, linewidth=150, suppress=True)
     kwargs = {'args': args}
     env = gym.make(args.env, **kwargs)

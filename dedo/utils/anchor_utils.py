@@ -1,8 +1,14 @@
-#
-# Utilities for deform sim in PyBullet.
-#
-# @contactrika
-#
+"""
+Utilities for using anchors to grasp and control deformables in PyBullet.
+
+
+Note: this code is for research i.e. quick experimentation; it has minimal
+comments for now, but if we see further interest from the community -- we will
+add further comments, unify the style, improve efficiency and add unittests.
+
+@contactrika
+
+"""
 import numpy as np
 import pybullet
 
@@ -89,7 +95,7 @@ def create_anchor(sim, anchor_pos, anchor_idx, preset_vertices, mesh,
     return anchor_geom_id, anchor_pos, anchor_vertices
 
 
-def command_anchor_velocity(sim, anchor_bullet_id, tgt_vel, debug=False):
+def command_anchor_velocity(sim, anchor_bullet_id, tgt_vel):
     anc_linvel, _ = sim.getBaseVelocity(anchor_bullet_id)
     vel_diff = tgt_vel - np.array(anc_linvel)
     raw_force = CTRL_PD_KD * vel_diff
@@ -99,7 +105,8 @@ def command_anchor_velocity(sim, anchor_bullet_id, tgt_vel, debug=False):
     return raw_force
 
 
-def attach_anchor(sim, anchor_id, anchor_vertices, deform_id, change_color=False):
+def attach_anchor(sim, anchor_id, anchor_vertices, deform_id,
+                  change_color=False):
     if change_color:
         sim.changeVisualShape(
             anchor_id, -1, rgbaColor=ANCHOR_RGBA_ACTIVE)
@@ -108,9 +115,8 @@ def attach_anchor(sim, anchor_id, anchor_vertices, deform_id, change_color=False
 
 
 def release_anchor(sim, anchor_id):
-    # sim.removeConstraint(anchor_id)
-    sim.changeVisualShape(anchor_id, -1, rgbaColor=[0.5, 0.5, 0.5, 1])
-    # sim.changeVisualShape(anchor_id, -1, rgbaColor=ANCHOR_RGBA_INACTIVE)
+    sim.removeConstraint(anchor_id)
+    sim.changeVisualShape(anchor_id, -1, rgbaColor=ANCHOR_RGBA_INACTIVE)
     pass
 
 

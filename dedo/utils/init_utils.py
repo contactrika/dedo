@@ -1,8 +1,14 @@
-#
-# Utilities for deform sim in PyBullet.
-#
-# @contactrika
-#
+"""
+Utilities for deform sim in PyBullet.
+
+
+Note: this code is for research i.e. quick experimentation; it has minimal
+comments for now, but if we see further interest from the community -- we will
+add further comments, unify the style, improve efficiency and add unittests.
+
+@contactrika
+
+"""
 from pathlib import Path  # automatically converts forward slashes if needed
 
 import numpy as np
@@ -136,18 +142,15 @@ def reset_bullet(args, sim, plane_texture=None, debug=False):
             print('Camera info for', cam_args)
             print('viewMatrix', res[2])
             print('projectionMatrix', res[3])
-    # Note: using sim.resetSimulation(pybullet.RESET_USE_DEFORMABLE_WORLD)
-    # would turn on FEM, which could be very tricky to tune, so we avoid it.
-    # sim.resetSimulation()
-    sim.resetSimulation(pybullet.RESET_USE_DEFORMABLE_WORLD)
+    sim.resetSimulation(pybullet.RESET_USE_DEFORMABLE_WORLD)  # FEM deform sim
     sim.setGravity(0, 0, args.sim_gravity)
     sim.setTimeStep(1.0/args.sim_freq)
-    sim.setPhysicsEngineParameter(
-        # numSubSteps=10,
-        # allowedCcdPenetration=0.01,
-        # erp=0.1,
-    )
+    # Could experiment with physic engine parameters, but so far we have not
+    # noticed a stark improvement from changing these.
+    # sim.setPhysicsEngineParameter(numSubSteps=10, allowedCcdPenetration=0.01)
+    #
     # Load floor plane and rigid objects
+    #
     sim.setAdditionalSearchPath(pybullet_data.getDataPath())
     floor_id = sim.loadURDF('plane.urdf')
     if plane_texture is not None:

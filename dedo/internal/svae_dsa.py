@@ -1,72 +1,15 @@
-#
-# Sequential Autoencoder (SVAE) and Disentanged Sequential Autoencoder (DSA)
-#
-# @contactrika
-#
-from collections import OrderedDict
-import numpy as np
+"""
+DSA implementation
 
+
+@contactrika
+
+"""
 import torch
 import torch.nn as nn
-
-from . import svae_utils  # used dynamically
-from . import nets_advanced as nets
-from .svae_utils import extract_tgts
-from .prob import get_log_lik, GaussianDiagDistr
-
-
-class SVAE(nn.Module):
-    def __init__(self, im_sz, act_sz, params_class, device):
-        super(SVAE, self).__init__()
-        pr = eval('svae_utils.' + params_class)
-        pr.im_sz = im_sz
-        pr.act_sz = act_sz
-        self.pr = pr
-        self.pr_name = params_class
-        self.device = device
-        self.conv_stack = nets.ConvStack(pr)
-        latent_sz = pr.static_sz + pr.dynamic_sz  # for now use a single NN
-        if pr.past+pr.pred==1 or pr.pred>0:
-            self.encoder = nets.EncoderDynamic(pr, latent_sz)
-        else:
-            self.encoder = nets.EncoderDynamicRNN(
-                pr, latent_sz, nolstm=True)
-        self.decoder = nets.ConvDecoder(pr, latent_sz)
-        self.to(self.device)
-        print('Created SVAE w/ latent size', latent_sz, 'on', self.device)
-
-    def latent_sz(self):
-        return (self.pr.past+self.pr.pred)*(self.pr.static_sz+self.pr.dynamic_sz)
-
-    def latent_code(self, x_1toT, act_1toT, x_1toT_feats=None):
-        bsz = act_1toT.size(0)
-        if x_1toT_feats is None: x_1toT_feats = self.conv_stack(x_1toT)
-        z_smpls, z_distr = self.encoder(x_1toT_feats, act_1toT)
-        return z_distr.mu.detach().view(bsz, -1)
-
-    def recon(self, x_1toT, act_1toT):
-        x_1toT_feats = self.conv_stack(x_1toT)
-        z_smpls, z_distr = self.encoder(x_1toT_feats, act_1toT)
-        recon_xs = self.decoder(z_smpls)
-        return recon_xs, z_smpls, z_distr
-
-    def loss(self, x_1toL, act_1toL, kl_beta=1.0, debug=False):
-        assert((type(x_1toL) == torch.Tensor) and (x_1toL.dim() == 5))
-        res = extract_tgts(x_1toL, act_1toL,
-                           self.pr.hist, self.pr.past, self.pr.pred)
-        x_1toT, act_1toT, xs_tgt, acts_tgt = res
-        recon_xs, z_smpls, z_distr = self.recon(x_1toT, act_1toT)
-        recon_log_lik = get_log_lik(xs_tgt, recon_xs, lp=2)
-        loss = recon_log_lik.mean().mul(-1)
-        kl = None
-        debug_dict = {}
-        if z_distr is not None and kl_beta>0:
-            kl = z_distr.kl_to_standard_normal_().sum(dim=-1)
-            loss = loss + kl_beta*kl.mean()
-        if debug:
-            debug_dict['recon_log_lik'] = recon_log_lik.mean().item()
-            if kl is not None: debug_dict['kl'] = kl.mean().item()
-        return loss, debug_dict
+import svae_nets_advanced as nets
+from ..vaes.prob import get_log_lik, GaussianDiagDistr
+from ..vaes.svae_utils import extract_tgts
 
 
 class DSA(nn.Module):
@@ -236,3 +179,43 @@ class DSA(nn.Module):
         mus = torch.cat(pz_mus_lst, dim=1).view(batch_size*seq_len, -1)
         logvars = torch.cat(pz_logvars_lst, dim=1).view(batch_size*seq_len, -1)
         return pz_distr_lst, GaussianDiagDistr(mus, logvars)
+
+
+
+class SVAEParams():
+    def __init__(self, hidden_size=512, static_size=8, dynamic_size=32,
+                 hist=16, past=4, pred=8, logvar_limit=6,
+                 mu_nl=torch.nn.Sigmoid(), conv_nflt=64, debug=False):
+        self.clr_chn = 3                 # number of color channels (1 or 3)
+        self.obj_sz = 28
+        self.knl_sz = 4                    # conv kernel size
+        self.strd_sz = int(self.knl_sz/2)  # conv stride size
+        self.pd_sz = int(self.strd_sz/2)   # conv padding size
+        self.conv_nfilters = conv_nflt     # number of conv filter
+        self.comp_out_sz = 128           # size of inp stack output (e.g. conv)
+        self.hidden_sz = hidden_size     # hidden layers for all nets
+        self.static_sz = static_size     # size of f in q(z_{1:T}, f | x_{1:T})
+        self.dynamic_sz = dynamic_size   # size of z in q(z_{1:T}, f | x_{1:T})
+        self.hist = hist
+        self.past = past
+        self.pred = pred
+        assert(hist==0 or hist>=past)
+        # ReLU does not have hyperparameters, works with dropout and batchnorm.
+        # Other options like ELU/SELU are more suitable for very deep nets
+        # and have shown some promise, but no huge gains.
+        # With partialVAE ReLUs will cause variance to explode on high-dim
+        # inputs like pixels from image.
+        # Tanh can be useful when the range needs to be restricted,
+        # but saturates and trains slower.
+        # ELU showed better results for high learning rates on RL experiments.
+        self.nl = torch.nn.ELU()
+        # Control latent space range.
+        self.mu_nl = mu_nl
+        # Stabilize training by clamping logvar outputs.
+        # sqrt(exp(-6)) ~= 0.05 so 6: std min=0.05 max=20.0
+        # 10: std min=0.0067 max=148.4
+        logvar_limit = logvar_limit
+        self.logvar_nl = torch.nn.Hardtanh(-logvar_limit, logvar_limit)
+        self.debug = debug
+
+PARAMS_DSA              = SVAEParams(512,  16,   32,   4,  4,  0)
