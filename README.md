@@ -14,6 +14,17 @@ DEDO is easy to set up and has few dependencies, it is
 highly parallelizable and supports a wide range of customizations: 
 loading custom objects and textures, adjusting material properties. 
 
+Note: updates for this repo are in progress (until the presentation at NeurIPS2021 in mid-December).
+
+```
+@inproceedings{dedo2021,
+  title={Dynamic Environments with Deformable Objects},
+  author={Rika Antonova and Peiyang Shi and Hang Yin and Zehang Weng and Danica Kragic},
+  booktitle={Conference on Neural Information Processing Systems (NeurIPS) Datasets and Benchmarks Track},
+  year={2021},
+}
+```
+
 **Table of Contents:**<br />
 [Installation](#install)<br />
 [GettingStarted](#examples)<br />
