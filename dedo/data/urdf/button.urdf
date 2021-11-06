@@ -1,0 +1,64 @@
+<?xml version="1.0" ?>
+<robot name="button">
+  <dynamics damping="1.0" />
+  <contact>
+    <restitution value="0.01"/>
+    <lateral_friction value="0.5"/>
+    <rolling_friction value="0.5"/>
+    <contact_cfm value="0.0"/>
+    <contact_erp value="1.0"/>
+  </contact>
+  <material name="red">
+    <color rgba="1 0 0 1"/>
+  </material>
+  <material name="peach">
+    <color rgba="0.9 0.75 0.65 1"/>
+  </material>
+  <link name="button_stem">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.01"/>
+      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.02" radius="0.005"/>
+      </geometry>
+      <material name="peach"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.02" radius="0.005"/>
+      </geometry>
+      <material name="peach"/>
+    </collision>
+  </link>
+  <joint name="stem_to_head" type="fixed">
+    <parent link="button_stem"/>
+    <child link="button_head"/>
+    <origin xyz="0 0 0.01" rpy="0 0 0"/>
+  </joint>
+  <link name="button_head">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.02"/>
+      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.005" radius="0.015"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.005" radius="0.015"/>
+      </geometry>
+      <material name="red"/>
+    </collision>
+  </link>
+</robot>

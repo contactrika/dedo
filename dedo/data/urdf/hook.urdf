@@ -1,0 +1,70 @@
+<?xml version="1.0" ?>
+<robot name="hook">
+  <dynamics damping="1.0" />
+  <contact>
+    <restitution value="0.01"/>
+    <lateral_friction value="0.5"/>
+    <rolling_friction value="0.5"/>
+    <contact_cfm value="0.0"/>
+    <contact_erp value="1.0"/>
+  </contact>
+  <material name="green">
+    <color rgba="0 1 0 1"/>
+  </material>
+  <material name="peach">
+    <color rgba="0.9 0.75 0.65 1"/>
+  </material>
+  <link name="world"/>
+  <joint name="robot_to_world" type="fixed">
+    <parent link="world"/>
+    <child link="hook_stem"/>
+    <origin xyz="0 0 0.01" rpy="0 1.5707963268 0"/>
+  </joint>
+  <link name="hook_stem">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.01"/>
+      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.03"/>
+      </geometry>
+      <material name="peach"/>
+    </visual>
+    <collision>
+<origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.03"/>
+      </geometry>
+      <material name="peach"/>
+    </collision>
+  </link>
+  <joint name="stem_to_head" type="fixed">
+    <parent link="hook_stem"/>
+    <child link="hook_head"/>
+    <origin xyz="-0.02 0 0.06" rpy="0 0 0"/>
+  </joint>
+  <link name="hook_head">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.01"/>
+      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+    </inertial>
+    <visual>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.02" radius="0.05"/>
+      </geometry>
+      <material name="green"/>
+    </visual>
+    <collision>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.02" radius="0.05"/>
+      </geometry>
+      <material name="green"/>
+    </collision>
+  </link>
+</robot>

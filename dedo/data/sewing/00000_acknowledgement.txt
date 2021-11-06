@@ -1,0 +1,8 @@
+`Sewing` dataset comes from Maria Korosteleva and Sung-Hee Lee.   Generating Datasets of 3D Garments with Sewing410Patterns. InConference on Neural Information Processing Systems, Datasets and Benchmarks411Track (Round 1), 2021
+https://www.dropbox.com/sh/s7np66uisrr5g3k/AAA9mBUMNs2hLQpGio-Uu2O1a/Dataset%20of%20Garments%20with%20Patterns?dl=0&subfolder_nav_tracking=1
+
+This is a subset of a larger dataset with roughly 22,000 objects plus procedural generation code.
+
+The garment objects were simplified using Blender script from 10,000+ vertices to 200 ~ 2,000 vertices. The blender script is located at 'scripts/blender_sewing_dataset_decimation.py'
+
+Please refer to the Wiki on the repo page for instructions to use the blender script.

@@ -1,0 +1,81 @@
+<?xml version="1.0" ?>
+<robot name="rod">
+
+<link name="rod_link_top">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.01"/>
+      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0.05"/>
+      <geometry>
+        <cylinder length="0.05" radius="0.01"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0.05"/>
+      <geometry>
+        <cylinder length="0.05" radius="0.01"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="top_to_left" type="fixed">
+    <parent link="rod_link_top"/>
+    <child link="rod_link_left"/>
+    <origin xyz="0 0 0.0" rpy="0 0 0"/>
+  </joint>
+  <joint name="top_to_right" type="fixed">
+    <parent link="rod_link_top"/>
+    <child link="rod_link_right"/>
+    <origin xyz="0 0 0.0" rpy="0 0 0"/>
+  </joint>
+  <link name="rod_link_left">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.01"/>
+      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 1.25663706144 0" xyz="-0.07 0 0"/>
+      <geometry>
+        <cylinder length="0.15" radius="0.01"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 1.25663706144 0" xyz="-0.07 0 0"/>
+      <geometry>
+        <cylinder length="0.15" radius="0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+    <link name="rod_link_right">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.01"/>
+      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 1.88495559215 0" xyz="0.07 0 0"/>
+      <geometry>
+        <cylinder length="0.15" radius="0.01"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 1.88495559215 0" xyz="0.07 0 0"/>
+      <geometry>
+       <cylinder length="0.15" radius="0.01"/>
+      </geometry>
+    </collision>
+  </link>
+</robot>
