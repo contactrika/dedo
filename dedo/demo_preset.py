@@ -28,10 +28,6 @@ import cv2
 
 from dedo.utils.bullet_manipulator import convert_all
 
-# TODO(yonkshi): remove this before release
-from dedo.internal.waypoint_utils import create_traj
-
-
 def play(env, num_episodes, args):
     if args.task == 'ButtonProc':
         deform_obj = 'cloth/button_cloth.obj'
@@ -170,8 +166,8 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq, robot):
     wp = np.array(preset_wp[left_or_right])
     steps = (wp[:, -1] * ctrl_freq).round().astype(np.int32)  # seconds -> ctrl steps
     # TODO(yonkshi): replace create_traj with scipy.interpolate
-    print('ATTENTION: Need to use scipy interpolate for preset trajs')
-    # exit(1)
+    print('Code for preset trajectories will be updated shortly. Exiting for now.')
+    exit(1)
     # WARNING: old code below.
     traj_pos_vel = create_traj(init_anc_pos, wp[:, :3], steps, ctrl_freq)
     pos_traj = traj_pos_vel[:, :3]
