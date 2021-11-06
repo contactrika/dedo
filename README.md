@@ -14,7 +14,7 @@ DEDO is easy to set up and has few dependencies, it is
 highly parallelizable and supports a wide range of customizations: 
 loading custom objects and textures, adjusting material properties. 
 
-Note: updates for this repo are in progress (until the presentation at NeurIPS2021 in mid-December).
+**Note: updates for this repo are in progress (until the presentation at NeurIPS2021 in mid-December).**
 
 ```
 @inproceedings{dedo2021,
