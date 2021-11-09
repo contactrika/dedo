@@ -20,6 +20,7 @@ add further comments, unify the style, improve efficiency and add unittests.
 from copy import deepcopy
 import os
 import pickle
+from pathlib import Path
 
 import gym
 from stable_baselines3 import A2C, DDPG, PPO, SAC, TD3  # used dynamically
@@ -36,6 +37,7 @@ import torch
 
 def do_play(args, num_episodes=1):
     checkpt = os.path.join(args.load_checkpt, 'agent.zip')
+    run_name = str(Path(args.load_checkpt).stem)
     print('Loading RL agent checkpoint from', checkpt)
     logdir = args.logdir
     cam_resolution = args.cam_resolution
@@ -47,9 +49,9 @@ def do_play(args, num_episodes=1):
     print('args', args)
     eval_env = gym.make(args.env, args=args)
     eval_env.seed(args.seed)
-    rl_agent = eval(args.rl_algo).load(checkpt, buffer_size=10)
+    rl_agent = eval(args.rl_algo).load(checkpt, buffer_size=10) #, env=eval_env
     play(eval_env, num_episodes=num_episodes, rl_agent=rl_agent, debug=False,
-         logdir=logdir, cam_resolution=cam_resolution)
+         logdir=logdir, cam_resolution=cam_resolution, filename=run_name)
 
 
 def main(args):

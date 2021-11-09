@@ -115,9 +115,9 @@ def play(env, num_episodes, args):
             next_obs, rwd, done, info = env.step(act, unscaled=True)
             rwds.append(rwd)
 
-            if done and vidwriter is not None:
+            if done and vidwriter is not None: # Record the internal steps after anchor drop
                 for ob in info['final_obs'][1:]:
-                    vidwriter.write(np.uint8(ob[...,::-1]*256))
+                    vidwriter.write(np.uint8(ob[...,::-1]*255))
             if args.cam_resolution > 0:
                 img = env.render(mode='rgb_array', width=args.cam_resolution,
                                  height=args.cam_resolution)

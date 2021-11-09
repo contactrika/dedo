@@ -23,13 +23,13 @@ from dedo.utils.train_utils import object_to_str
 
 
 def play(env, num_episodes, rl_agent, debug=False, logdir=None,
-         cam_resolution=None):
+         cam_resolution=None, filename="play"):
     vidwriter = None
     if logdir is not None:
         if not os.path.exists(logdir):
             os.mkdir(logdir)
         vidwriter = cv2.VideoWriter(
-            os.path.join(logdir, f'play.mp4'), cv2.VideoWriter_fourcc(*'mp4v'),
+            os.path.join(logdir, f'{filename}.mp4'), cv2.VideoWriter_fourcc(*'mp4v'),
             24, (cam_resolution, cam_resolution))
     for epsd in range(num_episodes):
         episode_rwd = 0.0
