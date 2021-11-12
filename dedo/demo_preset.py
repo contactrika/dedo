@@ -15,6 +15,7 @@ add further comments, unify the style, improve efficiency and add unittests.
 import os
 import time
 import gym
+import scipy.linalg
 from matplotlib import interactive
 interactive(True)
 import numpy as np
@@ -176,8 +177,52 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq, robot):
 
     pos_traj = traj_pos_vel[:, :3]
     vel_traj = traj_pos_vel[:, 3:]
+
     # traj_pos_vel = create_traj_savgol(init_anc_pos, wp[:, :3], steps, ctrl_freq)
-    #
+
+    from scipy.interpolate import interp1d
+    wpt = np.concatenate([[init_anc_pos], wp[:, :3]], axis=0)
+    ids = np.arange(wpt.shape[0])
+    interp_type = 'linear'
+    # Creates the respective time interval for each way point
+    interp_i = []
+    for i, num_step in enumerate(steps):
+        interp_i.append(np.linspace(i, i+1, num_step, endpoint=False))
+
+    interp_i = np.concatenate(interp_i)
+    # interp_i = np.linspace(0, 1, steps[0], endpoint=False) # np.arange(0, wpt.shape[0]-1, 0.1)
+    xi = interp1d(ids, wpt[:, 0], kind=interp_type)(interp_i)
+    yi = interp1d(ids, wpt[:, 1], kind=interp_type)(interp_i)
+    zi = interp1d(ids, wpt[:, 2], kind=interp_type)(interp_i)
+
+    traj = np.array([xi, yi, zi]).T
+
+
+    dv = (traj[1:] - traj[:-1])  # * ctrl_freq
+
+
+    # Calculating the avg velocity for each control point
+    chunks = []
+    chunk_size = int(np.round(ctrl_freq))
+    start = 0
+    for i in range(99999):
+
+        if start+chunk_size > dv.shape[0]:
+            # last chunk
+            chunk_size = dv.shape[0] - start
+        chunk = dv[start:start+chunk_size]
+        mean_chunk = np.sum(chunk, axis=0, keepdims=True)
+        mean_chunk = np.repeat(mean_chunk, chunk_size, axis=0, ) # scale back to original shape
+        chunks.append(mean_chunk)
+        start = start+chunk_size
+        if start >= dv.shape[0]:
+            break
+
+    # Add the last point:
+    chunks = chunks + [[chunks[-1][-1]]]
+    velocities = np.concatenate(chunks, axis=0)
+
+
     # # TODO Debug viz
     # import matplotlib
     # matplotlib.use('TkAgg')
@@ -186,20 +231,18 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq, robot):
     # fig = plt.figure()
     # ax = plt.axes(projection='3d')
     #
-    # ax.plot3D(pos_traj[:, 0], pos_traj[:, 1], pos_traj[:, 2], label='default', linestyle="",marker=".")
-    # ax.plot3D(traj_pos_vel[:, 0], traj_pos_vel[:, 1], traj_pos_vel[:, 2], label='savgol', linestyle="", marker=".")
+    # ax.plot3D(vel_traj[:, 0], vel_traj[:, 1], vel_traj[:, 2], label='default', linestyle="",marker=".")
+    # # ax.plot3D(traj_pos_vel[:, 0], traj_pos_vel[:, 1], traj_pos_vel[:, 2], label='savgol', linestyle="", marker=".")
+    # ax.plot3D(velocities[:, 0], velocities[:, 1], velocities[:, 2], label='linint', linestyle="", marker=".")
     # ax.plot3D(wp[:, 0], wp[:, 1], wp[:, 2], label='WP', linestyle="", marker="o")
     # plt.legend()
     # plt.show()
     # print('debug end')
 
     # plot_traj(pos_traj)
-    from scipy.interpolate import interp1d
-    # xi = interp1d(ids, waypoints[:, 0], kind='cubic')(interp_i)
-    # yi = interp1d(ids, waypoints[:, 1], kind='cubic')(interp_i)
-    # zi = interp1d(ids, waypoints[:, 2], kind='cubic')(interp_i)
+
     # traj = np.array([xi, yi, zi]).T
-    return pos_traj, vel_traj
+    return traj, velocities
 
 
 def plot_traj(traj):
