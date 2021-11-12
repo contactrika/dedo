@@ -616,9 +616,9 @@ DEFORM_INFO = {
             [15],  # 10, 12, 13, 14, 15],
             [170],  # 163, 165, 167, 168, 170],
         ],
-        'cam_viewmat': [12.2, -12.6, 30, -0.4, 0.6, 5.3],
-        # 'cam_viewmat': [12.2, -12.6, 130, -0.4, 0.6, 5.3],
-        # 'cam_viewmat': [8.8, -12.6, 314, -0.4, 0.6, 5.3],
+
+        'cam_viewmat': [8.8, -12.6, 314, -0.4, 0.6, 5.3],
+
         'deform_true_loop_vertices': [
             [0, 1, 3, 4, 7, 8, 11, 12, 14, 16, 22, 24, 26, 30, 31, 32, 154, 155,
              157, 158, 160, 161, 162, 165, 167, 169, 175, 177, 179, 183, 184,
@@ -1283,7 +1283,9 @@ DEFORM_INFO = {
             [457],
         ],
         'rigid_texture_file': "textures/rigid/lightwood.jpg",
+
         'plane_texture_file': 'textures/plane/blue_carpet.jpg',
+
         'deform_texture_file': 'ycb/014_lemon/google_16k/texture_map.png',
     },
     'ycb/018_plum/google_16k/08194_sparse_textured_ok.obj': {

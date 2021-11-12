@@ -10,9 +10,11 @@ add further comments, unify the style, improve efficiency and add unittests.
 
 """
 import argparse
+
 import sys
 from .task_info import TASK_INFO
 import re
+
 
 
 def get_args_parser():
@@ -165,7 +167,6 @@ def get_args():
     args, parser = get_args_parser()
     args_postprocess(args)
     return args
-
 
 def preset_override_util(args, deform_obj):
     '''

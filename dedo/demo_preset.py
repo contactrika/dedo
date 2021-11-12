@@ -28,9 +28,7 @@ import cv2
 
 from dedo.utils.bullet_manipulator import convert_all
 
-# TODO(yonkshi): remove this before release
 from dedo.internal.waypoint_utils import create_traj, create_traj_savgol
-
 
 def play(env, num_episodes, args):
     if args.task == 'ButtonProc':
@@ -170,6 +168,7 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq, robot):
     wp = np.array(preset_wp[left_or_right])
     steps = (wp[:, -1] * ctrl_freq).round().astype(np.int32)  # seconds -> ctrl steps
     # TODO(yonkshi): replace create_traj with scipy.interpolate
+
     print('ATTENTION: Need to use scipy interpolate for preset trajs')
     # exit(1)
     # WARNING: old code below.
@@ -193,6 +192,7 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq, robot):
     # plt.legend()
     # plt.show()
     # print('debug end')
+
     # plot_traj(pos_traj)
     from scipy.interpolate import interp1d
     # xi = interp1d(ids, waypoints[:, 0], kind='cubic')(interp_i)

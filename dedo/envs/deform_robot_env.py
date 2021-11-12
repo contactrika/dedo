@@ -152,13 +152,7 @@ class DeformRobotEnv(DeformEnv):
                 self.robot.get_ee_pos_ori_vel(left=True)
             grip_obs.extend(left_ee_pos)
             grip_obs.extend((np.array(left_ee_linvel)/DeformEnv.MAX_OBS_VEL))
-        elif not ROBOT_INFO[self.args.robot]['use_fixed_base']:
-            # EE pos, vel of the base for mobile robots.
-            pos, _ = self.sim.getBasePositionAndOrientation(
-                self.robot.info.robot_id)
-            linvel, _ = self.sim.getBaseVelocity(self.robot.info.robot_id)
-            grip_obs.extend(pos)
-            grip_obs.extend((np.array(linvel)/DeformEnv.MAX_OBS_VEL))
+
         return grip_obs
 
     def get_reward(self):

@@ -29,7 +29,10 @@ from ..utils.task_info import (
     TOTE_MAJOR_VERSIONS, TOTE_VARS_PER_VERSION)
 from ..utils.procedural_utils import (
     gen_procedural_hang_cloth, gen_procedural_button_cloth)
+<<<<<<< HEAD
 from ..utils.args import preset_override_util
+=======
+>>>>>>> d221b6994e8189457ea6f0513e6807824d11bb29
 
 
 class DeformEnv(gym.Env):
@@ -140,6 +143,7 @@ class DeformEnv(gym.Env):
                 args.num_holes = args.version
             deform_obj = gen_procedural_hang_cloth(
                 self.args, 'procedural_hang_cloth', DEFORM_INFO)
+
             preset_override_util(args, DEFORM_INFO[deform_obj])
         elif self.args.task == 'ButtonProc':  # procedural gen. for buttoning
             args.num_holes = 2
@@ -147,6 +151,7 @@ class DeformEnv(gym.Env):
             deform_obj, hole_centers = gen_procedural_button_cloth(
                 self.args, 'proc_button_cloth', DEFORM_INFO)
             preset_override_util(args, DEFORM_INFO[deform_obj])
+
             # Move buttons to match hole position.
             h1, h2 = hole_centers
             h1 = (-h1[1], 0, h1[2]+2)
@@ -185,9 +190,11 @@ class DeformEnv(gym.Env):
             else:
                 deform_obj = TASK_INFO[args.task][args.version - 1]
 
+
             preset_override_util(args, DEFORM_INFO[deform_obj])
         if deform_obj in DEFORM_INFO:
             preset_override_util(args, DEFORM_INFO[deform_obj])
+
 
         # Load rigid objects.
         rigid_ids = []
