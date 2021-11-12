@@ -29,10 +29,8 @@ from ..utils.task_info import (
     TOTE_MAJOR_VERSIONS, TOTE_VARS_PER_VERSION)
 from ..utils.procedural_utils import (
     gen_procedural_hang_cloth, gen_procedural_button_cloth)
-<<<<<<< HEAD
 from ..utils.args import preset_override_util
-=======
->>>>>>> d221b6994e8189457ea6f0513e6807824d11bb29
+
 
 
 class DeformEnv(gym.Env):
