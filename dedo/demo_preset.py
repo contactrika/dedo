@@ -29,8 +29,6 @@ import cv2
 
 from dedo.utils.bullet_manipulator import convert_all
 
-from dedo.internal.waypoint_utils import create_traj, create_traj_savgol
-
 def play(env, num_episodes, args):
     if args.task == 'ButtonProc':
         deform_obj = 'cloth/button_cloth.obj'
@@ -168,17 +166,11 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq, robot):
     print(f'init_anc_pos {left_or_right}', init_anc_pos)
     wp = np.array(preset_wp[left_or_right])
     steps = (wp[:, -1] * ctrl_freq).round().astype(np.int32)  # seconds -> ctrl steps
-    # TODO(yonkshi): replace create_traj with scipy.interpolate
 
     print('ATTENTION: Need to use scipy interpolate for preset trajs')
     # exit(1)
     # WARNING: old code below.
-    traj_pos_vel = create_traj(init_anc_pos, wp[:, :3], steps, ctrl_freq)
 
-    pos_traj = traj_pos_vel[:, :3]
-    vel_traj = traj_pos_vel[:, 3:]
-
-    # traj_pos_vel = create_traj_savgol(init_anc_pos, wp[:, :3], steps, ctrl_freq)
 
     from scipy.interpolate import interp1d
     wpt = np.concatenate([[init_anc_pos], wp[:, :3]], axis=0)
@@ -201,7 +193,7 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq, robot):
     dv = (traj[1:] - traj[:-1])  # * ctrl_freq
 
 
-    # Calculating the avg velocity for each control point
+    # Calculating the avg velocity for each control step
     chunks = []
     chunk_size = int(np.round(ctrl_freq))
     start = 0
@@ -222,26 +214,6 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq, robot):
     chunks = chunks + [[chunks[-1][-1]]]
     velocities = np.concatenate(chunks, axis=0)
 
-
-    # # TODO Debug viz
-    # import matplotlib
-    # matplotlib.use('TkAgg')
-    # from mpl_toolkits import mplot3d
-    # import matplotlib.pyplot as plt
-    # fig = plt.figure()
-    # ax = plt.axes(projection='3d')
-    #
-    # ax.plot3D(vel_traj[:, 0], vel_traj[:, 1], vel_traj[:, 2], label='default', linestyle="",marker=".")
-    # # ax.plot3D(traj_pos_vel[:, 0], traj_pos_vel[:, 1], traj_pos_vel[:, 2], label='savgol', linestyle="", marker=".")
-    # ax.plot3D(velocities[:, 0], velocities[:, 1], velocities[:, 2], label='linint', linestyle="", marker=".")
-    # ax.plot3D(wp[:, 0], wp[:, 1], wp[:, 2], label='WP', linestyle="", marker="o")
-    # plt.legend()
-    # plt.show()
-    # print('debug end')
-
-    # plot_traj(pos_traj)
-
-    # traj = np.array([xi, yi, zi]).T
     return traj, velocities
 
 
