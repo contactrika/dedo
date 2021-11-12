@@ -1,8 +1,12 @@
 """
 Utilities for generating procedural cloth.
 
-TODO(yonkshi): add brief function-level descriptions, address TODO in
-    create_cloth_obj and clean up.
+Procedural generation works as follows:
+1. Generate a mesh, randomly carves out a square hole.
+2. If hole > 1, also checks for overlapping of two holes. If overlap, randomly choose a new hole position. Repeat until no overlap found.
+3. Saves hollowed mesh into .obj file in the /tmp/ directory.
+
+
 
 
 Note: this code is for research i.e. quick experimentation; it has minimal
@@ -157,7 +161,7 @@ def gen_random_hole(node_density, dim_constraints):
 
 
 def try_gen_holes(node_density, num_holes, constraints):
-    for i in range(1000):  # 100 MC
+    for i in range(1000):  # 1000 MC
         if num_holes == 2:
             holeA = gen_random_hole(node_density, constraints)
             holeB = gen_random_hole(node_density, constraints)
@@ -216,7 +220,6 @@ def create_cloth_obj(min_point, max_point, node_density,
         # Check if file already exists
         if not os.path.exists(os.path.join(data_path, "generated_cloth")):
             os.makedirs(os.path.join(data_path, "generated_cloth"))
-        # TODO(yonkshi): hole outside loop; please check
         fnm = "cloth_" + str(node_density) + "_" + str(hole[0]['x']) + "_" + \
               str(hole[0]['y']) + "_" + str(hole[0]['x']) + "_" + \
               str(min_point[0]) + "_" + str(min_point[1]) + "_" + \

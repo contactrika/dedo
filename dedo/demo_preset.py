@@ -29,7 +29,7 @@ import cv2
 from dedo.utils.bullet_manipulator import convert_all
 
 # TODO(yonkshi): remove this before release
-from dedo.internal.waypoint_utils import create_traj
+from dedo.internal.waypoint_utils import create_traj, create_traj_savgol
 
 
 def play(env, num_episodes, args):
@@ -174,8 +174,25 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq, robot):
     # exit(1)
     # WARNING: old code below.
     traj_pos_vel = create_traj(init_anc_pos, wp[:, :3], steps, ctrl_freq)
+
     pos_traj = traj_pos_vel[:, :3]
     vel_traj = traj_pos_vel[:, 3:]
+    # traj_pos_vel = create_traj_savgol(init_anc_pos, wp[:, :3], steps, ctrl_freq)
+    #
+    # # TODO Debug viz
+    # import matplotlib
+    # matplotlib.use('TkAgg')
+    # from mpl_toolkits import mplot3d
+    # import matplotlib.pyplot as plt
+    # fig = plt.figure()
+    # ax = plt.axes(projection='3d')
+    #
+    # ax.plot3D(pos_traj[:, 0], pos_traj[:, 1], pos_traj[:, 2], label='default', linestyle="",marker=".")
+    # ax.plot3D(traj_pos_vel[:, 0], traj_pos_vel[:, 1], traj_pos_vel[:, 2], label='savgol', linestyle="", marker=".")
+    # ax.plot3D(wp[:, 0], wp[:, 1], wp[:, 2], label='WP', linestyle="", marker="o")
+    # plt.legend()
+    # plt.show()
+    # print('debug end')
     # plot_traj(pos_traj)
     from scipy.interpolate import interp1d
     # xi = interp1d(ids, waypoints[:, 0], kind='cubic')(interp_i)

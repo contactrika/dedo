@@ -10,8 +10,9 @@ add further comments, unify the style, improve efficiency and add unittests.
 
 """
 import argparse
-
+import sys
 from .task_info import TASK_INFO
+import re
 
 
 def get_args_parser():
@@ -165,3 +166,21 @@ def get_args():
     args_postprocess(args)
     return args
 
+
+def preset_override_util(args, deform_obj):
+    '''
+    Overrides args object with preset information (deform_obj).
+    Moreover users can override the override.
+    '''
+
+    # Regex to extract raw arg names from sys.argv
+    user_raw_args = []
+    for argv in sys.argv:
+        m = re.search("(?:--)([a-zA-Z0-9-_]+)(?:=)?", argv)
+        if m is not None:
+            user_raw_args.append(m.group(1)) # gets the var name
+
+    for arg_nm, arg_val in deform_obj.items():
+        if arg_nm in user_raw_args:   # User overrides the preset arg
+            continue
+        setattr(args, arg_nm, arg_val)

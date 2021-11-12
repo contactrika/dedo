@@ -8,21 +8,20 @@ import numpy as np
 from scipy.signal import savgol_filter
 
 
-def create_traj_savgol(waypts, steps_per_waypt):
+def create_traj_savgol(init_pos, waypts, steps_per_waypt, frequency):
     '''
-
     :param waypts:
     :param steps_per_waypt:
     :return:
     '''
     """A scratch function to smooth trajectory."""
-    waypts = waypts.reshape(-1, 3)
+    waypts = np.concatenate([[init_pos], waypts], axis=0)
     n_waypts = waypts.shape[0]
     dists = []
     for i in range(n_waypts-1):
         dists.append(np.linalg.norm(waypts[i]-waypts[i+1]))
     tot_dist = sum(dists)
-    t_max = n_waypts*steps_per_waypt
+    t_max = sum(steps_per_waypt)
     dense_waypts = np.zeros((t_max, 3))
     t = 0
     for i in range(n_waypts-1):
@@ -33,8 +32,9 @@ def create_traj_savgol(waypts, steps_per_waypt):
     if t < t_max:
         dense_waypts[t:,:] = dense_waypts[t-1,:]  # set rest to last entry
     # dense_waypts = np.repeat(waypts, steps_per_waypt, axis=0)  # simple repeat
+    window_len = int(sum(steps_per_waypt) / len(waypts) * 2 + 1)
     dense_waypts = savgol_filter(dense_waypts,
-                                 window_length=int(steps_per_waypt*2+1),
+                                 window_length=window_len,
                                  polyorder=4, axis=0)
     print('dense_waypts', dense_waypts.shape)
     return dense_waypts
