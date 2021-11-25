@@ -1,17 +1,11 @@
 """
 Utilities for generating procedural cloth.
 
-<<<<<<< HEAD
 Procedural generation works as follows:
 1. Generate a mesh, randomly carves out a square hole.
 2. If hole > 1, also checks for overlapping of two holes. If overlap, randomly choose a new hole position. Repeat until no overlap found.
 3. Saves hollowed mesh into .obj file in the /tmp/ directory.
 
-
-=======
-TODO(yonkshi): add brief function-level descriptions, address TODO in
-    create_cloth_obj and clean up.
->>>>>>> d221b6994e8189457ea6f0513e6807824d11bb29
 
 
 Note: this code is for research i.e. quick experimentation; it has minimal
@@ -28,6 +22,13 @@ from matplotlib import pyplot as plt
 
 
 def gen_procedural_hang_cloth(args, preset_obj_name, deform_info_dict):
+    '''
+    Hang cloth procedrual generator. Generates a cloth of random size and places random holes inside. Checks for overlap
+    :param args:
+    :param preset_obj_name:
+    :param deform_info_dict:
+    :return:
+    '''
     num_holes = args.num_holes
     node_density = args.node_density
 
@@ -69,6 +70,13 @@ def gen_procedural_hang_cloth(args, preset_obj_name, deform_info_dict):
 
 
 def gen_procedural_button_cloth(args, preset_obj_name, deform_info_dict):
+    '''
+    Button cloth procedural generator, generates one or two holes for the button cloth.
+    :param args: args object
+    :param preset_obj_name:
+    :param deform_info_dict:
+    :return:
+    '''
     num_holes = args.num_holes
 
     # These are fine tuned ranges.
@@ -166,6 +174,13 @@ def gen_random_hole(node_density, dim_constraints):
 
 
 def try_gen_holes(node_density, num_holes, constraints):
+    '''
+    Monte Carlo method for placing holes in a cloth, checks for overlap so they don't overlap
+    :param node_density:
+    :param num_holes:
+    :param constraints:
+    :return:
+    '''
     for i in range(1000):  # 1000 MC
         if num_holes == 2:
             holeA = gen_random_hole(node_density, constraints)
@@ -186,6 +201,18 @@ def create_cloth_obj(min_point, max_point, node_density,
                      holes, data_path,
                      gen_fixed_anchors=False,
                      node_coords=[]):
+    '''
+    Core procedural generator code
+    :param min_point: bottom,left corner
+    :param max_point: top, right corner
+    :param node_density: density of the nodes (per cm)
+    :param holes: list of holes to be generated
+    :param data_path: temporary path for storing the cloth obj file
+    :param gen_fixed_anchors: annotate fixed anchors if true (For buttoning
+    :param node_coords:
+    :return:
+    '''
+
     def validate_and_integerize(hole):
         # Convert ratio to aboslute.
         for key, val in hole.items():

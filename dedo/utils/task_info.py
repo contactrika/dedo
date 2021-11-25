@@ -974,7 +974,7 @@ DEFORM_INFO = {
     'cloth/mask_0.obj': {
         'deform_init_pos': [-0.2, 2, 6.2],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
-        'deform_scale': 0.9,
+        'deform_scale': 1.3,
         'deform_elastic_stiffness': 100,
         # 'deform_bending_stiffness': 5,
         'deform_bending_stiffness': 1,
@@ -1002,7 +1002,7 @@ DEFORM_INFO = {
     'cloth/mask_1.obj': {
         'deform_init_pos': [-0.2, 2, 6.2],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
-        'deform_scale': 0.9,
+        'deform_scale': 1.3,
         'deform_elastic_stiffness': 100,
         # 'deform_bending_stiffness': 5,
         'deform_bending_stiffness': 1,
@@ -1028,7 +1028,7 @@ DEFORM_INFO = {
     'cloth/mask_2.obj': {
         'deform_init_pos': [-0.2, 2, 6.2],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
-        'deform_scale': 0.9,
+        'deform_scale': 1.3,
         'deform_elastic_stiffness': 100,
         # 'deform_bending_stiffness': 5,
         'deform_bending_stiffness': 1,
@@ -1052,7 +1052,7 @@ DEFORM_INFO = {
     'cloth/mask_3.obj': {
         'deform_init_pos': [-0.2, 2, 6.2],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
-        'deform_scale': 0.9,
+        'deform_scale': 1.3,
         'deform_elastic_stiffness': 100,
         # 'deform_bending_stiffness': 5,
         'deform_bending_stiffness': 1,
@@ -1076,7 +1076,7 @@ DEFORM_INFO = {
     'cloth/mask_4.obj': {
         'deform_init_pos': [-0.2, 2, 6.2],
         'deform_init_ori': [np.pi / 2, 0, np.pi],
-        'deform_scale': 0.9,
+        'deform_scale': 1.3,
         'deform_elastic_stiffness': 100,
         # 'deform_bending_stiffness': 5,
         'deform_bending_stiffness': 1,

@@ -206,6 +206,24 @@ python -m dedo.demo_preset --env=Mask-v1 --viz
 `Mask-v0`, `Mask-v[1-5]`: a few texture variants shown below:
 ![images/imgs/dress_garment.jpg](images/imgs/mask_0.jpg)
 <a name="rl"></a>
+
+### HangGarmentRobot
+```
+python -m dedo.demo_preset --env=HangGarmentRobot-v1 --viz
+```
+`HangGarmentRobot-v1`: A environment for demonstrating integration with Franka Robot Arm
+![images/gifs/HangGarmentRobot-v1.gif](https://github.com/yonkshi/dedo_assets/blob/main/assets/gifs/HangGarmentRobot-v1.gif?raw=true)
+
+
+### FoodPacking
+```
+python -m dedo.demo_preset --env=FoodPacking-v1 --viz
+```
+`FoodPacking-v[0-3]`: Demonstrating robotic manipulation of pushing [YCB objects](https://www.ycbbenchmarks.com/)
+
+![images/gifs/FoodPacking-v1.gif](https://github.com/yonkshi/dedo_assets/blob/main/assets/gifs/FoodPacking-v1.gif?raw=true)
+
+
 ## RL Examples
 
 `dedo/run_rl_sb3.py` gives an example of how to train an RL

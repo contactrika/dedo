@@ -46,13 +46,10 @@ def main(args):
     bundle_id = 0
     for i_run in range(n_runs):
         obs = vec_env.reset()
-
-        # TODO Add fuzzy Camera position
-        # TODO Add fuzzy Spawning  Noise
         act = np.zeros((args.num_envs, 6,))
 
         # Y-axis motion for both anchors
-        act_noise = np.random.uniform(-args.action_noise,args.action_noise, args.num_envs)
+        act_noise = np.random.uniform(-args.action_noise, args.action_noise, args.num_envs)
         act[:, 1] += -0.3 + act_noise
         act[:, 4] += -0.3 + act_noise
         # Z-Axis motion
@@ -62,12 +59,12 @@ def main(args):
         j = 0
         while not np.all(done):
             next_obs, rwd, done, info = vec_env.step(act)
-            j+=1
-            if j % 10  == 0 and j >= 70 and j < 130: # 90 - 130
+            j += 1
+            if j % 10 == 0 and j >= 70 and j < 130:  # 90 - 130
                 for i, ob in enumerate(next_obs):
-                    ob = ob[...,::-1] * 255 # RGB2BGR
+                    ob = ob[..., ::-1] * 255  # RGB2BGR
                     cv2.imwrite(join(args.logdir, f'{args.env}_obj{i_run * args.num_envs + i}_step{j}.png'), ob)
-            if j>130:
+            if j > 130:
                 break
 
         continue
@@ -93,6 +90,7 @@ def main(args):
 
     vec_env.close()
 
+
 def args_setup():
     args, main_parser = get_args_parser()
     parser = argparse.ArgumentParser(
@@ -110,5 +108,7 @@ def args_setup():
     args, unknown = parser.parse_known_args()
     args_postprocess(args)
     return args
+
+
 if __name__ == "__main__":
     main(args_setup())
