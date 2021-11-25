@@ -198,7 +198,7 @@ python -m dedo.demo_preset --env=DressGarment-v1 --viz
 ![images/imgs/dress_garment.jpg](images/imgs/dress_garment.jpg)
 
 ### Mask
-
+![images/gifs/Mask-v1.gif](https://github.com/yonkshi/dedo_assets/blob/main/assets/gifs/Mask-v1.gif?raw=true)
 ```
 python -m dedo.demo_preset --env=Mask-v1 --viz
 ```
