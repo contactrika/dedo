@@ -26,7 +26,7 @@ from .deform_env import DeformEnv
 
 
 class DeformRobotEnv(DeformEnv):
-    ORI_SIZE = 3*2    # 3D position + sin,cos for 3 Euler angles
+    ORI_SIZE = 3 * 2  # 3D position + sin,cos for 3 Euler angles
     FING_DIST = 0.01  # default finger distance
 
     def __init__(self, args):
@@ -44,7 +44,7 @@ class DeformRobotEnv(DeformEnv):
     def unscale_pos(act, unscaled):
         if unscaled:
             return act
-        return act*DeformEnv.WORKSPACE_BOX_SIZE
+        return act * DeformEnv.WORKSPACE_BOX_SIZE
 
     def load_objects(self, sim, args, debug):
         res = super(DeformRobotEnv, self).load_objects(sim, args, debug)
@@ -78,15 +78,15 @@ class DeformRobotEnv(DeformEnv):
         preset_dynamic_anchor_vertices = get_preset_properties(
             DEFORM_INFO, self.deform_obj, 'deform_anchor_vertices')
         _, mesh = get_mesh_data(self.sim, self.deform_id)
-        assert(preset_dynamic_anchor_vertices is not None)
+        assert (preset_dynamic_anchor_vertices is not None)
         for i in range(self.num_anchors):  # make anchors
             anchor_pos = np.array(mesh[preset_dynamic_anchor_vertices[i][0]])
             if not np.isfinite(anchor_pos).all():
                 print('anchor_pos not sane:', anchor_pos)
                 input('Press enter to exit')
                 exit(1)
-            link_id = self.robot.info.ee_link_id if i==0 else \
-                          self.robot.info.left_ee_link_id
+            link_id = self.robot.info.ee_link_id if i == 0 else \
+                self.robot.info.left_ee_link_id
             self.sim.createSoftBodyAnchor(
                 self.deform_id, preset_dynamic_anchor_vertices[i][0],
                 self.robot.info.robot_id, link_id)
@@ -146,12 +146,12 @@ class DeformRobotEnv(DeformEnv):
         grip_obs = []
         ee_pos, _, ee_linvel, _ = self.robot.get_ee_pos_ori_vel()
         grip_obs.extend(ee_pos)
-        grip_obs.extend((np.array(ee_linvel)/DeformEnv.MAX_OBS_VEL))
+        grip_obs.extend((np.array(ee_linvel) / DeformEnv.MAX_OBS_VEL))
         if self.num_anchors > 1:  # EE pos, vel of left arm
             left_ee_pos, _, left_ee_linvel, _ = \
                 self.robot.get_ee_pos_ori_vel(left=True)
             grip_obs.extend(left_ee_pos)
-            grip_obs.extend((np.array(left_ee_linvel)/DeformEnv.MAX_OBS_VEL))
+            grip_obs.extend((np.array(left_ee_linvel) / DeformEnv.MAX_OBS_VEL))
 
         return grip_obs
 

@@ -17,9 +17,9 @@ import time
 import gym
 import scipy.linalg
 from matplotlib import interactive
+
 interactive(True)
 import numpy as np
-
 
 from dedo.utils.args import get_args
 from dedo.utils.anchor_utils import create_anchor_geom
@@ -28,6 +28,7 @@ import wandb
 import cv2
 
 from dedo.utils.bullet_manipulator import convert_all
+
 
 def play(env, num_episodes, args):
     if args.task == 'ButtonProc':
@@ -93,11 +94,11 @@ def play(env, num_episodes, args):
         traj_ori = preset_wp.get('a_theta', None)
         if traj_ori is not None:
             traj_ori = convert_all(np.array(traj_ori), 'theta_to_sin_cos')
-            n_repeats = traj.shape[0]//len(traj_ori)
+            n_repeats = traj.shape[0] // len(traj_ori)
             traj_ori = np.repeat(traj_ori, n_repeats, axis=0)
             print('traj_ori', traj_ori.shape, traj_ori)
-            assert(traj_ori.shape[0] == traj.shape[0])
-            assert(traj_ori.shape[1] == 6)  # Euler sin,sin,sin,cos,cos,cos
+            assert (traj_ori.shape[0] == traj.shape[0])
+            assert (traj_ori.shape[1] == 6)  # Euler sin,sin,sin,cos,cos,cos
             traj = np.hstack([traj, traj_ori])
 
         gif_frames = []
@@ -112,9 +113,9 @@ def play(env, num_episodes, args):
             next_obs, rwd, done, info = env.step(act, unscaled=True)
             rwds.append(rwd)
 
-            if done and vidwriter is not None: # Record the internal steps after anchor drop
+            if done and vidwriter is not None:  # Record the internal steps after anchor drop
                 for ob in info['final_obs'][1:]:
-                    vidwriter.write(np.uint8(ob[...,::-1]*255))
+                    vidwriter.write(np.uint8(ob[..., ::-1] * 255))
             if args.cam_resolution > 0:
                 img = env.render(mode='rgb_array', width=args.cam_resolution,
                                  height=args.cam_resolution)
@@ -134,7 +135,7 @@ def play(env, num_episodes, args):
         if args.use_wandb:
             mean_rwd = np.sum(rwds)
             for i in range(31):
-                wandb.log({'rollout/ep_rew_mean': mean_rwd, 'Step':i}, step=i)
+                wandb.log({'rollout/ep_rew_mean': mean_rwd, 'Step': i}, step=i)
         if vidwriter is not None:
             vidwriter.release()
 
@@ -159,7 +160,7 @@ def merge_traj(traj_a, traj_b):
 
 def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq, robot):
     if robot is not None:
-        init_anc_pos = env.robot.get_ee_pos(left=anchor_idx>0)
+        init_anc_pos = env.robot.get_ee_pos(left=anchor_idx > 0)
     else:
         anc_id = list(env.anchors.keys())[anchor_idx]
         init_anc_pos = env.anchors[anc_id]['pos']
@@ -171,7 +172,6 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq, robot):
     # exit(1)
     # WARNING: old code below.
 
-
     from scipy.interpolate import interp1d
     wpt = np.concatenate([[init_anc_pos], wp[:, :3]], axis=0)
     ids = np.arange(wpt.shape[0])
@@ -179,7 +179,7 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq, robot):
     # Creates the respective time interval for each way point
     interp_i = []
     for i, num_step in enumerate(steps):
-        interp_i.append(np.linspace(i, i+1, num_step, endpoint=False))
+        interp_i.append(np.linspace(i, i + 1, num_step, endpoint=False))
 
     interp_i = np.concatenate(interp_i)
     # interp_i = np.linspace(0, 1, steps[0], endpoint=False) # np.arange(0, wpt.shape[0]-1, 0.1)
@@ -189,9 +189,7 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq, robot):
 
     traj = np.array([xi, yi, zi]).T
 
-
     dv = (traj[1:] - traj[:-1])  # * ctrl_freq
-
 
     # Calculating the avg velocity for each control step
     chunks = []
@@ -199,14 +197,14 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq, robot):
     start = 0
     for i in range(99999):
 
-        if start+chunk_size > dv.shape[0]:
+        if start + chunk_size > dv.shape[0]:
             # last chunk
             chunk_size = dv.shape[0] - start
-        chunk = dv[start:start+chunk_size]
+        chunk = dv[start:start + chunk_size]
         mean_chunk = np.sum(chunk, axis=0, keepdims=True)
-        mean_chunk = np.repeat(mean_chunk, chunk_size, axis=0, ) # scale back to original shape
+        mean_chunk = np.repeat(mean_chunk, chunk_size, axis=0, )  # scale back to original shape
         chunks.append(mean_chunk)
-        start = start+chunk_size
+        start = start + chunk_size
         if start >= dv.shape[0]:
             break
 

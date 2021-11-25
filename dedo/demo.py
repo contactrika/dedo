@@ -14,6 +14,7 @@ add further comments, unify the style, improve efficiency and add unittests.
 """
 import matplotlib.pyplot as plt
 from matplotlib import interactive
+
 interactive(True)
 import numpy as np
 
@@ -56,13 +57,13 @@ def play(env, num_episodes, args):
         step = 0
         # input('Reset done; press enter to start episode')
         while True:
-            assert(not isinstance(env.action_space, gym.spaces.Discrete))
+            assert (not isinstance(env.action_space, gym.spaces.Discrete))
             print('step', step)
             act = env.action_space.sample()  # in [-1,1]
-            noise_act = 0.1*act
+            noise_act = 0.1 * act
             act = policy_simple(obs, noise_act, args.task, step)
             next_obs, rwd, done, info = env.step(act)
-            if args.viz and (args.cam_resolution > 0) and step%10 == 0:
+            if args.viz and (args.cam_resolution > 0) and step % 10 == 0:
                 plt.imshow(next_obs)
             if done:
                 break
@@ -73,7 +74,7 @@ def play(env, num_episodes, args):
 
 
 def main(args):
-    assert('Robot' not in args.env), 'This is a simple demo for anchors only'
+    assert ('Robot' not in args.env), 'This is a simple demo for anchors only'
     np.set_printoptions(precision=4, linewidth=150, suppress=True)
     kwargs = {'args': args}
     env = gym.make(args.env, **kwargs)

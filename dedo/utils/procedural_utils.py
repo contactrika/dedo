@@ -166,7 +166,6 @@ def gen_random_hole(node_density, dim_constraints):
 
 
 def try_gen_holes(node_density, num_holes, constraints):
-
     for i in range(1000):  # 1000 MC
         if num_holes == 2:
             holeA = gen_random_hole(node_density, constraints)

@@ -16,7 +16,6 @@ from .task_info import TASK_INFO
 import re
 
 
-
 def get_args_parser():
     parser = argparse.ArgumentParser(description='args', add_help=True)
     #
@@ -133,7 +132,7 @@ def get_args_parser():
                         help='Episode rollout length')
     parser.add_argument('--replay_size', type=int, default=10000,
                         help='Number of observations to store in replay buffer'
-                        '10K 200x200 frames take ~20GBs of CPU RAM')
+                             '10K 200x200 frames take ~20GBs of CPU RAM')
     parser.add_argument('--unsup_algo', type=str, default=None,
                         choices=['VAE', 'SVAE', 'PRED', 'DSA'],
                         help='Unsupervised learner (e.g. for run_svae.py)')
@@ -168,6 +167,7 @@ def get_args():
     args_postprocess(args)
     return args
 
+
 def preset_override_util(args, deform_obj):
     '''
     Overrides args object with preset information (deform_obj).
@@ -179,9 +179,9 @@ def preset_override_util(args, deform_obj):
     for argv in sys.argv:
         m = re.search("(?:--)([a-zA-Z0-9-_]+)(?:=)?", argv)
         if m is not None:
-            user_raw_args.append(m.group(1)) # gets the var name
+            user_raw_args.append(m.group(1))  # gets the var name
 
     for arg_nm, arg_val in deform_obj.items():
-        if arg_nm in user_raw_args:   # User overrides the preset arg
+        if arg_nm in user_raw_args:  # User overrides the preset arg
             continue
         setattr(args, arg_nm, arg_val)

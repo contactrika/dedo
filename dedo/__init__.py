@@ -44,4 +44,4 @@ for task, versions in TASK_INFO.items():
                  entry_point='dedo.envs:'+cls_nm, order_enforce=False)
 
 # Register dual-arm robot tasks.
-register(id='HangGarmentRobot-v1', entry_point='dedo.envs:DeformRobotEnv')
+register(id='HangGarmentRobot-v1', entry_point='dedo.envs:DeformRobotEnv', order_enforce=False)

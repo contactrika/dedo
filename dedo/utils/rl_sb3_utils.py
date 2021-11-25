@@ -39,7 +39,7 @@ def play(env, num_episodes, rl_agent, debug=False, logdir=None,
         if vidwriter is not None:
             img = env.render(mode='rgb_array', width=cam_resolution,
                              height=cam_resolution)
-            vidwriter.write(img[...,::-1])
+            vidwriter.write(img[..., ::-1])
         step = 0
         while True:
             # rl_agent.predict() to get acts, not forcing deterministic.
@@ -49,7 +49,7 @@ def play(env, num_episodes, rl_agent, debug=False, logdir=None,
             if vidwriter is not None:
                 img = env.render(mode='rgb_array', width=cam_resolution,
                                  height=cam_resolution)
-                vidwriter.write(img[...,::-1])
+                vidwriter.write(img[..., ::-1])
             if done:
                 if debug:
                     print(f'episode reward {episode_rwd:0.2f}')
@@ -65,6 +65,7 @@ class CustomCallback(BaseCallback):
     """
     A custom callback that runs eval and adds videos to Tensorboard.
     """
+
     def __init__(self, eval_env, logdir, num_train_envs, args,
                  num_steps_between_save=10000, viz=False, debug=False):
         super(CustomCallback, self).__init__(debug)
@@ -139,7 +140,7 @@ class CustomCallback(BaseCallback):
 
                 evaluate_policy(
                     self.model, self._eval_env, callback=grab_screens,
-                    n_eval_episodes=1,  deterministic=False)
+                    n_eval_episodes=1, deterministic=False)
                 self.logger.record(
                     'trajectory/video',
                     Video(torch.ByteTensor([screens]), fps=50),
@@ -158,4 +159,3 @@ class CustomCallback(BaseCallback):
         This event is triggered before exiting the `learn()` method.
         """
         pass
-

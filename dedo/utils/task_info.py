@@ -224,7 +224,7 @@ SCENE_INFO = {
                 'mass': 0,
                 'useTexture': True,
             },
-            #'ycb/004_sugar_box/google_16k/textured.obj': {
+            # 'ycb/004_sugar_box/google_16k/textured.obj': {
             # 'ycb/009_gelatin_box/google_16k/textured.obj': {
             'ycb/003_cracker_box/google_16k/textured.obj': {
                 'basePosition': [1.8, 1.7, 0.25],
@@ -233,7 +233,7 @@ SCENE_INFO = {
                 'mass': 0.01,
                 'rgbaColor': (0.9, 0.75, 0.65, 1),
             },
-            #'ycb/005_tomato_soup_can/google_16k/textured.obj': {
+            # 'ycb/005_tomato_soup_can/google_16k/textured.obj': {
             # 'ycb/007_tuna_fish_can/google_16k/textured.obj': {
             'ycb/002_master_chef_can/google_16k/textured.obj': {
                 'basePosition': [0.9, 1.5, 0.25],
@@ -1190,7 +1190,6 @@ DEFORM_INFO = {
             [0],
             [38],
 
-
         ],
         'deform_fixed_anchor_vertex_ids':
             [372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384,
@@ -1228,10 +1227,10 @@ DEFORM_INFO = {
     },
     'berkeley_garments': {
         'deform_init_pos': [0, 5, 8],
-        'deform_init_ori': [np.pi/2, 0, 0],
+        'deform_init_ori': [np.pi / 2, 0, 0],
         'deform_scale': 5,
         'anchor_init_pos': [1, 4.4722, 10.4271],
-        'other_anchor_init_pos': [-1,  4.4708, 10.4309],
+        'other_anchor_init_pos': [-1, 4.4708, 10.4309],
         'deform_elastic_stiffness': 10.0,
         'deform_bending_stiffness': 0.05,
         'deform_damping_stiffness': 0.01,
@@ -1242,10 +1241,10 @@ DEFORM_INFO = {
     },
     'sewing_garments': {
         'deform_init_pos': [0, 5, 8],
-        'deform_init_ori': [np.pi/2, 0, 0],
+        'deform_init_ori': [np.pi / 2, 0, 0],
         'deform_scale': 0.05,
         'anchor_init_pos': [1, 4.4722, 10.4271],
-        'other_anchor_init_pos': [-1,  4.4708, 10.4309],
+        'other_anchor_init_pos': [-1, 4.4708, 10.4309],
         'deform_elastic_stiffness': 10.0,
         'deform_bending_stiffness': 0.05,
         'deform_damping_stiffness': 0.01,
@@ -1320,7 +1319,6 @@ DEFAULT_CAM_PROJECTION = {
                          0.0, 0.0, -0.02000020071864128, 0.0)
 }
 
-
 ROBOT_INFO = {
     'franka2': {
         'file_name': 'franka/franka_dual.urdf',
@@ -1332,10 +1330,10 @@ ROBOT_INFO = {
         'use_fixed_base': True,
         'base_pos': np.array([5.0, 1.5, 0]),
         'rest_arm_qpos': np.array(
-           [-0.7332, -0.0135,  0.1112, -0.718,   0.0978, 1.99, -0.5592]),
+            [-0.7332, -0.0135, 0.1112, -0.718, 0.0978, 1.99, -0.5592]),
         'left_rest_arm_qpos': np.array(
-            [0.7732, -0.0135,  -0.0212, -0.68,   0.0978, 1.99, -0.5592]),
-   },
+            [0.7732, -0.0135, -0.0212, -0.68, 0.0978, 1.99, -0.5592]),
+    },
     'franka1': {
         'file_name': 'franka/franka_small_fingers.urdf',
         'ee_joint_name': 'panda_joint7',
@@ -1344,8 +1342,8 @@ ROBOT_INFO = {
         'use_fixed_base': True,
         'base_pos': np.array([5.0, 1.5, 0]),
         'rest_arm_qpos': np.array(
-           # for [2.5, 1.5, 1.0]
-           [0.4083,  0.4691, -0.6216, -2.9606, -0.9926,  3.4903,  1.5129]
+            # for [2.5, 1.5, 1.0]
+            [0.4083, 0.4691, -0.6216, -2.9606, -0.9926, 3.4903, 1.5129]
         ),
-   }
+    }
 }
