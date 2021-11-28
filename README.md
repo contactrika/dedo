@@ -51,10 +51,11 @@ a direct install without using virtual environments is ok as well.
 ```
 git clone https://github.com/contactrika/dedo
 cd dedo
-pip install numpy  # important: Nessasary for compiling numpy-enabled PyBullet
+pip install numpy  # important: for numpy-enabled PyBullet
 pip install -e .
 ```
-Python3.7 is recommended as we have encountered that on some OS + CPU combo, PyBullet could not be compiled with Numpy enabled in Pip Python 3.8.
+Python3.7 is recommended, since PyBullet compilation can have difficulties with Python 3.8 in some cases.
+
 To enable recording/logging videos install ffmpeg:
 ```
 sudo apt-get install ffmpeg
