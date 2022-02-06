@@ -127,6 +127,7 @@ SCENE_INFO = {
         },
         'goal_pos': [[0.00, 1.28, 9]],
     },
+    ################ RELEVANT ################################
     'hangcloth': {
         'entities': {
             'urdf/hanger.urdf': {
@@ -145,6 +146,7 @@ SCENE_INFO = {
         },
         'goal_pos': [[0, 0.00, 8.2]],
     },
+    #############################################################
     'button': {
         'entities': {
             'urdf/torso.urdf': {
@@ -606,15 +608,15 @@ DEFORM_INFO = {
 
     },
     'cloth/apron_0.obj': {
-        'deform_init_pos': [0, 5, 8],
+        'deform_init_pos':   [0, 5, 8], # [5,0,3.6], 
         'deform_init_ori': [np.pi / 2, 0, np.pi],
         'deform_scale': 3,
         'deform_elastic_stiffness': 50,
         'deform_bending_stiffness': 1,
         'deform_damping_stiffness': 0.01,
         'deform_anchor_vertices': [
-            [15],  # 10, 12, 13, 14, 15],
-            [170],  # 163, 165, 167, 168, 170],
+            [15],  # 10, 12, 13, 14, 15],  # 50
+            [170],  # 163, 165, 167, 168, 170], # 51
         ],
 
         'cam_viewmat': [8.8, -12.6, 314, -0.4, 0.6, 5.3],
@@ -1330,7 +1332,7 @@ ROBOT_INFO = {
         'use_fixed_base': True,
         'base_pos': np.array([5.0, 1.5, 0]),
         'rest_arm_qpos': np.array(
-            [-0.7332, -0.0135, 0.1112, -0.718, 0.0978, 1.99, -0.5592]),
+               [-0.7332, -0.0135, 0.1112, -0.718, 0.0978, 1.99, -0.5592]),
         'left_rest_arm_qpos': np.array(
             [0.7732, -0.0135, -0.0212, -0.68, 0.0978, 1.99, -0.5592]),
     },
@@ -1338,12 +1340,25 @@ ROBOT_INFO = {
         'file_name': 'franka/franka_small_fingers.urdf',
         'ee_joint_name': 'panda_joint7',
         'ee_link_name': 'panda_hand',
+        'left_ee_joint_name': 'panda_joint7',
+        'left_ee_link_name': 'panda_hand',
         'global_scaling': 10.0,
         'use_fixed_base': True,
         'base_pos': np.array([5.0, 1.5, 0]),
         'rest_arm_qpos': np.array(
-            # for [2.5, 1.5, 1.0]
+        #     # for [2.5, 1.5, 1.0]
             [0.4083, 0.4691, -0.6216, -2.9606, -0.9926, 3.4903, 1.5129]
+        #     # [0.7732, -0.0135, -0.0212, -0.68, 0.0978, 1.99, -0.5592]
         ),
+    },
+    'fetch': {
+        'file_name': 'fetch/fetch.urdf',
+        'ee_joint_name': 'wrist_roll_joint',  
+        'ee_link_name': 'gripper_link', 
+        'global_scaling': 10.0,  
+        'use_fixed_base': False, 
+        'base_pos': np.array([16.0, 0, 0]), 
+        'rest_arm_qpos': None 
+
     }
 }

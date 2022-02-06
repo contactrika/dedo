@@ -65,10 +65,10 @@ def play(env, num_episodes, args):
                              height=args.cam_resolution)
             if vidwriter is not None:
                 vidwriter.write(img[..., ::-1])
-        if args.debug:
-            viz_waypoints(env.sim, preset_wp['a'], (1, 0, 0, 1))
-            if 'b' in preset_wp:
-                viz_waypoints(env.sim, preset_wp['b'], (1, 0, 0, 0.5))
+        # if args.debug:
+        viz_waypoints(env.sim, preset_wp['a'], (1, 0, 1, 1))
+        if 'b' in preset_wp:
+            viz_waypoints(env.sim, preset_wp['b'], (1, 1, 0, 0.5))
         # Need to step to get low-dim state from info.
         step = 0
         ctrl_freq = args.sim_freq / args.sim_steps_per_action
@@ -92,6 +92,7 @@ def play(env, num_episodes, args):
                 traj = merge_traj(pos_traj, pos_traj_b)
             last_action = traj[-1]
         traj_ori = preset_wp.get('a_theta', None)
+
         if traj_ori is not None:
             traj_ori = convert_all(np.array(traj_ori), 'theta_to_sin_cos')
             n_repeats = traj.shape[0] // len(traj_ori)
@@ -101,6 +102,7 @@ def play(env, num_episodes, args):
             assert (traj_ori.shape[1] == 6)  # Euler sin,sin,sin,cos,cos,cos
             traj = np.hstack([traj, traj_ori])
 
+        # print('traj', traj.shape)
         gif_frames = []
         rwds = []
         print(f'# {args.env}:')
@@ -110,7 +112,10 @@ def play(env, num_episodes, args):
 
             act = traj[step] if step < len(traj) else last_action
 
-            next_obs, rwd, done, info = env.step(act, unscaled=True)
+            print(step)
+
+            # Taking step- act is of size (3*num_anchors,1)
+            next_obs, rwd, done, info = env.step(act, unscaled=True, final_wp = last_action)
             rwds.append(rwd)
 
             if done and vidwriter is not None:  # Record the internal steps after anchor drop
@@ -126,6 +131,7 @@ def play(env, num_episodes, args):
                 break
 
             # if step > len(traj) + 50: break;
+            
             obs = next_obs
 
             step += 1
@@ -143,7 +149,8 @@ def play(env, num_episodes, args):
 def viz_waypoints(sim, waypoints, rgba):
     waypoints = np.array(waypoints)
     for waypoint in waypoints:
-        create_anchor_geom(sim, waypoint[:3], mass=0, rgba=rgba, use_collision=False)
+        anchor_id = create_anchor_geom(sim, waypoint[:3], mass=0, rgba=rgba, use_collision=False)
+        print("way point anchor: ", anchor_id)
 
 
 def merge_traj(traj_a, traj_b):
@@ -164,9 +171,10 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq, robot):
     else:
         anc_id = list(env.anchors.keys())[anchor_idx]
         init_anc_pos = env.anchors[anc_id]['pos']
-    print(f'init_anc_pos {left_or_right}', init_anc_pos)
+    print(f'init_ee_pos {left_or_right}', init_anc_pos)
     wp = np.array(preset_wp[left_or_right])
     steps = (wp[:, -1] * ctrl_freq).round().astype(np.int32)  # seconds -> ctrl steps
+    # print("steps", steps)
 
     print('ATTENTION: Need to use scipy interpolate for preset trajs')
     # exit(1)
@@ -174,7 +182,9 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq, robot):
 
     from scipy.interpolate import interp1d
     wpt = np.concatenate([[init_anc_pos], wp[:, :3]], axis=0)
+    print("wpt", wpt)
     ids = np.arange(wpt.shape[0])
+    print("ids", ids)
     interp_type = 'linear'
     # Creates the respective time interval for each way point
     interp_i = []
@@ -188,8 +198,10 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq, robot):
     zi = interp1d(ids, wpt[:, 2], kind=interp_type)(interp_i)
 
     traj = np.array([xi, yi, zi]).T
+    # print(traj.shape)
 
     dv = (traj[1:] - traj[:-1])  # * ctrl_freq
+    
 
     # Calculating the avg velocity for each control step
     chunks = []
@@ -211,6 +223,8 @@ def build_traj(env, preset_wp, left_or_right, anchor_idx, ctrl_freq, robot):
     # Add the last point:
     chunks = chunks + [[chunks[-1][-1]]]
     velocities = np.concatenate(chunks, axis=0)
+    # print(velocities.shape)
+    # plot_traj(traj)
 
     return traj, velocities
 
@@ -232,7 +246,7 @@ def plot_traj(traj):
 def main(args):
     np.set_printoptions(precision=4, linewidth=150, suppress=True)
     kwargs = {'args': args}
-    env = gym.make(args.env, **kwargs)
+    env = gym.make(args.env, **kwargs) # unpacks the dictionary
     env.seed(env.args.seed)
     print('Created', args.task, 'with observation_space',
           env.observation_space.shape, 'action_space', env.action_space.shape)

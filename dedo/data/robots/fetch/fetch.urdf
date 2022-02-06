@@ -155,7 +155,7 @@
       </geometry>
     </collision>
   </link>
-  <joint name="torso_lift_joint" type="prismatic">
+  <joint name="torso_lift_joint" type="fixed">
     <origin rpy="-6.123E-17 0 0" xyz="-0.086875 0 0.37743" />
     <parent link="base_link" />
     <child link="torso_lift_link" />
@@ -186,7 +186,7 @@
       </geometry>
     </collision>
   </link>
-  <joint name="head_pan_joint" type="revolute">
+  <joint name="head_pan_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0.053125 0 0.603001417713939" />
     <parent link="torso_lift_link" />
     <child link="head_pan_link" />
@@ -214,7 +214,7 @@
       </geometry>
     </collision>
   </link>
-  <joint name="head_tilt_joint" type="revolute">
+  <joint name="head_tilt_joint" type="fixed">
     <origin rpy="0 0.2617993877991494 0" xyz="0.14253 0 0.057999" />
     <parent link="head_pan_link" />
     <child link="head_tilt_link" />
@@ -481,7 +481,7 @@
       </geometry>
     </collision>
   </link>
-  <joint name="r_gripper_finger_joint" type="prismatic">
+  <joint name="r_gripper_finger_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 0.015425 0" />
     <parent link="gripper_link" />
     <child link="r_gripper_finger_link" />
@@ -509,7 +509,7 @@
       </geometry>
     </collision>
   </link>
-  <joint name="l_gripper_finger_joint" type="prismatic">
+  <joint name="l_gripper_finger_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 -0.015425 0" />
     <parent link="gripper_link" />
     <child link="l_gripper_finger_link" />
