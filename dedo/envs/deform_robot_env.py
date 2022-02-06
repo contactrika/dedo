@@ -16,6 +16,7 @@ import os
 import gym
 import numpy as np
 import pybullet
+from math import fabs
 
 from ..utils.bullet_manipulator import BulletManipulator
 from ..utils.init_utils import get_preset_properties
@@ -47,10 +48,14 @@ class DeformRobotEnv(DeformEnv):
         return act * DeformEnv.WORKSPACE_BOX_SIZE
 
     def load_objects(self, sim, args, debug):
+        # call to load_objects of super class
         res = super(DeformRobotEnv, self).load_objects(sim, args, debug)
         data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
         sim.setAdditionalSearchPath(data_path)
-        robot_info = ROBOT_INFO.get(f'franka{self.num_anchors:d}', None)
+
+        # robot_info = ROBOT_INFO.get(f'franka{self.num_anchors:d}', None)
+        robot_info = ROBOT_INFO.get('fetch', None)
+
         robot_path = os.path.join(data_path, 'robots',
                                   robot_info['file_name'])
         if debug:
@@ -72,33 +77,85 @@ class DeformRobotEnv(DeformEnv):
             left_fing_link_prefix='panda_hand_l_', left_joint_suffix='_l',
             left_rest_arm_qpos=robot_info.get('left_rest_arm_qpos', None),
             debug=debug)
+
         return res
 
     def make_anchors(self):
+        # incorrect name: not really making any new anchor
         preset_dynamic_anchor_vertices = get_preset_properties(
             DEFORM_INFO, self.deform_obj, 'deform_anchor_vertices')
         _, mesh = get_mesh_data(self.sim, self.deform_id)
         assert (preset_dynamic_anchor_vertices is not None)
-        for i in range(self.num_anchors):  # make anchors
-            anchor_pos = np.array(mesh[preset_dynamic_anchor_vertices[i][0]])
+        for i in range(self.num_anchors):  # make anchors 
+            anchor_pos = np.array(mesh[preset_dynamic_anchor_vertices[i][0]]) # from the cloth definition (15,170)
+            print("location of anchor {} attached to garment before glue :".format(i), i, anchor_pos)
             if not np.isfinite(anchor_pos).all():
                 print('anchor_pos not sane:', anchor_pos)
                 input('Press enter to exit')
                 exit(1)
+
             link_id = self.robot.info.ee_link_id if i == 0 else \
                 self.robot.info.left_ee_link_id
-            self.sim.createSoftBodyAnchor(
-                self.deform_id, preset_dynamic_anchor_vertices[i][0],
-                self.robot.info.robot_id, link_id)
+ 
+            # create a glue between the robot at given link position 
+            # with the deform object at given vertex position
+            # THUS THERE IS NO CONCEPT OF GRASPING
+            # Already fixed - so now when end effector moves, the garment will move
+            # self.sim.createSoftBodyAnchor(
+            #     self.deform_id, preset_dynamic_anchor_vertices[i][0],
+            #     self.robot.info.robot_id, link_id)
 
-    def do_action(self, action, unscaled=False):
+    def do_action(self, action, unscaled=False, final_wp = None):
         # Note: action is in [-1,1], so we unscale pos (ori is sin,cos so ok).
         action = action.reshape(self.num_anchors, -1)
         ee_pos, ee_ori, _, _ = self.robot.get_ee_pos_ori_vel()
         tgt_pos = DeformRobotEnv.unscale_pos(action[0, :3], unscaled)
+
+        print('ee_pos',ee_pos)
+        print('tgt_pos',tgt_pos)
+
+        if final_wp is not None:
+            final_wp = final_wp.reshape(self.num_anchors, -1)
+            final_pos = DeformRobotEnv.unscale_pos(final_wp[0, :3], unscaled)
+
+        # Calculate distance of robot base from final endpoint
+        # Assumption: Way-points (if multiple) are progressively further away from the bot
+        pos_rel_base, quat_rel_base = self.robot.get_relative_pose(pos = final_pos)
+
+        # base_state = self.sim.getLinkState(
+        #     self.robot.info.robot_id, 0, computeLinkVelocity=0)
+        # base_pos = base_state[0]
+        # print(np.linalg.norm(pos_rel_base[:2]), self.robot.in_range, base_pos[:2])
+
+        print("error:", np.linalg.norm(ee_pos - final_pos))
+        print("pos_rel_base", np.linalg.norm(pos_rel_base[0:2]))
+
+        ################### FOR MOVEMENT OF BASE ##########################
+
+        # If constraint created
+        if self.robot.base_cid: 
+
+            # StopGap solution: due to fixed final difference in ee_pos and final_pos
+            error_th = 0.75
+
+            # Empirical value to bring robot within reach of target
+            robot_reach = 10.0 
+            # Note: If IK solver is ideal - we would know that tgt pos is unreachable w/o
+            # moving robot if joint angles returned are out of range
+
+            if np.linalg.norm(pos_rel_base[0:2]) < robot_reach:
+                self.robot.in_range = 1
+            elif np.linalg.norm(pos_rel_base[0:2]) > robot_reach and self.robot.in_range is None:
+                self.robot.move_base(tgt_pos)
+                if (np.linalg.norm(ee_pos - final_pos) < error_th):
+                    self.robot.in_range = 1
+
+        ####################################################################
+    
         tgt_ee_ori = ee_ori if action.shape[-1] == 3 else action[0, 3:]
         tgt_kwargs = {'ee_pos': tgt_pos, 'ee_ori': tgt_ee_ori,
                       'fing_dist': DeformRobotEnv.FING_DIST}
+
         if self.num_anchors > 1:  # dual-arm
             res = self.robot.get_ee_pos_ori_vel(left=True)
             left_ee_pos, left_ee_ori = res[0], res[1]
@@ -108,16 +165,22 @@ class DeformRobotEnv(DeformEnv):
             tgt_kwargs.update({'left_ee_pos': left_tgt_pos,
                                'left_ee_ori': left_tgt_ee_ori,
                                'left_fing_dist': DeformRobotEnv.FING_DIST})
+        # so far we have a dict of tgt ee_pos for both arms 
+        # now do inverse kinematics
         tgt_qpos = self.robot.ee_pos_to_qpos(**tgt_kwargs)
+        # tgt_qpos = self.robot.get_qpos()
+        print("tgt_pose", tgt_qpos)
+        print("current_pose", self.robot.get_qpos())
         n_slack = 1  # use > 1 if robot has trouble reaching the pose
         sub_i = 0
         ee_th = 0.01
-        diff = self.robot.get_qpos() - tgt_qpos
+        diff = np.abs(self.robot.get_qpos() - tgt_qpos)
+
         while (diff > ee_th).any():
             self.robot.move_to_qpos(
-                tgt_qpos, mode=pybullet.POSITION_CONTROL, kp=0.1, kd=1.0)
+                tgt_qpos, mode=pybullet.POSITION_CONTROL, kp=0.05, kd=7.0) # 0.05, 7.0
             self.sim.stepSimulation()
-            diff = self.robot.get_qpos() - tgt_qpos
+            diff = np.abs(self.robot.get_qpos() - tgt_qpos)
             sub_i += 1
             if sub_i >= n_slack:
                 diff = np.zeros_like(diff)  # set while loop to done
@@ -135,7 +198,7 @@ class DeformRobotEnv(DeformEnv):
             print('final_action', final_action)
         info = {'final_obs': []}
         for sim_step in range(DeformEnv.STEPS_AFTER_DONE):
-            self.do_action(final_action, unscaled=True)
+            self.do_action(final_action, unscaled=True, final_wp = final_action)
             self.sim.stepSimulation()
             if sim_step % self.args.sim_steps_per_action == 0:
                 next_obs, _ = self.get_obs()

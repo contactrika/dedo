@@ -52,10 +52,12 @@ class DeformEnv(gym.Env):
             self.sim.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 0)
         reset_bullet(args, self.sim, debug=args.debug)
         self.food_packing = self.args.env.startswith('FoodPacking')
-        self.num_anchors = 1 if self.food_packing else 2
+        self.num_anchors = 1 # if self.food_packing else 2
+        print("Hi before calling load objects")
         res = self.load_objects(self.sim, self.args, debug=True)
         self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos = res
         self.max_episode_len = self.args.max_episode_len
+        #################### REINFORCEMENT LEARNING ####################
         # Define sizes of observation and action spaces.
         self.gripper_lims = np.tile(np.concatenate(
             [DeformEnv.WORKSPACE_BOX_SIZE * np.ones(3),  # 3D pos
@@ -113,6 +115,7 @@ class DeformEnv(gym.Env):
         return file_path
 
     def load_objects(self, sim, args, debug):
+        # print("Hi env load objects start")
         scene_name = self.args.task.lower()
         if scene_name in ['hanggarment', 'bgarments', 'sewing','hangproccloth']:
            scene_name = 'hangcloth'  # same hanger for garments and cloths
@@ -291,6 +294,7 @@ class DeformEnv(gym.Env):
         for i in range(self.num_anchors):  # make anchors
             anchor_init_pos = self.args.anchor_init_pos if (i % 2) == 0 else \
                 self.args.other_anchor_init_pos
+            # creates an anchor and glues it to the deform object
             anchor_id, anchor_pos, anchor_vertices = create_anchor(
                 self.sim, anchor_init_pos, i,
                 preset_dynamic_anchor_vertices, mesh)
@@ -312,17 +316,19 @@ class DeformEnv(gym.Env):
             # create_anchor_geom(self.sim, cent_pos, mass=0.0,
             #                     rgba=(0, 1, 0.8, alpha), use_collision=False)
 
-    def step(self, action, unscaled=False):
+    def step(self, action, unscaled=False, final_wp = None):
         if self.args.debug:
             print('action', action)
         if not unscaled:
             assert self.action_space.contains(action)
             assert ((np.abs(action) <= 1.0).all()), 'action must be in [-1, 1]'
         action = action.reshape(self.num_anchors, -1)
-
+        if final_wp is not None:
+            final_wp = final_wp.reshape(self.num_anchors, -1)
         # Step through physics simulation.
+  
         for sim_step in range(self.args.sim_steps_per_action):
-            self.do_action(action, unscaled)
+            self.do_action(action, unscaled, final_wp)
             self.sim.stepSimulation()
 
         # Get next obs, reward, done.

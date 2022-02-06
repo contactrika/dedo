@@ -104,31 +104,44 @@ class BulletManipulator:
         # Create a constraint for the mobile manipulator to stay on the floor.
         # Note this constraint is not as rigid as using use_fixed_base while
         # loading, but it looks okay to keep balance of the platform and could
-        # allow us to move the basis as the VR pybullet example.
+        # allow us to move the base as the VR pybullet example.
         self.base_cid = None
+        self.in_range = None
+        print(self.base_cid)
         if not use_fixed_base:
             self.base_cid = sim.createConstraint(
                 self.info.robot_id, -1, -1, -1, sim.JOINT_FIXED, [0.0, 0, 0],
                 [0.0, 0, 0], base_pos)
+        print(self.base_cid)
 
         # Reset to initial position and visualize.
         self.rest_qpos = (self.info.joint_maxpos+self.info.joint_minpos)/2
         if rest_arm_qpos is not None:
+            # print(len(self.info.arm_jids_lst))
             assert(len(self.info.arm_jids_lst)==len(rest_arm_qpos))
             self.rest_qpos[self.info.arm_jids_lst] = rest_arm_qpos[:]
         if left_rest_arm_qpos is not None:
             assert(len(self.info.left_arm_jids_lst)==len(left_rest_arm_qpos))
             self.rest_qpos[self.info.left_arm_jids_lst] = left_rest_arm_qpos[:]
+        print('before reset: q_pos', self.rest_qpos)
         self.reset()
         ee_pos, ee_ori, *_ = self.get_ee_pos_ori_vel()
-        print('Initialized robot ee at pos', ee_pos,
+
+        print('Initialized robot ee-r at pos', ee_pos,
               'euler ori', sin_cos_to_theta(ee_ori),
               'sin/cos ori', ee_ori)
+        print('Initial pose',self.get_qpos()) 
+        if (left_ee_link_name is not None):
+            ee_pos_l, ee_ori_l, *_ = self.get_ee_pos_ori_vel(left = True)
+            print('Initialized robot ee-l at pos', ee_pos_l,
+                'euler ori', sin_cos_to_theta(ee_ori_l),
+                'sin/cos ori', ee_ori_l)
 
     def load_robot(self, robot_path, ee_joint_name, ee_link_name,
                    left_ee_joint_name, left_ee_link_name,
                    left_fing_link_prefix, left_joint_suffix,
                    base_pos, base_quat, use_fixed_base, global_scaling):
+
         robot_id = self.sim.loadURDF(
             robot_path, basePosition=base_pos, baseOrientation=base_quat,
             useFixedBase=use_fixed_base, flags=pybullet.URDF_USE_SELF_COLLISION,
@@ -278,13 +291,19 @@ class BulletManipulator:
         ee_quat = None
         if ee_ori is not None:
             ee_quat = sin_cos_to_quat(ee_ori)
+        ################# USES NULL SPACE- IK INFLUENCED BY RESTPOSE ################
+        # qpos = pybullet.calculateInverseKinematics(
+        #     self.info.robot_id, self.info.ee_link_id,
+        #     targetPosition=ee_pos.tolist(), targetOrientation=ee_quat,
+        #     lowerLimits=self.info.joint_minpos.tolist(),
+        #     upperLimits=self.info.joint_maxpos.tolist(),
+        #     jointRanges=(self.info.joint_maxpos-self.info.joint_minpos).tolist(),
+        #     restPoses= self.get_qpos().tolist(), # self.rest_qpos.tolist(),
+        #     maxNumIterations=500, residualThreshold=0.005, solver=pybullet.IK_SDLS)
+        ################### DEFAULT IK IS USED ####################################
         qpos = pybullet.calculateInverseKinematics(
             self.info.robot_id, self.info.ee_link_id,
             targetPosition=ee_pos.tolist(), targetOrientation=ee_quat,
-            lowerLimits=self.info.joint_minpos.tolist(),
-            upperLimits=self.info.joint_maxpos.tolist(),
-            jointRanges=(self.info.joint_maxpos-self.info.joint_minpos).tolist(),
-            restPoses=self.rest_qpos.tolist(),
             maxNumIterations=500, residualThreshold=0.005)
             # solver=pybullet.IK_SDLS,
             # maxNumIterations=1000, residualThreshold=0.0001)
@@ -323,6 +342,7 @@ class BulletManipulator:
                 left_fing_dist/2.0, self.info.joint_minpos[jid],
                 self.info.joint_maxpos[jid])
         # IK will find solutions outside of joint limits, so clip.
+        ###################### TAKE NOTES ###############################
         # qpos = np.clip(qpos, self.info.joint_minpos, self.info.joint_maxpos)
         return qpos
 
@@ -362,7 +382,7 @@ class BulletManipulator:
         tgt_qpos = np.zeros_like(tgt_qvel)
         ok_tgt_qvel = self.get_ok_qvel(tgt_qvel)
         if ok_tgt_qvel is not None:
-            self.move_to_qposvel(tgt_qpos, ok_tgt_qvel, mode, kp, kd)
+            self.vel(tgt_qpos, ok_tgt_qvel, mode, kp, kd)
         else:
             self.move_to_qposvel(
                 tgt_qpos, np.zeros_like(tgt_qvel), mode, kp, kd)
@@ -554,33 +574,30 @@ class BulletManipulator:
             inv_trans, inv_rot, pos, quat_input)
 
         return np.array(local_pos), None if quat is None else np.array(local_quat)
-    
-    def move_base(self, lin_vel, rot_vel, dt=1./240):
+
+    def move_base(self, tgt_pos, ds=1./240):
         # Change fixed constraint spec to move the base: assuming the mobile
         # base is omnidirectional, we can also animate differential drive by
         # having the wheel distance.
+
+        ds /= 5
         assert(self.base_cid is not None)
         base_state = self.sim.getLinkState(
             self.info.robot_id, 0, computeLinkVelocity=0)
         base_pos = base_state[0]
         base_quat = base_state[1]
+        next_base_ori = np.array(self.sim.getEulerFromQuaternion(base_quat))
         # print(base_pos, base_quat)
-        # delta_quat = self.sim.getQuaternionFromEuler([0, 0, rot_vel*dt])
-        # tar_base_pos, tar_base_ori = self.sim.multiplyTransforms(base_pos,
-        #     base_quat, [lin_vel[0] * dt, lin_vel[1] * dt, 0], delta_quat)
+        rel_pos = tgt_pos - base_pos
         next_base_pos = np.add(np.array(base_pos),
-                               np.array([lin_vel[0]*dt,
-                                         lin_vel[1]*dt, 0])).tolist()
-        next_base_ori = np.add(np.array(
-            self.sim.getEulerFromQuaternion(base_quat)),
-            np.array([0, 0, rot_vel*dt]))
-        next_base_ori = self.sim.getQuaternionFromEuler(next_base_ori.tolist())
-        # User needs to specify dt since it is specified by the user so
+                               np.array([rel_pos[0]*ds,
+                                         rel_pos[1]*ds, 0])).tolist()
+
+        # User needs to specify ds since it is specified by the user so
         # better let user to track it.
         # print(next_base_pos, next_base_ori)
-        self.sim.changeConstraint(self.base_cid, next_base_pos, next_base_ori,
-                                  maxForce=1000)
-        return
+        self.sim.changeConstraint(self.base_cid, next_base_pos,next_base_ori,maxForce=1000)
+        return 
 
 #
 # Utilities to convert between "sin,cos" Euler angle representation to

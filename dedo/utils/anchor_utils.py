@@ -87,7 +87,7 @@ def create_anchor(sim, anchor_pos, anchor_idx, preset_vertices, mesh,
     anchor_vertices = None
     mesh = np.array(mesh)
     if use_preset and preset_vertices is not None:
-        anchor_vertices = preset_vertices[anchor_idx]
+        anchor_vertices = preset_vertices[anchor_idx] # location of anchor
         anchor_pos = mesh[anchor_vertices].mean(axis=0)
     elif use_closest:
         anchor_pos, anchor_vertices = get_closest(anchor_pos, mesh)
