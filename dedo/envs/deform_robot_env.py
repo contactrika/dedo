@@ -111,9 +111,9 @@ class DeformRobotEnv(DeformEnv):
         tgt_qpos = self.robot.ee_pos_to_qpos(**tgt_kwargs)
         n_slack = 1  # use > 1 if robot has trouble reaching the pose
         sub_i = 0
-        ee_th = 0.01
+        max_diff = 0.02
         diff = self.robot.get_qpos() - tgt_qpos
-        while (diff > ee_th).any():
+        while (np.abs(diff) > max_diff).any():
             self.robot.move_to_qpos(
                 tgt_qpos, mode=pybullet.POSITION_CONTROL, kp=0.1, kd=1.0)
             self.sim.stepSimulation()
