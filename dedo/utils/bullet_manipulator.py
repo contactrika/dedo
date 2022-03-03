@@ -120,6 +120,18 @@ class BulletManipulator:
             assert(len(self.info.left_arm_jids_lst)==len(left_rest_arm_qpos))
             self.rest_qpos[self.info.left_arm_jids_lst] = left_rest_arm_qpos[:]
         self.reset()
+        self.default_ik_args = {
+            'lowerLimits': self.info.joint_minpos.tolist(),
+            'upperLimits': self.info.joint_maxpos.tolist(),
+            'jointRanges': (self.info.joint_maxpos -
+                            self.info.joint_minpos).tolist(),
+            'restPoses': self.rest_qpos.tolist(),
+            # Note that large num iterations could slow down compute enough
+            # s.t. visualizer shows differences in rate of following traj.
+            'maxNumIterations': 500,
+            'residualThreshold': 0.005,
+            # solver=pybullet.IK_SDLS,
+        }
         ee_pos, ee_ori, *_ = self.get_ee_pos_ori_vel()
         print('Initialized robot ee at pos', ee_pos,
               'euler ori', sin_cos_to_theta(ee_ori),
@@ -148,6 +160,9 @@ class BulletManipulator:
                 pybullet.getJointInfo(robot_id, j)
             jname = jname.decode("utf-8")
             link_name = link_name.decode("utf-8")
+            # take care of continuous joints
+            if jhighlim < jlowlim:
+                jlowlim, jhighlim = -np.pi, np.pi
             # print('load jname', jname, 'jtype', jtype, 'link_name', link_name)
             if jtype in [pybullet.JOINT_REVOLUTE, pybullet.JOINT_PRISMATIC]:
                 joint_ids.append(j)
@@ -198,7 +213,7 @@ class BulletManipulator:
         self.reset_to_qpos(self.rest_qpos)
 
     def reset_to_qpos(self, qpos):
-        qpos = np.clip(qpos, self.info.joint_minpos, self.info.joint_maxpos)
+        qpos = self.clip_qpos(qpos)
         for jid in range(self.info.dof):
             self.sim.resetJointState(
                 bodyUniqueId=self.info.robot_id,
@@ -212,7 +227,7 @@ class BulletManipulator:
         # torque control values this way are hard to reproduce.
         self.sim.setJointMotorControlArray(
             self.info.robot_id, self.info.joint_ids.tolist(),
-            pybullet.VELOCITY_CONTROL, forces=[0]*self.info.dof)
+            pybullet.VELOCITY_CONTROL, targetVelocities=[0]*self.info.dof)
         self.sim.setJointMotorControlArray(
             self.info.robot_id, self.info.joint_ids.tolist(),
             pybullet.TORQUE_CONTROL, forces=[0]*self.info.dof)
@@ -281,18 +296,8 @@ class BulletManipulator:
         qpos = pybullet.calculateInverseKinematics(
             self.info.robot_id, self.info.ee_link_id,
             targetPosition=ee_pos.tolist(), targetOrientation=ee_quat,
-            lowerLimits=self.info.joint_minpos.tolist(),
-            upperLimits=self.info.joint_maxpos.tolist(),
-            jointRanges=(self.info.joint_maxpos-self.info.joint_minpos).tolist(),
-            restPoses=self.rest_qpos.tolist(),
-            maxNumIterations=500, residualThreshold=0.005)
-            # solver=pybullet.IK_SDLS,
-            # maxNumIterations=1000, residualThreshold=0.0001)
-            # Note that large num iterations could slow down the compute enough
-            # s.t. visualizer shows differences in rate of following traj.
+            **self.default_ik_args)
         qpos = np.array(qpos)
-        if debug:
-            print('_ee_pos_to_qpos_raw() qpos from IK', qpos)
         for jid in self.info.finger_jids_lst:
             qpos[jid] = np.clip(  # finger info (not set by IK)
                 fing_dist/2.0, self.info.joint_minpos[jid],
@@ -308,12 +313,7 @@ class BulletManipulator:
                 left_qpos = np.array(pybullet.calculateInverseKinematics(
                     self.info.robot_id, self.info.left_ee_link_id,
                     left_ee_pos.tolist(), left_ee_quat,
-                    lowerLimits=self.info.joint_minpos.tolist(),
-                    upperLimits=self.info.joint_maxpos.tolist(),
-                    jointRanges=(self.info.joint_maxpos -
-                                 self.info.joint_minpos).tolist(),
-                    restPoses=self.rest_qpos.tolist(),
-                    maxNumIterations=500, residualThreshold=0.005))
+                    **self.default_ik_args))
             else:
                 left_qpos = self.get_qpos()
             qpos[self.info.left_arm_jids_lst] = \
@@ -323,7 +323,7 @@ class BulletManipulator:
                 left_fing_dist/2.0, self.info.joint_minpos[jid],
                 self.info.joint_maxpos[jid])
         # IK will find solutions outside of joint limits, so clip.
-        # qpos = np.clip(qpos, self.info.joint_minpos, self.info.joint_maxpos)
+        qpos = self.clip_qpos(qpos)
         return qpos
 
     def move_to_qpos(self, tgt_qpos, mode, kp=None, kd=None):
@@ -373,8 +373,7 @@ class BulletManipulator:
                         pybullet.PD_CONTROL])
         kps = kp if type(kp)==list else [kp]*self.info.dof
         kds = kd if type(kd)==list else [kd]*self.info.dof
-        rbt_tgt_qpos = np.clip(
-            tgt_qpos, self.info.joint_minpos, self.info.joint_maxpos)
+        rbt_tgt_qpos = self.clip_qpos(tgt_qpos)
         rbt_tgt_qvel = np.clip(
             tgt_qvel, -1.0*self.info.joint_maxvel, self.info.joint_maxvel)
         # PD example: https://github.com/bulletphysics/bullet3/issues/2152
@@ -412,7 +411,7 @@ class BulletManipulator:
                 positionGains=kps,  # e.g. 100.0
                 velocityGains=kds,  # e.g. 10.0
                 forces=self.info.joint_maxforce.tolist())  # see docs page 22
-        # self.obey_joint_limits()
+        self.obey_joint_limits()
 
     def move_to_ee_pos(self, tgt_ee_pos, tgt_ee_quat=None, fing_dist=0.0,
                        left_ee_pos=None, left_ee_quat=None, left_fing_dist=0.0,
@@ -511,25 +510,34 @@ class BulletManipulator:
             self.info.robot_id, qpos.tolist(), qvel.tolist(), des_acc.tolist())
         return np.array(torques)
 
+    def clip_qpos(self, qpos):
+        if ((qpos>=self.info.joint_minpos).all() and
+            (qpos<=self.info.joint_maxpos).all()):
+            return qpos
+        clipped_qpos = np.copy(qpos)
+        for jid in range(self.info.dof):
+            jpos = qpos[jid]
+            if jpos < self.info.joint_minpos[jid]:
+                jpos = self.info.joint_minpos[jid]
+            if jpos > self.info.joint_maxpos[jid]:
+                jpos = self.info.joint_maxpos[jid]
+            clipped_qpos[jid] = jpos
+        return clipped_qpos
+
     def obey_joint_limits(self):
         qpos = self.get_qpos()
-        for jid in range(self.info.dof):
-            jpos = qpos[jid]; jvel = 0; ok = True
-            if jpos < self.info.joint_minpos[jid]:
-                jpos = self.info.joint_minpos[jid]; ok = False
-            if jpos > self.info.joint_maxpos[jid]:
-                jpos = self.info.joint_maxpos[jid]; ok = False
-            if not ok:
-                if self.debug:
-                    print('fixing joint', self.info.joint_ids[jid],
-                          'from pos', qpos[jid], 'to', jpos)
-                self.sim.resetJointState(
-                    bodyUniqueId=self.info.robot_id,
-                    jointIndex=self.info.joint_ids[jid],
-                    targetValue=jpos, targetVelocity=jvel)
-        qpos = self.get_qpos()
-        assert((qpos>=self.info.joint_minpos).all())
-        assert((qpos<=self.info.joint_maxpos).all())
+        clipped_qpos = self.clip_qpos(qpos)
+        neq_ids = np.nonzero(qpos - clipped_qpos)[0]
+        for jid in neq_ids:
+            if self.debug:
+                print('fix jid', jid, qpos[jid], '->', clipped_qpos[jid])
+            self.sim.resetJointState(
+                bodyUniqueId=self.info.robot_id,
+                jointIndex=self.info.joint_ids[jid],
+                targetValue=clipped_qpos[jid], targetVelocity=0)
+        # qpos = self.get_qpos()
+        # assert((qpos>=self.info.joint_minpos).all())
+        # assert((qpos<=self.info.joint_maxpos).all())
 
     def ee_pos_to_qpos(self, ee_pos, ee_ori, fing_dist, left_ee_pos=None,
                        left_ee_ori=None, left_fing_dist=0.0, debug=False):

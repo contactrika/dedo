@@ -16,8 +16,6 @@ loading custom objects and textures, adjusting material properties.
 
 For a brief overview, please see our intro [video](https://www.youtube.com/watch?v=5eA8z80c9Zc). For more details please see the [paper](https://openreview.net/forum?id=WcY35wjmCBA).
 
-**Note: updates for this repo are in progress (until the presentation at NeurIPS2021 in mid-December).**
-
 ```
 @inproceedings{dedo2021,
   title={Dynamic Environments with Deformable Objects},
@@ -51,10 +49,11 @@ a direct install without using virtual environments is ok as well.
 ```
 git clone https://github.com/contactrika/dedo
 cd dedo
-pip install numpy  # important: Nessasary for compiling numpy-enabled PyBullet
+pip install numpy  # important: for numpy-enabled PyBullet
 pip install -e .
 ```
-Python3.7 is recommended as we have encountered that on some OS + CPU combo, PyBullet could not be compiled with Numpy enabled in Pip Python 3.8.
+Python3.7 is recommended, since PyBullet compilation can have difficulties with Python 3.8 in some cases.
+
 To enable recording/logging videos install ffmpeg:
 ```
 sudo apt-get install ffmpeg
