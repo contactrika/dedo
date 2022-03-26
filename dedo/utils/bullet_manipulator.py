@@ -413,20 +413,20 @@ class BulletManipulator:
                 forces=self.info.joint_maxforce.tolist())  # see docs page 22
         self.obey_joint_limits()
 
-    def move_to_ee_pos(self, tgt_ee_pos, tgt_ee_quat=None, fing_dist=0.0,
+    def move_to_ee_pos(self, tgt_ee_pos, tgt_ee_ori=None, fing_dist=0.0,
                        left_ee_pos=None, left_ee_quat=None, left_fing_dist=0.0,
                        mode=pybullet.POSITION_CONTROL, kp=None, kd=None,
                        debug=True):
         qpos = None; num_tries = 10
-        if tgt_ee_quat is None:
-            _, tgt_ee_quat, _, _ = self.get_ee_pos_ori_vel()
+        if tgt_ee_ori is None:
+            _, tgt_ee_ori, _, _ = self.get_ee_pos_ori_vel()
         for i in range(num_tries):
             qpos = self.ee_pos_to_qpos(
-                tgt_ee_pos, tgt_ee_quat, fing_dist,
+                tgt_ee_pos, tgt_ee_ori, fing_dist,
                 left_ee_pos, left_ee_quat, left_fing_dist)
             if qpos is not None: break  # ok solution found
         if qpos is None:
-            if debug: print('ee pos not good:', tgt_ee_pos, tgt_ee_quat)
+            if debug: print('ee pos not good:', tgt_ee_pos, tgt_ee_ori)
         else:
             self.move_to_qpos(qpos, mode=mode, kp=kp, kd=kd)
 
@@ -446,35 +446,6 @@ class BulletManipulator:
         else:
             assert(False)  # unknown control mode
         return low, high
-
-    def apply_action(self, action):
-        if self.control_mode == 'ee_position':
-            des_ee_pos = action[0:3]
-            des_ee_quat = action[3:7]
-            assert(np.isclose(np.linalg.norm(des_ee_quat), 1.0))  # invalid quat
-            des_fing_dist = action[7]
-            des_left_ee_pos = None; des_left_ee_quat = None
-            des_left_fing_dist = None
-            if action.shape[0] > 8:
-                ofst = 8
-                des_left_ee_pos = action[ofst:ofst+3]
-                des_left_ee_quat = action[ofst+3:ofst+3+7]
-                des_left_fing_dist = action[ofst+7]
-            self.move_to_ee_pos(
-                des_ee_pos, des_ee_quat, fing_dist=des_fing_dist,
-                left_ee_pos=des_left_ee_pos, left_ee_quat=des_left_ee_quat,
-                left_fing_dist=des_left_fing_dist,
-                mode=pybullet.POSITION_CONTROL)
-        elif self.control_mode == 'position':
-            self.move_to_qpos(action, mode=pybullet.POSITION_CONTROL,
-                              kp=self.kp, kd=self.kd)
-        elif self.control_mode == 'velocity':
-            self.move_with_qvel(action, mode=pybullet.VELOCITY_CONTROL,
-                                kp=self.kp, kd=self.kd)
-        elif self.control_mode == 'torque':
-            self.apply_joint_torque(action, compensate_gravity=True)
-        else:
-            assert(False)  # unknown control mode
 
     def apply_joint_torque(self, torque, compensate_gravity=True):
         if np.allclose(torque, 0): return  # nothing to do

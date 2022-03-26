@@ -117,7 +117,8 @@ def attach_anchor(sim, anchor_id, anchor_vertices, deform_id,
 def release_anchor(sim, anchor_id):
     sim.removeConstraint(anchor_id)
     sim.changeVisualShape(anchor_id, -1, rgbaColor=ANCHOR_RGBA_INACTIVE)
-    pass
+
+
 def change_anchor_color_gray(sim, anchor_id):
     sim.changeVisualShape(anchor_id, -1, rgbaColor=ANCHOR_RGBA_INACTIVE)
 
