@@ -51,13 +51,11 @@ class DeformRobotEnv(DeformEnv):
         data_path = os.path.join(os.path.split(__file__)[0], '..', 'data')
         sim.setAdditionalSearchPath(data_path)
         robot_info = ROBOT_INFO.get(f'franka{self.num_anchors:d}', None)
+        assert(robot_info is not None)  # make sure robot_info is ok
         robot_path = os.path.join(data_path, 'robots',
                                   robot_info['file_name'])
         if debug:
             print('Loading robot from', robot_path)
-        if robot_info is None:
-            print('This robot is not yet supported:', self.args.robot)
-            exit(1)
         self.robot = BulletManipulator(
             sim, robot_path, control_mode='velocity',
             ee_joint_name=robot_info['ee_joint_name'],

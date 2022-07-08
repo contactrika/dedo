@@ -36,8 +36,6 @@ def init_train(algo, args, tags=None):
     if args.logdir is not None:
         tstamp = datetime.strftime(datetime.today(), '%y%m%d_%H%M%S')
         lst = [algo, tstamp, args.env]
-        if args.robot != 'anchor':
-            lst.append(args.robot)
         subdir = '_'.join(lst)
         logdir = os.path.join(os.path.expanduser(args.logdir), subdir)
         if args.use_wandb:
