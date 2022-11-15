@@ -13,6 +13,7 @@ add further comments, unify the style, improve efficiency and add unittests.
 
 """
 import matplotlib.pyplot as plt
+import os
 from matplotlib import interactive
 
 interactive(True)
@@ -21,7 +22,7 @@ import numpy as np
 import gym
 
 from dedo.utils.args import get_args
-
+from dedo.utils.pcd_utils import visualize_data, render_video
 
 def policy_simple(obs, act, task, step):
     """A very simple default policy."""
@@ -56,20 +57,39 @@ def play(env, num_episodes, args):
         obs = env.reset()
         step = 0
         # input('Reset done; press enter to start episode')
+        if args.pcd:
+            pcd_fig = plt.figure(figsize=(10,5))
         while True:
             assert (not isinstance(env.action_space, gym.spaces.Discrete))
             print('step', step)
             act = env.action_space.sample()  # in [-1,1]
             noise_act = 0.1 * act
             act = policy_simple(obs, noise_act, args.task, step)
+
             next_obs, rwd, done, info = env.step(act)
+
+            if args.pcd:
+                # Grab additional obs from the environment
+                pcd_obs = env.get_pcd_obs()
+                img, pcd, ids = pcd_obs.values()
+                if args.viz and (args.cam_resolution > 0):
+                    os.makedirs('renders/pcd', exist_ok=True)
+                    save_path = f'renders/pcd/{step:06d}.png'
+                    visualize_data(img, pcd, ids, fig=pcd_fig, save_path=save_path)
+
             if args.viz and (args.cam_resolution > 0) and step % 10 == 0:
-                plt.imshow(next_obs)
+                if not args.pcd: # Other visual for pcd mode
+                    plt.imshow(next_obs)
+
             if done:
                 break
             obs = next_obs
             step += 1
         input('Episode ended; press enter to go on')
+        
+        if args.pcd:
+            render_video('renders/pcd', 'renders/pcd_test.mp4')            
+
         env.close()
 
 
