@@ -237,7 +237,7 @@ python -m dedo.demo --env=HangBag-v1 --viz --debug --pcd --logdir rendered
 ```
 ![images/gifs/HangGarment-v1_pcd.gif](images/gifs/HangGarment-v1_pcd.gif)
 
-Example usage, visual demo
+Example usage, preset trajectory demo
 ```bash
 python -m dedo.demo_preset --env=HangGarment-v1 --viz --debug --pcd --logdir rendered
 python -m dedo.demo_preset --env=HangBag-v1 --viz --debug --pcd --logdir rendered
@@ -247,7 +247,7 @@ python -m dedo.demo_preset --env=HangBag-v1 --viz --debug --pcd --logdir rendere
 
 
 Known issues:
-- Where is the floor?
+- PyBullet can only segment the deformable object if it has ID=0. We assume this to be true, and load the deformable object first. However, this seems to cause the floor to disappear in the visual render. 
 
 
 ## RL Examples
