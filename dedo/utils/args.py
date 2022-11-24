@@ -14,7 +14,7 @@ import argparse
 import sys
 from .task_info import TASK_INFO
 import re
-
+import os
 
 def get_args_parser():
     parser = argparse.ArgumentParser(description='args', add_help=True)
@@ -110,6 +110,11 @@ def get_args_parser():
                              'deformable obj and floor from the texture folder')
     #
     # Camera args.
+    parser.add_argument('--pcd', action='store_true',
+                        help='Extracts depth image from sim and creates a PCD')
+    parser.add_argument('--cam_config_path', type=str,
+                        default="dedo/utils/cam_configs/camview_0.json",
+                        help="Camera configuration file")
     parser.add_argument('--cam_resolution', type=int, default=200,
                         help='RGB camera resolution in pixels (both with and '
                              'height). Use none to get only anchor poses.')
@@ -160,6 +165,10 @@ def args_postprocess(args):
         if args.version > len(TASK_INFO[args.task]):
             print('env version too high')
             exit(1)
+    # Handling pcd rendering 
+    if args.pcd:
+        assert args.logdir is not None, "Need to specify a logdir for pcd."
+        os.makedirs(args.logdir, exist_ok=True)
 
 
 def get_args():

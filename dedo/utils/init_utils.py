@@ -12,6 +12,7 @@ add further comments, unify the style, improve efficiency and add unittests.
 from pathlib import Path  # automatically converts forward slashes if needed
 
 import numpy as np
+import os
 import pybullet
 import pybullet_data
 
@@ -125,7 +126,7 @@ def load_deform_object(sim, obj_file_name, texture_file_name,
     return deform_id
 
 
-def reset_bullet(args, sim, plane_texture=None, debug=False):
+def reset_bullet_legacy(args, sim, plane_texture=None, debug=False):
     """Reset/initialize pybullet simulation."""
     dist, pitch, yaw, pos_x, pos_y, pos_z = args.cam_viewmat
     cam_args = {
@@ -159,4 +160,54 @@ def reset_bullet(args, sim, plane_texture=None, debug=False):
         sim.changeVisualShape(
             floor_id, -1, rgbaColor=[1,1,1,1], textureUniqueId=texture_id, )
     assert(floor_id == 0)  # camera assumes floor/ground is loaded first
+    return sim
+
+
+def reset_bullet(args, sim, plane_texture=None, debug=False):
+    """Reset/initialize pybullet simulation."""
+    dist, pitch, yaw, pos_x, pos_y, pos_z = args.cam_viewmat
+    cam_args = {
+            'cameraDistance': dist,
+            'cameraPitch': pitch,
+            'cameraYaw': yaw,
+            'cameraTargetPosition': np.array([pos_x, pos_y, pos_z])
+    }
+    if args.viz:
+        pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_GUI, False)
+        sim.resetDebugVisualizerCamera(**cam_args)
+        if debug:
+            res = sim.getDebugVisualizerCamera()
+            print('Camera info for', cam_args)
+            print('viewMatrix', res[2])
+            print('projectionMatrix', res[3])
+    sim.resetSimulation(pybullet.RESET_USE_DEFORMABLE_WORLD)  # FEM deform sim
+    sim.setGravity(0, 0, args.sim_gravity)
+    sim.setTimeStep(1.0/args.sim_freq)
+    sim.setAdditionalSearchPath(pybullet_data.getDataPath())
+    # sim.setRealTimeSimulation(1)
+    return
+
+
+def load_deformable(args, sim, deform_obj, data_path='deps/dedo/dedo/data/', debug=False):
+    # Load deformable object.
+    texture_path = args.deform_texture_file
+    deform_id = load_deform_object(
+        sim, os.path.join(data_path, deform_obj), os.path.join(data_path, texture_path), args.deform_scale,
+        args.deform_init_pos, args.deform_init_ori,
+        args.deform_bending_stiffness, args.deform_damping_stiffness,
+        args.deform_elastic_stiffness, args.deform_friction_coeff,
+        not args.disable_self_collision, debug)
+
+    return deform_id
+
+
+def load_floor(sim, plane_texture=None, debug=False):
+    sim.setAdditionalSearchPath(pybullet_data.getDataPath())
+    floor_id = sim.loadURDF('plane.urdf')
+    if plane_texture is not None:
+        if debug: print('texture file', plane_texture)
+        texture_id = sim.loadTexture(plane_texture)
+        sim.changeVisualShape(
+            floor_id, -1, rgbaColor=[1,1,1,1], textureUniqueId=texture_id, )
+    # assert(floor_id == 1)  # camera assumes floor/ground is loaded second, AFTER THE DEFORMABLE
     return sim

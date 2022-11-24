@@ -222,6 +222,33 @@ python -m dedo.demo_preset --env=FoodPacking-v1 --viz
 
 ![images/gifs/FoodPacking-v1.gif](https://github.com/yonkshi/dedo_assets/blob/main/assets/gifs/FoodPacking-v1.gif?raw=true)
 
+## Rendering Point Cloud Observations
+DEDO now supports pointcloud observations. Use the flag `--pcd` to set the
+environment observations to return point clouds. They are segmented based on the
+active rigid and deformable object. 
+
+Note: point cloud observations have has not bee integrated into `demo_preset` yet.
+
+Example usage, visual demo
+```bash
+python -m dedo.demo --env=HangGarment-v1 --viz --debug --pcd --logdir rendered
+python -m dedo.demo --env=HangBag-v1 --viz --debug --pcd --logdir rendered
+
+```
+![images/gifs/HangGarment-v1_pcd.gif](images/gifs/HangGarment-v1_pcd.gif)
+
+Example usage, visual demo
+```bash
+python -m dedo.demo_preset --env=HangGarment-v1 --viz --debug --pcd --logdir rendered
+python -m dedo.demo_preset --env=HangBag-v1 --viz --debug --pcd --logdir rendered
+
+```
+![images/gifs/HangGarment-v1_pcd.gif](images/gifs/HangGarment-v1_preset_pcd.gif)
+
+
+Known issues:
+- Where is the floor?
+
 
 ## RL Examples
 

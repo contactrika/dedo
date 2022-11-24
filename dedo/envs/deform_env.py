@@ -22,7 +22,8 @@ from ..utils.anchor_utils import (
     attach_anchor, command_anchor_velocity, create_anchor, create_anchor_geom,
     pin_fixed, change_anchor_color_gray)
 from ..utils.init_utils import (
-    load_deform_object, load_rigid_object, reset_bullet, get_preset_properties)
+    load_deform_object, load_rigid_object, reset_bullet, load_deformable, 
+    load_floor, get_preset_properties)
 from ..utils.mesh_utils import get_mesh_data
 from ..utils.task_info import (
     DEFAULT_CAM_PROJECTION, DEFORM_INFO, SCENE_INFO, TASK_INFO,
@@ -30,7 +31,7 @@ from ..utils.task_info import (
 from ..utils.procedural_utils import (
     gen_procedural_hang_cloth, gen_procedural_button_cloth)
 from ..utils.args import preset_override_util
-
+from ..utils.process_camera import ProcessCamera, cameraConfig
 
 
 class DeformEnv(gym.Env):
@@ -50,11 +51,18 @@ class DeformEnv(gym.Env):
             connection_mode=pybullet.GUI if args.viz else pybullet.DIRECT)
         if self.args.viz:  # no rendering during load
             self.sim.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 0)
-        reset_bullet(args, self.sim, debug=args.debug)
+
+        reset_bullet(self.args, self.sim, debug=args.debug)
+
+        # reset_bullet(args, self.sim, debug=args.debug)
         self.food_packing = self.args.env.startswith('FoodPacking')
         self.num_anchors = 1 if self.food_packing else 2
         res = self.load_objects(self.sim, self.args, debug=True)
         self.rigid_ids, self.deform_id, self.deform_obj, self.goal_pos = res
+
+        # Step 3: Load floor
+        load_floor(self.sim, debug=args.debug)
+
         self.max_episode_len = self.args.max_episode_len
         # Define sizes of observation and action spaces.
         self.gripper_lims = np.tile(np.concatenate(
@@ -78,6 +86,16 @@ class DeformEnv(gym.Env):
         if self.args.debug:
             print('Created DeformEnv with obs', self.observation_space.shape,
                   'act', self.action_space.shape)
+
+        # Point cloud observation initilization
+        self.pcd_mode = args.pcd
+        if args.pcd:
+            self.camera_config = cameraConfig.from_file(args.cam_config_path)
+            self.object_ids = res[0]
+            self.object_ids.append(res[1])
+
+            print(f"Starting object ids: {self.object_ids}")
+            print(f"Deformable ID: {res[1]}")
 
     @staticmethod
     def unscale_vel(act, unscaled):
@@ -193,20 +211,6 @@ class DeformEnv(gym.Env):
         if deform_obj in DEFORM_INFO:
             preset_override_util(args, DEFORM_INFO[deform_obj])
 
-
-        # Load rigid objects.
-        rigid_ids = []
-        for name, kwargs in SCENE_INFO[scene_name]['entities'].items():
-            rgba_color = kwargs['rgbaColor'] if 'rgbaColor' in kwargs else None
-            texture_file = None
-            if 'useTexture' in kwargs and kwargs['useTexture']:
-                texture_file = self.get_texture_path(args.rigid_texture_file)
-            id = load_rigid_object(
-                sim, os.path.join(data_path, name), kwargs['globalScaling'],
-                kwargs['basePosition'], kwargs['baseOrientation'],
-                kwargs.get('mass', 0.0), texture_file, rgba_color)
-            rigid_ids.append(id)
-
         # Load deformable object.
         texture_path = args.deform_texture_file
         # Randomize textures for deformables (except YCB food objects).
@@ -223,6 +227,19 @@ class DeformEnv(gym.Env):
             assert ('deform_fixed_anchor_vertex_ids' in DEFORM_INFO[deform_obj])
             pin_fixed(sim, deform_id,
                       DEFORM_INFO[deform_obj]['deform_fixed_anchor_vertex_ids'])
+
+        # Load rigid objects.
+        rigid_ids = []
+        for name, kwargs in SCENE_INFO[scene_name]['entities'].items():
+            rgba_color = kwargs['rgbaColor'] if 'rgbaColor' in kwargs else None
+            texture_file = None
+            if 'useTexture' in kwargs and kwargs['useTexture']:
+                texture_file = self.get_texture_path(args.rigid_texture_file)
+            id = load_rigid_object(
+                sim, os.path.join(data_path, name), kwargs['globalScaling'],
+                kwargs['basePosition'], kwargs['baseOrientation'],
+                kwargs.get('mass', 0.0), texture_file, rgba_color)
+            rigid_ids.append(id)
 
         # Mark the goal and store intermediate info for reward computations.
         goal_poses = SCENE_INFO[scene_name]['goal_pos']
@@ -385,6 +402,39 @@ class DeformEnv(gym.Env):
                 info['final_obs'].append(next_obs)
         return info
 
+    def get_pcd_obs(self):
+        """ Grab Pointcloud observations based from the camera config. """
+
+        # Grab pcd observation from the camera_config camera
+        segmented_pcd, segmented_ids, img = ProcessCamera.render(
+            self.sim, self.camera_config, width=self.args.cam_resolution,
+            height=self.args.cam_resolution, object_ids=self.object_ids,
+            return_rgb=True, retain_unknowns=True,
+            debug=False)
+
+        # Process the RGB image
+        img = img[...,:-1] # drop the alpha
+        if self.args.uint8_pixels:
+            img = img.astype(np.uint8)  # already in [0,255]
+        else:
+            img = img.astype(np.float32)/255.0  # to [0,1]
+            img = np.clip(img, 0, 1)
+        if self.args.flat_obs:
+            img = img.reshape(-1)
+        atol = 0.0001
+        if ((img < self.observation_space.low-atol).any() or
+            (img > self.observation_space.high+atol).any()):
+            print('img', img.shape, f'{np.min(img):e}, n{np.max(img):e}')
+            assert self.observation_space.contains(img)
+
+        # Package and return
+        obs = {'img': img,
+               'pcd': segmented_pcd,
+               'ids': segmented_ids
+              }
+
+        return obs 
+    
     def get_obs(self):
         grip_obs = self.get_grip_obs()
         done = False
