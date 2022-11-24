@@ -227,8 +227,6 @@ DEDO now supports pointcloud observations. Use the flag `--pcd` to set the
 environment observations to return point clouds. They are segmented based on the
 active rigid and deformable object. 
 
-Note: point cloud observations have has not bee integrated into `demo_preset` yet.
-
 Example usage, visual demo
 ```bash
 python -m dedo.demo --env=HangGarment-v1 --viz --debug --pcd --logdir rendered
