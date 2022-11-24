@@ -16,6 +16,7 @@ import os
 import time
 import gym
 import scipy.linalg
+import matplotlib.pyplot as plt
 from matplotlib import interactive
 
 interactive(True)
@@ -24,6 +25,7 @@ import numpy as np
 from dedo.utils.args import get_args
 from dedo.utils.anchor_utils import create_anchor_geom
 from dedo.utils.preset_info import preset_traj
+from dedo.utils.pcd_utils import visualize_data, render_video
 import wandb
 import cv2
 
@@ -105,6 +107,8 @@ def play(env, num_episodes, args):
         rwds = []
         print(f'# {args.env}:')
 
+        if args.pcd:
+            pcd_fig = plt.figure(figsize=(10,5))
         while True:
             assert (not isinstance(env.action_space, gym.spaces.Discrete))
 
@@ -121,6 +125,18 @@ def play(env, num_episodes, args):
                                  height=args.cam_resolution)
                 if vidwriter is not None:
                     vidwriter.write(img[..., ::-1])
+
+                if args.pcd:
+                    # Grab additional obs from the environment
+                    pcd_obs = env.get_pcd_obs()
+                    img, pcd, ids = pcd_obs.values()
+
+                    os.makedirs(f"{args.logdir}/pcd", exist_ok=True) # tmpfolder
+                    save_path = f'{args.logdir}/pcd/{step:06d}.png'
+                    visualize_data(img, pcd, ids, fig=pcd_fig, 
+                                        save_path=save_path)
+
+
             # gif_frames.append(obs)
             if done:
                 break
@@ -138,6 +154,10 @@ def play(env, num_episodes, args):
                 wandb.log({'rollout/ep_rew_mean': mean_rwd, 'Step': i}, step=i)
         if vidwriter is not None:
             vidwriter.release()
+
+        if args.pcd:
+            render_video(f'{args.logdir}/pcd', 
+                                f'{args.logdir}/pcd_preset_test.mp4')            
 
 
 def viz_waypoints(sim, waypoints, rgba):

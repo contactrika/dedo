@@ -229,13 +229,22 @@ active rigid and deformable object.
 
 Note: point cloud observations have has not bee integrated into `demo_preset` yet.
 
-Example usage
+Example usage, visual demo
 ```bash
-python -m dedo.demo --env=HangGarment-v1 --viz --debug --pcd
-python -m dedo.demo --env=HangBag-v1 --viz --debug --pcd
+python -m dedo.demo --env=HangGarment-v1 --viz --debug --pcd --logdir rendered
+python -m dedo.demo --env=HangBag-v1 --viz --debug --pcd --logdir rendered
 
 ```
 ![images/gifs/HangGarment-v1_pcd.gif](images/gifs/HangGarment-v1_pcd.gif)
+
+Example usage, visual demo
+```bash
+python -m dedo.demo_preset --env=HangGarment-v1 --viz --debug --pcd --logdir rendered
+python -m dedo.demo_preset --env=HangBag-v1 --viz --debug --pcd --logdir rendered
+
+```
+![images/gifs/HangGarment-v1_pcd.gif](images/gifs/HangGarment-v1_preset_pcd.gif)
+
 
 Known issues:
 - Where is the floor?

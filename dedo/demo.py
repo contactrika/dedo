@@ -72,9 +72,9 @@ def play(env, num_episodes, args):
                 # Grab additional obs from the environment
                 pcd_obs = env.get_pcd_obs()
                 img, pcd, ids = pcd_obs.values()
-                if args.viz and (args.cam_resolution > 0):
-                    os.makedirs('renders/pcd', exist_ok=True)
-                    save_path = f'renders/pcd/{step:06d}.png'
+                if args.cam_resolution > 0:
+                    os.makedirs(f"{args.logdir}/pcd", exist_ok=True) # tmpfolder
+                    save_path = f'{args.logdir}/pcd/{step:06d}.png'
                     visualize_data(img, pcd, ids, fig=pcd_fig, save_path=save_path)
 
             if args.viz and (args.cam_resolution > 0) and step % 10 == 0:
@@ -88,7 +88,7 @@ def play(env, num_episodes, args):
         input('Episode ended; press enter to go on')
         
         if args.pcd:
-            render_video('renders/pcd', 'renders/pcd_test.mp4')            
+            render_video(f'{args.logdir}/pcd', f'{args.logdir}/pcd_test.mp4')            
 
         env.close()
 
