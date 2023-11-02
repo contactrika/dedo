@@ -866,14 +866,13 @@ DEFORM_INFO = {
         'deform_friction_coeff': 0.5,
         'cam_viewmat': [10.6, -16.4, 269, -0.16, 1.2, 8.2],
         'deform_anchor_vertices': [
-            [310],
-            [258],
+            [6],
+            [326],
 
         ],
         'deform_true_loop_vertices': [
             [0, 3, 4, 5, 6, 7, 9, 13, 14, 17, 19, 21, 249, 305, 306, 307, 308,
-             309, 310, 312, 314, 317, 319, 321, 323,
-             325, 326, 533],
+             309, 310, 312, 314, 317, 319, 321, 323, 325, 326, 533],
         ],
         'deform_texture_file': 'textures/deform/pd_gold.jpg',
         'plane_texture_file': 'textures/plane/black_tile.jpg',

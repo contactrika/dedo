@@ -13,6 +13,7 @@ add further comments, unify the style, improve efficiency and add unittests.
 import os
 import time
 
+from matplotlib import cm  # for colors
 import numpy as np
 import gym
 import pybullet
@@ -285,8 +286,9 @@ class DeformEnv(gym.Env):
             self.goal_pos = np.vstack((self.goal_pos, self.goal_pos))
 
         self.sim.stepSimulation()  # step once to get initial state
+        debug_mrks = None
         if self.args.debug and self.args.viz:
-           self.debug_viz_cent_loop()
+           debug_mrks = self.debug_viz_true_loop()
 
         # Setup dynamic anchors.
         if not self.food_packing:
@@ -297,6 +299,12 @@ class DeformEnv(gym.Env):
             time.sleep(0.1)  # wait for debug visualizer to catch up
             self.sim.stepSimulation()  # step once to get initial state
             self.sim.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING, 1)
+            if debug_mrks is not None:
+                input('Visualized true loops; press ENTER to continue')
+                for mrk_id in debug_mrks:
+                    # removeBody doesn't seem to work, so just make invisible
+                    self.sim.changeVisualShape(mrk_id, -1,
+                                               rgbaColor=[0, 0, 0, 0])
 
         obs, _ = self.get_obs()
         return obs
@@ -315,19 +323,25 @@ class DeformEnv(gym.Env):
             self.anchors[anchor_id] = {'pos': anchor_pos,
                                        'vertices': anchor_vertices}
 
-    def debug_viz_cent_loop(self):
-        # DEBUG visualize true loop center
+    def debug_viz_true_loop(self):
+        # DEBUG visualize true loop vertices
+        # Note: this function can be very slow when the number of ground truth
+        # vertices marked is large, because it will create many visual elements.
+        # So, use it sparingly (e.g. just only at trajectory start/end).
         if not hasattr(self.args, 'deform_true_loop_vertices'):
             return
+        true_vs_lists = self.args.deform_true_loop_vertices
         _, vertex_positions = get_mesh_data(self.sim, self.deform_id)
-        v = np.array(vertex_positions)
-        for i, true_loop_vertices in enumerate(
-                self.args.deform_true_loop_vertices):
-            cent_pos = v[true_loop_vertices].mean(axis=0)
-            # alpha = 1 if i == 0 else 0.3  # solid or transparent
-            # print('cent_pos', cent_pos)
-            # create_anchor_geom(self.sim, cent_pos, mass=0.0,
-            #                     rgba=(0, 1, 0.8, alpha), use_collision=False)
+        all_vs = np.array(vertex_positions)
+        mrk_ids = []
+        clrs = [cm.tab10(i) for i in range(len(true_vs_lists))]
+        for l, loop_v_lst in enumerate(true_vs_lists):
+            curr_vs = all_vs[loop_v_lst]
+            for v in curr_vs:
+                mrk_ids.append(create_anchor_geom(
+                    self.sim, v, mass=0.0, radius=0.05,
+                    rgba=clrs[l], use_collision=False))
+        return mrk_ids
 
     def step(self, action, unscaled=False):
         if self.args.debug:

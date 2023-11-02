@@ -1,25 +1,35 @@
-##  Helper script for annotating objects in blender.
-## This file should be separated into four separate scripts inside blender.
-
-
-## Script one: Loading_file
+## Helper scripts for annotating objects in blender.
+## Copy/paste relevant sections into Belnder's python console.
+## A video with a screen recording of an example: https://youtu.be/VQ9Gdp4iGdk
 ##
+## The code below was tested with Blender 2.93.4 on OS X.
+## Note: when running older versions of Blender on OS X you might need to run
+## bender from the command line to see the console outputs.
 
+
+## Script 0: Delete all pre-loaded objects (can also do it manually).
+##
 import bpy
-import os
 bpy.ops.object.mode_set(mode='OBJECT')
-for key, scene_obj in dict(bpy.data.objects).items():
-    print(scene_obj)
+while len(dict(bpy.data.objects)) > 0:
+    scene_obj = list(dict(bpy.data.objects).values())[0]
+    print('Deleting', scene_obj)
     scene_obj.select_set(True)
     bpy.context.view_layer.objects.active = scene_obj
     bpy.ops.object.delete()
 
-datapath = '/home/pyshi/code/dedo/dedo/data/'
+
+## Script 1: Load the mesh file.
+##
+import bpy
+import os
+# Update the line below to your DEDO directory
+datapath = '~/code/dedo/dedo/data/'
 obj_name = 'cloth/tshirt_0.obj'
-filepath = os.path.join(datapath, obj_name)
+filepath = os.path.join(os.path.expanduser(datapath), obj_name)
+print('Loading mesh from', filepath)
 bpy.ops.import_scene.obj(filepath=filepath)
 print(">>>>>>",dict(bpy.data.objects))
-# edit mode in the first object
 objs = dict(bpy.data.objects)
 obj = list(objs.values())[0]
 print( '>>>>>',obj)
@@ -27,56 +37,74 @@ obj.select_set(True)
 bpy.context.view_layer.objects.active = obj
 bpy.ops.object.mode_set(mode='EDIT')
 
-## Script two: Loading_file
+##
+## Select desired section of the mesh in the visual Blender window (manually).
+## Make sure to rotate the object to ensure that you are selecting vertices on
+## the back side of the object as well. By default a new selection will discard
+## previous selections, so hold "Shift" to retain all selected points.
 ##
 
-# Note: make sure to check "preserve vertex order" when exporting to obj.
-# For OS X: run bender from command line, no other way to see console outputs.
-import sys
-import os
+## Script 2: Print ids of the selected vertices.
+##
+import bmesh
+assert(obj.mode == 'EDIT')
+bm = bmesh.from_edit_mesh(bpy.context.active_object.data)
+selected_verts = [v.index for v in bm.verts if v.select]
+print(selected_verts)
+
+
+##
+## Notes: most users won't need the scipts below.
+##
+
+## Script 3: Install scipy utilities (only need to run once).
+##
 import subprocess
 python_bin = os.path.join(sys.prefix, 'bin', 'python3.9')
-#subprocess.call([python_bin, '-m', 'ensurepip'])
-#subprocess.call([python_bin, '-m', 'pip', 'install', '--upgrade', 'pip'])
-#subprocess.call([python_bin, '-m', 'pip', 'install', 'scipy'])
+subprocess.call([python_bin, '-m', 'ensurepip'])
+subprocess.call([python_bin, '-m', 'pip', 'uninstall', 'numpy'])
+subprocess.call([python_bin, '-m', 'pip', 'install', '--upgrade', 'pip'])
+subprocess.call([python_bin, '-m', 'pip', 'install', 'numpy'])
+subprocess.call([python_bin, '-m', 'pip', 'install', 'scipy'])
 
+
+## Script 4: Compute convex hull of selected vertices and print ids.
+##
+import sys
+import os
 import bpy
 import bmesh
 import numpy as np
 from scipy import spatial
-
-v_ids = []
-v_pts = []
+v_ids, v_pts = [], []
 obj=bpy.context.object
-if obj.mode == 'EDIT':
-    bm=bmesh.from_edit_mesh(obj.data)
-    for v in bm.verts:
-        if v.select:
-            v_ids.append(v.index)
-            v_pts.append(v.co)
-    hull = spatial.ConvexHull(v_pts)
-    hull_vertices = {}
-    for s in hull.simplices:
-        for idx in s:
-            hull_vertices[v_ids[idx]] = ''
-    hull_vertices = sorted(hull_vertices.keys())
-    print('selected', len(v_ids), '/', len(bm.verts))
-    print(len(hull_vertices), 'hull vertices:', hull_vertices)
-    max_smpls = 100
-    if len(hull_vertices) > max_smpls:
-        hull_smpl = np.sort(np.random.choice(
-            hull_vertices, size= max_smpls, replace=False))
-        print('subsampled ', max_smpls , ':', repr(hull_smpl))
-else:
-    print('Object is not in edit mode.')
+assert(obj.mode == 'EDIT')
+bm=bmesh.from_edit_mesh(obj.data)
+for v in bm.verts:
+    if v.select:
+        v_ids.append(v.index)
+        v_pts.append(v.co)
+hull = spatial.ConvexHull(v_pts)
+hull_vertices = {}
+for s in hull.simplices:
+    for idx in s:
+        hull_vertices[v_ids[idx]] = ''
+hull_vertices = sorted(hull_vertices.keys())
+print('selected', len(v_ids), '/', len(bm.verts))
+print(len(hull_vertices), 'hull vertices:', hull_vertices)
+max_smpls = 100
+if len(hull_vertices) > max_smpls:
+    hull_smpl = np.sort(np.random.choice(
+        hull_vertices, size= max_smpls, replace=False))
+    print('subsampled ', max_smpls , ':', repr(hull_smpl))
 
 
-## Script three: Exporting file
+## Script 5: Exporting the mesh into a file.
+## Note: make sure to check "preserve vertex order" when exporting to obj.
 ##
-
 import bpy
 import os
-datapath = '/home/pyshi/code/dedo/dedo/data/'
+datapath = '~/code/dedo/dedo/data/'
 obj = 'cloth/tshirt_0.obj'
-filepath = os.path.join(datapath, obj)
+filepath = os.path.join(os.path.expanduser(datapath), obj)
 bpy.ops.export_scene.obj(filepath=filepath)
